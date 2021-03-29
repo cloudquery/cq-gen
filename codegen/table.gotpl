@@ -3,12 +3,12 @@
 
 {{- define "BuildColumns" }}
     {{- range $column := .}}
-       {
-       Name: {{$column.Name|quote}},
-       Type: schema.{{$column.Type|refValueType}},
-       {{- if $column.Resolver }}
-        Resolver: {{- if $column.Resolver.Type|isNil }}{{$column.Resolver.Signature}}{{- else}}{{$column.Resolver.Type|call}}{{- end}},
-       {{- end }}
+        {
+        Name: {{$column.Name|quote}},
+        Type: schema.{{$column.Type|refValueType}},
+        {{- if $column.Resolver }}
+            Resolver: {{- if $column.Resolver.Type|isNil }}{{$column.Resolver.Signature}}{{- else}}{{$column.Resolver.Type|call}}{{- end}},
+        {{- end }}
         },
     {{- end }}
 {{- end }}
@@ -16,18 +16,27 @@
 {{- define "BuildTable" }}
     Name: {{.Name|quote}},
     Resolver: {{.Resolver.Name}},
+    {{- if .MultiplexFunc }}
+        Multiplex: {{.MultiplexFunc.Type|call}},
+    {{- end }}
+    {{- if .IgnoreErrorFunc }}
+        IgnoreError: {{.IgnoreErrorFunc.Type|call}},
+    {{- end }}
+    {{- if .DeleteFilterFunc }}
+        DeleteFilter: {{.DeleteFilterFunc.Type|call}},
+    {{- end }}
     Columns: []schema.Column{
-        {{- template "BuildColumns" .Columns }}
-        },
+    {{- template "BuildColumns" .Columns }}
+    },
     {{- if $.Relations }}
-    Relations: []*schema.Table{
+        Relations: []*schema.Table{
         {{- range $relation := $.Relations}}
-        {
+            {
             {{- template "BuildTable" $relation }}
-        },
+            },
         {{- end }}
-       },
-   {{- end }}
+        },
+    {{- end }}
 {{- end }}
 
 {{- define "BuildResolver" }}
@@ -35,20 +44,19 @@
 {{- end }}
 
 {{- define "BuildTableResolvers" }}
- {{- template "BuildResolver" . }}
- {{- range $resolver := .UniqueResolvers }}
-    func {{$resolver.Name}}(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+    {{- template "BuildResolver" . }}
+    {{- range $resolver := .UniqueResolvers }}
+        func {{$resolver.Name}}(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
         {{- $resolver.Body}}
-    }
- {{- end }}
+        }
+    {{- end }}
 {{- end }}
 
 
-
 func {{.Table.TypeName|go}}() *schema.Table {
-    return &schema.Table{
-       {{- template "BuildTable" .Table }}
-    }
+return &schema.Table{
+{{- template "BuildTable" .Table }}
+}
 }
 
 // ====================================================================================================================

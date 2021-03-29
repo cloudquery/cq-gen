@@ -13,13 +13,33 @@ type Config struct {
 }
 
 type ResourceConfig struct {
-	Service           string           `hcl:"service,label"`
-	Domain            string           `hcl:"domain,label"`
-	Name              string           `hcl:"name,label"`
-	Path              string           `hcl:"path"`
+	Service string `hcl:"service,label"`
+	Domain  string `hcl:"domain,label"`
+	Name    string `hcl:"name,label"`
+	Path    string `hcl:"path,optional"`
+
 	Columns           []ColumnConfig   `hcl:"column,block"`
 	Relations         []ResourceConfig `hcl:"relation,block"`
 	UserDefinedColumn []ColumnConfig   `hcl:"userDefinedColumn,block"`
+
+	IgnoreError  *FunctionConfig `hcl:"ignoreError,block"`
+	Multiplex  *FunctionConfig `hcl:"multiplex,block"`
+	DeleteFilter *FunctionConfig `hcl:"deleteFilter,block"`
+}
+
+type FunctionConfig struct {
+	Name string `hcl:"name,label"`
+	Body string `hcl:"body,optional"`
+	Path string `hcl:"path"`
+}
+
+func (r ResourceConfig) GetRelationConfig(name string) *ResourceConfig {
+	for _, r := range r.Relations {
+		if r.Name == name {
+			return &r
+		}
+	}
+	return nil
 }
 
 func (r ResourceConfig) GetColumnConfig(name string) ColumnConfig {
@@ -35,11 +55,31 @@ func (r ResourceConfig) GetColumnConfig(name string) ColumnConfig {
 }
 
 type ColumnConfig struct {
-	Name         string           `hcl:"name,label"`
-	SkipPrefix   bool             `hcl:"skip_prefix,optional" defaults:"false"`
-	Skip         bool             `hcl:"skip,optional" defaults:"false"`
-	Type         schema.ValueType `hcl:"type,optional"`
-	ResolverPath string           `hcl:"resolver,optional"`
+	Name       string `hcl:"name,label"`
+	SkipPrefix bool   `hcl:"skip_prefix,optional" defaults:"false"`
+	Skip       bool   `hcl:"skip,optional" defaults:"false"`
+
+	// Unique resolver function to use
+	Resolver *FunctionConfig `hcl:"resolver,block"`
+	// Override column type, use carefully, validation will fail if interface{} of value isn't the same as expected ValueType
+	Type schema.ValueType `hcl:"type,optional"`
+	// Rename column name, if no resolver is passed schema.PathResolver will be used
+	Rename string `hcl:"rename,optional"`
+
+	// Configuration to pass to inner embedded columns
+	EmbeddedColumns []ColumnConfig `hcl:"embeddedColumn,block"`
+}
+
+func (c ColumnConfig) GetColumnConfig(name string) ColumnConfig {
+	for _, ec := range c.EmbeddedColumns {
+		if ec.Name == name {
+			return c
+		}
+	}
+	var ec ColumnConfig
+	defaults.Set(&ec)
+	ec.Name = name
+	return ec
 }
 
 func Parse(configPath string) (*Config, error) {

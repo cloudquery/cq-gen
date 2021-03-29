@@ -99,8 +99,6 @@ func Render(opts Options) error {
 	if err != nil {
 		return err
 	}
-	// TODO: remove this
-	fmt.Print(result.String())
 	return nil
 }
 

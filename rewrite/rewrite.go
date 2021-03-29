@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 type Rewriter struct {
@@ -65,7 +66,7 @@ func (r *Rewriter) getFile(filename string) string {
 	return r.files[filename]
 }
 
-func (r *Rewriter) GetFunction(funcName string) string {
+func (r *Rewriter) getFunction(funcName string) string {
 	for _, f := range r.pkg.Syntax {
 		for _, d := range f.Decls {
 			d, isFunc := d.(*ast.FuncDecl)
@@ -82,6 +83,16 @@ func (r *Rewriter) GetFunction(funcName string) string {
 	}
 
 	return ""
+}
+
+func (r *Rewriter) GetFunctionBody(funcName string, defaultImpl string) string {
+	implementation := r.getFunction(funcName)
+	if implementation == "" {
+		implementation = defaultImpl
+	} else {
+		implementation = strings.TrimSuffix(strings.TrimPrefix(implementation, "\n\n"), "\n\n")
+	}
+	return implementation
 }
 
 func (r *Rewriter) ExistingImports(filename string) []Import {

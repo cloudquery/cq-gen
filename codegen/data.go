@@ -1,14 +1,16 @@
 package codegen
 
 import (
+	"github.com/cloudquery/cloudquery-plugin-sdk/logging"
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/rewrite"
+	"github.com/hashicorp/go-hclog"
 )
 
 type ResourceDefinition struct {
 	Config config.ResourceConfig
-	Table *TableDefinition
+	Table  *TableDefinition
 }
 
 func buildResources(cfg *config.Config) ([]*ResourceDefinition, error) {
@@ -16,7 +18,10 @@ func buildResources(cfg *config.Config) ([]*ResourceDefinition, error) {
 	if err != nil {
 		return nil, err
 	}
-	b := builder{code.NewFinder(), rw}
+	b := builder{code.NewFinder(), rw, logging.New(&hclog.LoggerOptions{
+		Name:  "builder",
+		Level: hclog.Debug,
+	})}
 	return b.build(cfg)
 }
 
@@ -24,6 +29,7 @@ func buildResources(cfg *config.Config) ([]*ResourceDefinition, error) {
 type builder struct {
 	finder   *code.Finder
 	rewriter *rewrite.Rewriter
+	logger   hclog.Logger
 }
 
 func (b builder) build(cfg *config.Config) ([]*ResourceDefinition, error) {
@@ -40,6 +46,3 @@ func (b builder) build(cfg *config.Config) ([]*ResourceDefinition, error) {
 	}
 	return resources, nil
 }
-
-
-
