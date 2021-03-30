@@ -63,6 +63,10 @@ func (f *Finder) FindType(pkgName string, typeName string) (types.Type, error) {
 }
 
 
+func (f Finder) FindObjectFromName(name string) (types.Object, error) {
+	pkgName, typeName := PkgAndType(name)
+	return f.FindObject(pkgName, typeName)
+}
 
 func (f Finder) FindObject(pkgName string, typeName string) (types.Object, error) {
 	if pkgName == "" {

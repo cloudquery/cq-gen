@@ -46,7 +46,7 @@
 {{- define "BuildTableResolvers" }}
     {{- template "BuildResolver" . }}
     {{- range $resolver := .UniqueResolvers }}
-        func {{$resolver.Name}}(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+        func {{$resolver.Name}}{{$resolver.Arguments}} {
         {{- $resolver.Body}}
         }
     {{- end }}

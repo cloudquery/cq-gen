@@ -12,11 +12,15 @@ type TableDefinition struct {
 	Description  string
 	Columns      []ColumnDefinition
 	Relations    []*TableDefinition
-	Resolver     *FunctionDefinition
+	// schema.TableResolver definition
+	Resolver *FunctionDefinition
 	// Table extra functions
 	IgnoreErrorFunc  *FunctionDefinition
 	MultiplexFunc    *FunctionDefinition
 	DeleteFilterFunc *FunctionDefinition
+
+	// Functions that were created by configuration request
+	Functions []*FunctionDefinition
 }
 
 func (t TableDefinition) UniqueResolvers() []*FunctionDefinition {
@@ -24,6 +28,15 @@ func (t TableDefinition) UniqueResolvers() []*FunctionDefinition {
 	rd := make([]*FunctionDefinition, 0)
 	rd = append(rd, t.Resolver)
 	existingResolvers := make(map[string]bool)
+
+	for _, f := range t.Functions {
+		if _, ok := existingResolvers[f.Name]; ok {
+			continue
+		}
+		rd = append(rd, f)
+		existingResolvers[f.Name] = true
+	}
+
 	for _, relation := range t.Relations {
 		for _, ur := range relation.UniqueResolvers() {
 			if _, ok := existingResolvers[ur.Name]; ok {
@@ -56,5 +69,6 @@ type FunctionDefinition struct {
 	Name      string
 	Signature string
 	Body      string
-	Type      *types.Func
+	Type      types.Object
+	Arguments string
 }

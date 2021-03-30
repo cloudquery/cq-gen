@@ -23,7 +23,7 @@ type ResourceConfig struct {
 	UserDefinedColumn []ColumnConfig   `hcl:"userDefinedColumn,block"`
 
 	IgnoreError  *FunctionConfig `hcl:"ignoreError,block"`
-	Multiplex  *FunctionConfig `hcl:"multiplex,block"`
+	Multiplex    *FunctionConfig `hcl:"multiplex,block"`
 	DeleteFilter *FunctionConfig `hcl:"deleteFilter,block"`
 }
 
@@ -58,7 +58,8 @@ type ColumnConfig struct {
 	Name       string `hcl:"name,label"`
 	SkipPrefix bool   `hcl:"skip_prefix,optional" defaults:"false"`
 	Skip       bool   `hcl:"skip,optional" defaults:"false"`
-
+	// Whether to force a resolver creation
+	ForceResolver bool `hcl:"force_resolver,optional"`
 	// Unique resolver function to use
 	Resolver *FunctionConfig `hcl:"resolver,block"`
 	// Override column type, use carefully, validation will fail if interface{} of value isn't the same as expected ValueType

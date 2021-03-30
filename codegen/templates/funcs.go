@@ -34,12 +34,11 @@ func ref(p types.Type) string {
 	return CurrentImports.LookupType(p)
 }
 
-func Call(p *types.Func) string {
+func Call(p types.Object) string {
 
 	if p == nil {
 		return ""
 	}
-
 	path := p.Pkg().Path()
 	pkg := CurrentImports.Lookup(path)
 
@@ -48,6 +47,36 @@ func Call(p *types.Func) string {
 	}
 
 	return pkg + p.Name()
+}
+
+func ToGoPrivate(name string) string {
+	if name == "_" {
+		return "_"
+	}
+	runes := make([]rune, 0, len(name))
+
+	first := true
+	wordWalker(name, func(info *wordInfo) {
+		word := info.Word
+		switch {
+		case first:
+			if strings.ToUpper(word) == word || strings.ToLower(word) == word {
+				// ID → id, CAMEL → camel
+				word = strings.ToLower(info.Word)
+			} else {
+				// ITicket → iTicket
+				word = LcFirst(info.Word)
+			}
+			first = false
+		case info.MatchCommonInitial:
+			word = strings.ToUpper(word)
+		case !info.HasCommonInitial:
+			word = UcFirst(strings.ToLower(word))
+		}
+		runes = append(runes, []rune(word)...)
+	})
+
+	return sanitizeKeywords(string(runes))
 }
 
 func ToGo(name string) string {
@@ -140,6 +169,45 @@ func wordWalker(str string, f func(*wordInfo)) {
 	}
 }
 
+var keywords = []string{
+	"break",
+	"default",
+	"func",
+	"interface",
+	"select",
+	"case",
+	"defer",
+	"go",
+	"map",
+	"struct",
+	"chan",
+	"else",
+	"goto",
+	"package",
+	"switch",
+	"const",
+	"fallthrough",
+	"if",
+	"range",
+	"type",
+	"continue",
+	"for",
+	"import",
+	"return",
+	"var",
+	"_",
+}
+
+// sanitizeKeywords prevents collisions with go keywords for arguments to resolver functions
+func sanitizeKeywords(name string) string {
+	for _, k := range keywords {
+		if name == k {
+			return name + "Arg"
+		}
+	}
+	return name
+}
+
 func refValueType(i schema.ValueType) string {
 	switch i {
 	case schema.TypeBool:
@@ -211,4 +279,5 @@ var commonInitialisms = map[string]bool{
 	"XSRF":  true,
 	"XSS":   true,
 	"AWS":   true,
+	"S3":    true,
 }

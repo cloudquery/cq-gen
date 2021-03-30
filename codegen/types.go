@@ -3,6 +3,8 @@ package codegen
 import (
 	"github.com/cloudquery/cloudquery-plugin-sdk/plugin/schema"
 	"go/types"
+	"path"
+	"strings"
 )
 
 const TypeRelation schema.ValueType = -1
@@ -76,4 +78,16 @@ func getNamedType(typ types.Type) *types.Named {
 		return getNamedType(t.Elem())
 	}
 	panic("type ")
+}
+
+
+func typeIdentifier(t types.Type) string {
+
+	typeStr := t.String()
+	// get only the base path, removing package path
+	current := path.Base(typeStr)
+	if strings.HasPrefix(typeStr, "*") {
+		return "*" + current
+	}
+	return current
 }
