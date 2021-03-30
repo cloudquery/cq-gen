@@ -7,7 +7,7 @@
         Name: {{$column.Name|quote}},
         Type: schema.{{$column.Type|refValueType}},
         {{- if $column.Resolver }}
-            Resolver: {{- if $column.Resolver.Type|isNil }}{{$column.Resolver.Signature}}{{- else}}{{$column.Resolver.Type|call}}{{- end}},
+            Resolver: {{- if $column.Resolver.Signature }}{{$column.Resolver.Signature}}{{- else}}{{$column.Resolver.Type|call}}{{- end}},
         {{- end }}
         },
     {{- end }}
@@ -45,7 +45,7 @@
 
 {{- define "BuildTableResolvers" }}
     {{- template "BuildResolver" . }}
-    {{- range $resolver := .UniqueResolvers }}
+    {{ range $resolver := .UniqueResolvers }}
         func {{$resolver.Name}}{{$resolver.Arguments}} {
         {{- $resolver.Body}}
         }

@@ -26,7 +26,7 @@ func (b builder) buildTable(resource config.ResourceConfig) (*TableDefinition, e
 
 	table := &TableDefinition{
 		OriginalName: named.Obj().Name(),
-		TypeName:     strings.ToLower(resource.Domain + strings.Title(typeName)),
+		TypeName:     resource.Domain + strcase.ToCamel(typeName),
 		Name:         strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, strcase.ToSnake(typeName))),
 	}
 
@@ -102,8 +102,7 @@ func (b builder) buildFunctionDefinition(cfg *config.FunctionConfig) (*FunctionD
 
 	return &FunctionDefinition{
 		Name:      cfg.Name,
-		Signature: "",
-		Body:      b.rewriter.GetFunctionBody(cfg.Path, cfg.Body),
+		Body:      b.rewriter.GetFunctionBody(cfg.Name, cfg.Body),
 		Type:      ro,
 		Arguments: getFunctionParams(signature),
 	}, nil
@@ -144,15 +143,35 @@ func (b builder) buildTableRelation(parent string, cfg config.ResourceConfig) (*
 
 func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.ResourceConfig) error {
 	for _, uc := range resource.UserDefinedColumn {
-		ro, err := b.finder.FindObjectFromName(uc.Resolver.Path)
-		if err != nil {
-			return fmt.Errorf("user defined column %s requires resolver definition %w", uc.Name, err)
-		}
-		table.Columns = append(table.Columns, ColumnDefinition{
+		colDef := ColumnDefinition{
 			Name:     uc.Name,
 			Type:     uc.Type,
-			Resolver: &FunctionDefinition{Type: ro},
-		})
+		}
+		if uc.GenerateResolver {
+			if uc.Resolver != nil {
+				b.logger.Warn("overriding already defined column resolver", "column", uc.Name, "resolver", uc.Resolver.Name)
+			}
+			columnResolver, err := b.buildFunctionDefinition(&config.FunctionConfig{
+				Name: templates.ToGoPrivate(fmt.Sprintf("resolve%s%s", strings.Title(resource.Domain), strings.Title(uc.Name))),
+				Body: defaultImplementation,
+				Path: path.Join(sdkPath, "plugin/schema.ColumnResolver"),
+			})
+			if err != nil {
+				return err
+			}
+			colDef.Resolver = columnResolver
+			// Set signature of function as the generated resolver name
+			colDef.Resolver.Signature = colDef.Resolver.Name
+			table.Functions = append(table.Functions, columnResolver)
+		} else {
+			ro, err := b.finder.FindObjectFromName(uc.Resolver.Path)
+			if err != nil {
+				return fmt.Errorf("user defined column %s requires resolver definition %w", uc.Name, err)
+			}
+			colDef.Resolver = &FunctionDefinition{Type: ro}
+		}
+		table.Columns = append(table.Columns, colDef)
+
 	}
 	return nil
 }
@@ -181,7 +200,7 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 
 	fieldName := field.Name()
 	colDef := ColumnDefinition{
-		Name:     strings.ToLower(strcase.ToSnake(templates.ToGo(fieldName))),
+		Name:     templates.ToSnake(fieldName),
 		Type:     0,
 		Resolver: nil,
 	}
@@ -200,12 +219,12 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 		}
 	}
 
-	if cfg.ForceResolver {
+	if cfg.GenerateResolver {
 		if colDef.Resolver != nil {
 			b.logger.Warn("overriding already defined column resolver", "column", fieldName, "resolver", colDef.Resolver.Name)
 		}
 		columnResolver, err := b.buildFunctionDefinition(&config.FunctionConfig{
-			Name: templates.ToGoPrivate(fmt.Sprintf("resolve%s%s", resource.Domain, strings.Title(fieldName))),
+			Name: templates.ToGoPrivate(fmt.Sprintf("resolve%s%s", strings.Title(resource.Domain), strings.Title(fieldName))),
 			Body: defaultImplementation,
 			Path: path.Join(sdkPath, "plugin/schema.TableResolver"),
 		})
@@ -213,6 +232,8 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 			return err
 		}
 		colDef.Resolver = columnResolver
+		// Set signature of function as the generated resolver name
+		colDef.Resolver.Signature = colDef.Resolver.Name
 		table.Functions = append(table.Functions, columnResolver)
 	}
 	if cfg.Type != schema.TypeInvalid {

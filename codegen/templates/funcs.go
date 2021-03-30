@@ -102,6 +102,17 @@ func ToGo(name string) string {
 	return string(runes)
 }
 
+func ToSnake(name string) string {
+	runes := make([]rune, 0)
+	wordWalker(name, func(info *wordInfo) {
+		if len(runes) > 1 {
+			runes = append(runes, '_')
+		}
+		runes = append(runes, []rune(strings.ToLower(info.Word))...)
+	})
+	return string(runes)
+}
+
 type wordInfo struct {
 	Word               string
 	MatchCommonInitial bool

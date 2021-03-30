@@ -59,7 +59,7 @@ type ColumnConfig struct {
 	SkipPrefix bool   `hcl:"skip_prefix,optional" defaults:"false"`
 	Skip       bool   `hcl:"skip,optional" defaults:"false"`
 	// Whether to force a resolver creation
-	ForceResolver bool `hcl:"force_resolver,optional"`
+	GenerateResolver bool `hcl:"generate_resolver,optional"`
 	// Unique resolver function to use
 	Resolver *FunctionConfig `hcl:"resolver,block"`
 	// Override column type, use carefully, validation will fail if interface{} of value isn't the same as expected ValueType
