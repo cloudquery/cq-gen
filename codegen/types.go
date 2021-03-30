@@ -46,9 +46,12 @@ func getBasicType(typ *types.Basic) schema.ValueType {
 	switch typ.Kind() {
 	case types.Bool:
 		return schema.TypeBool
-	// TODO: more specific conversions for int
-	case types.Int, types.Int8, types.Int16, types.Int32, types.Int64, types.Uint, types.Uint8, types.Uint16, types.Uint32, types.Uint64, types.Uintptr:
+	case types.Int8, types.Uint8, types.Int16:
+		return schema.TypeSmallInt
+	case types.Uint16, types.Int32:
 		return schema.TypeInt
+	case types.Uint32, types.Int64, types.Int:
+		return schema.TypeBigInt
 	case types.Float32, types.Float64:
 		return schema.TypeFloat
 	case types.String:
