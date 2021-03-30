@@ -132,11 +132,11 @@ func (b builder) buildTableRelation(parent string, cfg config.ResourceConfig) (*
 	if err != nil {
 		return nil, err
 	}
-	rel.Columns = append(rel.Columns, ColumnDefinition{
+	rel.Columns = append([]ColumnDefinition{{
 		Name:     strings.ToLower(fmt.Sprintf("%s_id", parent)),
 		Type:     schema.TypeUUID,
-		Resolver: &FunctionDefinition{Signature: "schema.ParentIdResolver"},
-	})
+		Resolver: &FunctionDefinition{Signature: "schema.ParentIdResolver"}},
+	}, rel.Columns...)
 
 	return rel, nil
 }
@@ -144,8 +144,8 @@ func (b builder) buildTableRelation(parent string, cfg config.ResourceConfig) (*
 func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.ResourceConfig) error {
 	for _, uc := range resource.UserDefinedColumn {
 		colDef := ColumnDefinition{
-			Name:     uc.Name,
-			Type:     uc.Type,
+			Name: uc.Name,
+			Type: uc.Type,
 		}
 		if uc.GenerateResolver {
 			if uc.Resolver != nil {
