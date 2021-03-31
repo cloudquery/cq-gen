@@ -6,6 +6,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.2.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.1.2
 	github.com/aws/aws-sdk-go-v2/service/directconnect v1.1.2
+	github.com/aws/aws-sdk-go-v2/service/ecr v1.1.2
 	github.com/cloudquery/cloudquery-plugin-sdk v0.0.0
 	github.com/cloudquery/cq-provider-aws v0.2.16
 	github.com/creasty/defaults v1.5.1

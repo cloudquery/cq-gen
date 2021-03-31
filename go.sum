@@ -56,6 +56,7 @@ github.com/aws/aws-sdk-go-v2/service/directconnect v1.1.2 h1:+Gw97nOQgSpA7Pr196h
 github.com/aws/aws-sdk-go-v2/service/directconnect v1.1.2/go.mod h1:CVkAVmwMf79foskd4lS7XL1ToD5smbPZ30tasE/6EJQ=
 github.com/aws/aws-sdk-go-v2/service/ec2 v1.1.2 h1:/JoZ7YQX4WBJ+3+t1/cGBYLu+RLPb0pZESN0K11rK7c=
 github.com/aws/aws-sdk-go-v2/service/ec2 v1.1.2/go.mod h1:7oIsiYQEJ1b8Ub5uYCBIum6E2rbe1hOvFqYd2q8Rbcw=
+github.com/aws/aws-sdk-go-v2/service/ecr v1.1.2 h1:U9rzf/TLdiD+t4nWOhjdyznvKoRbr2telGDrzKzihcE=
 github.com/aws/aws-sdk-go-v2/service/ecr v1.1.2/go.mod h1:PGXr/KFEb5dOTLc239aywXcceI59izqTn10BjnJ9EBA=
 github.com/aws/aws-sdk-go-v2/service/ecs v1.1.2/go.mod h1:v0SesgZfZH39s3f/XaZH5RmT8qQ1ZSuWnYsh9eML0II=
 github.com/aws/aws-sdk-go-v2/service/efs v1.1.2/go.mod h1:usiaxuisGN8Nq83C2llX1uHGVN1J1kjtaL2iChrtn5s=

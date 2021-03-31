@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/cloudquery/cq-gen/codegen"
 	_ "github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/directconnect/types"
+	_ "github.com/aws/aws-sdk-go-v2/service/ecr/types"
+	"github.com/cloudquery/cq-gen/codegen"
 )
 
 func main() {
