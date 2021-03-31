@@ -5,7 +5,7 @@
     {{- range $column := .}}
         {
         Name: {{$column.Name|quote}},
-        Type: schema.{{$column.Type|refValueType}},
+        Type: schema.{{$column.Type.String}},
         {{- if $column.Resolver }}
             Resolver: {{- if $column.Resolver.Signature }}{{$column.Resolver.Signature}}{{- else}}{{$column.Resolver.Type|call}}{{- end}},
         {{- end }}
