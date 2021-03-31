@@ -602,3 +602,55 @@ resource "aws" "emr" "clusters" {
     }
   }
 }
+
+resource "aws" "sns" "topics" {
+  path = "github.com/aws/aws-sdk-go-v2/service/sns/types.Topic"
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+  }
+
+  postResourceResolver "resolveTopicAttributes" {
+    path = "github.com/cloudquery/cq-provider-sdk/plugin/schema.RowResolver"
+    generate = true
+  }
+
+  // Topic attributes are returned as a string we define this to handle type conversion
+  userDefinedColumn "owner" {
+    type = "string"
+  }
+  userDefinedColumn "policy" {
+    type = "Json"
+  }
+  userDefinedColumn "delivery_policy" {
+    type = "Json"
+  }
+  userDefinedColumn "display_name" {
+    type = "string"
+  }
+  userDefinedColumn "subscription_confirmed" {
+    type = "int"
+  }
+  userDefinedColumn "subscription_deleted" {
+    type = "int"
+  }
+  userDefinedColumn "subscription_pending" {
+    type = "int"
+  }
+  userDefinedColumn "effective_delivery_policy" {
+    type = "Json"
+  }
+  userDefinedColumn "fifo_topic" {
+    type = "bool"
+  }
+
+  userDefinedColumn "content_based_deduplication" {
+    type = "bool"
+  }
+}
