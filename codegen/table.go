@@ -27,7 +27,7 @@ func (b builder) buildTable(resource config.ResourceConfig) (*TableDefinition, e
 	table := &TableDefinition{
 		OriginalName: named.Obj().Name(),
 		TypeName:     resource.Domain + strcase.ToCamel(resource.Name),
-		Name:         strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, strcase.ToSnake(typeName))),
+		Name:         strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, resource.Name)),
 	}
 
 	b.logger.Debug("Building table", "table", table.Name)
@@ -43,7 +43,7 @@ func (b builder) buildTable(resource config.ResourceConfig) (*TableDefinition, e
 		return nil, err
 	}
 
-	if err := b.buildTableRelations(table, named.Obj().Name(), resource); err != nil {
+	if err := b.buildTableRelations(table, resource.Name, resource); err != nil {
 		return nil, err
 	}
 
@@ -111,12 +111,12 @@ func (b builder) buildFunctionDefinition(cfg *config.FunctionConfig) (*FunctionD
 
 func (b builder) buildTableRelations(table *TableDefinition, parent string, cfg config.ResourceConfig) error {
 
-	for _, rel := range cfg.Relations {
+	for _, relCfg := range cfg.Relations {
 		// if relation already exists i.e was built from one of the columns we skip it
-		if table.RelationExists(rel.Name) {
+		if table.RelationExists(relCfg.Name) {
 			continue
 		}
-		relTable, err := b.buildTableRelation(parent, rel)
+		relTable, err := b.buildTableRelation(parent, relCfg)
 		if err != nil {
 			return err
 		}
@@ -128,6 +128,7 @@ func (b builder) buildTableRelations(table *TableDefinition, parent string, cfg 
 func (b builder) buildTableRelation(parent string, cfg config.ResourceConfig) (*TableDefinition, error) {
 
 	b.logger.Debug("building column relation", "parent_table", parent, "table", cfg.Name)
+
 	rel, err := b.buildTable(cfg)
 	if err != nil {
 		return nil, err
@@ -247,12 +248,12 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 			relationCfg = &config.ResourceConfig{
 				Service: resource.Service,
 				Domain:  resource.Domain,
-				Name:    strcase.ToSnake(obj.Name()), // Add prefix?
+				Name:    strcase.ToSnake(fmt.Sprintf("%s_%s", resource.Name, obj.Name())),
 				Path:    fmt.Sprintf("%s.%s", obj.Pkg().Path(), obj.Name()),
 			}
 		}
 		relationCfg.Path = fmt.Sprintf("%s.%s", obj.Pkg().Path(), obj.Name())
-		rel, err := b.buildTableRelation(parent, *relationCfg)
+		rel, err := b.buildTableRelation(resource.Name, *relationCfg)
 		if err != nil {
 			return err
 		}

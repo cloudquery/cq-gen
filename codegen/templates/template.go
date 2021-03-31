@@ -3,6 +3,7 @@ package templates
 import (
 	"bytes"
 	"fmt"
+	"github.com/cloudquery/cloudquery-plugin-sdk/plugin/schema"
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/rewrite"
 	"github.com/modern-go/reflect2"
@@ -115,7 +116,7 @@ func Funcs() template.FuncMap {
 		"go":           ToGo,
 		"ref":          ref,
 		"call":         Call,
-		"refValueType": refValueType,
+		"refValueType": schema.StringFromValueType,
 	}
 }
 

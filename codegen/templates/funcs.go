@@ -1,7 +1,6 @@
 package templates
 
 import (
-	"github.com/cloudquery/cloudquery-plugin-sdk/plugin/schema"
 	"go/types"
 	"strings"
 	"unicode"
@@ -217,33 +216,6 @@ func sanitizeKeywords(name string) string {
 		}
 	}
 	return name
-}
-
-func refValueType(i schema.ValueType) string {
-	switch i {
-	case schema.TypeBool:
-		return "TypeBool"
-	case schema.TypeInt:
-		return "TypeInt"
-	case schema.TypeFloat:
-		return "TypeFloat"
-	case schema.TypeUUID:
-		return "TypeUUID"
-	case schema.TypeString:
-		return "TypeString"
-	case schema.TypeJSON:
-		return "TypeJSON"
-	case schema.TypeIntArray:
-		return "TypeIntArray"
-	case schema.TypeStringArray:
-		return "TypeStringArray"
-	case schema.TypeTimestamp:
-		return "TypeTimestamp"
-	case schema.TypeInvalid:
-		fallthrough
-	default:
-		panic("invalid type")
-	}
 }
 
 // commonInitialisms is a set of common initialisms.
