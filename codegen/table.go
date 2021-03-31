@@ -26,7 +26,7 @@ func (b builder) buildTable(resource config.ResourceConfig) (*TableDefinition, e
 
 	table := &TableDefinition{
 		OriginalName: named.Obj().Name(),
-		TypeName:     resource.Domain + resource.Name,
+		TypeName:     resource.Domain + strcase.ToCamel(resource.Name),
 		Name:         strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, strcase.ToSnake(typeName))),
 	}
 
