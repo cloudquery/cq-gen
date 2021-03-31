@@ -159,7 +159,7 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 				b.logger.Warn("overriding already defined column resolver", "column", uc.Name, "resolver", uc.Resolver.Name)
 			}
 			columnResolver, err := b.buildFunctionDefinition(&config.FunctionConfig{
-				Name: templates.ToGoPrivate(fmt.Sprintf("resolve%s%s", strings.Title(resource.Domain), strings.Title(uc.Name))),
+				Name: templates.ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain),  strings.Title(inflection.Singular(resource.Name)), strings.Title(uc.Name))),
 				Body: defaultImplementation,
 				Path: path.Join(sdkPath, "plugin/schema.ColumnResolver"),
 			})
@@ -230,7 +230,7 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 			b.logger.Warn("overriding already defined column resolver", "column", fieldName, "resolver", colDef.Resolver.Name)
 		}
 		columnResolver, err := b.buildFunctionDefinition(&config.FunctionConfig{
-			Name: templates.ToGoPrivate(fmt.Sprintf("resolve%s%s", strings.Title(resource.Domain), strings.Title(fieldName))),
+			Name: templates.ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain),  strings.Title(inflection.Singular(resource.Name)), strings.Title(fieldName))),
 			Body: defaultImplementation,
 			Path: path.Join(sdkPath, "plugin/schema.ColumnResolver"),
 		})
