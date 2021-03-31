@@ -52,6 +52,7 @@ github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.2.0 h1:+QEKobG+Bl0aB9svUqPq1R
 github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.2.0/go.mod h1:eK3GYPihA7IfpgkNozCtaTp0j9RK3PgjDbyycpVBdas=
 github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.1.2 h1:m+Otg1daHTlYqmG1YVrTDIejzYypSngTuH31TVRP310=
 github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.1.2/go.mod h1:Nlyl4XGXgdVbzvQ+pMjqB3DX7MBl0KwAk5k0KsM3W+c=
+github.com/aws/aws-sdk-go-v2/service/directconnect v1.1.2 h1:+Gw97nOQgSpA7Pr196h4mZI0uvFAFHpIikLxkSMmMlQ=
 github.com/aws/aws-sdk-go-v2/service/directconnect v1.1.2/go.mod h1:CVkAVmwMf79foskd4lS7XL1ToD5smbPZ30tasE/6EJQ=
 github.com/aws/aws-sdk-go-v2/service/ec2 v1.1.2 h1:/JoZ7YQX4WBJ+3+t1/cGBYLu+RLPb0pZESN0K11rK7c=
 github.com/aws/aws-sdk-go-v2/service/ec2 v1.1.2/go.mod h1:7oIsiYQEJ1b8Ub5uYCBIum6E2rbe1hOvFqYd2q8Rbcw=

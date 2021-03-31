@@ -1,31 +1,31 @@
 service = "aws"
 output_directory = "providers/cq-provider-aws/resources"
-////resource "aws" "s3" "buckets" {
-////  path = "github.com/aws/aws-sdk-go-v2/service/s3/types.Bucket"
-////
-////  userDefinedColumn "account_id" {
-////    type = 5
-////    resolver "ResolveAwsAccount" {
-////      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
-////    }
-////  }
-////
-////  userDefinedColumn "region" {
-////    type = 5
-////    generate_resolver=true
-////  }
-////
-////  relation "aws" "s3" "grants" {
-////    path = "github.com/aws/aws-sdk-go-v2/service/s3/types.Grant"
-////
-////    column "grantee" {
-////      skip_prefix = true
-////    }
-////  }
-////}
-////
+resource "aws" "s3" "buckets" {
+  path = "github.com/aws/aws-sdk-go-v2/service/s3/types.Bucket"
 
-//////////////////////////////////////////////////////////////////////////////
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "ResolveAwsAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+
+  userDefinedColumn "region" {
+    type = "string"
+    generate_resolver=true
+  }
+
+  relation "aws" "s3" "grants" {
+    path = "github.com/aws/aws-sdk-go-v2/service/s3/types.Grant"
+
+    column "grantee" {
+      skip_prefix = true
+    }
+  }
+}
+
+//
+////////////////////////////////////////////////////////////////////////////////
 resource "aws" "autoscaling" "launch_configurations" {
   path = "github.com/aws/aws-sdk-go-v2/service/autoscaling/types.LaunchConfiguration"
 
@@ -161,39 +161,39 @@ resource "aws" "cloudtrail" "trails" {
     }
   }
 }
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//resource "aws" "cloudwatch" "alarms" {
-//  path = "github.com/aws/aws-sdk-go-v2/service/cloudwatch/types.MetricAlarm"
-//
-//  ignoreError "IgnoreAccessDenied" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
-//  }
-//  multiplex "AwsAccountRegion" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
-//  }
-//  deleteFilter "AccountRegionFilter" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
-//  }
-//
-//  userDefinedColumn "account_id" {
-//    type = "string"
-//    resolver "resolveAWSAccount" {
-//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
-//    }
-//  }
-//  userDefinedColumn "region" {
-//    type = "string"
-//    resolver "resolveAWSRegion" {
-//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
-//    }
-//  }
-//
-//  relation "aws" "cloudwatch" "alarm_metrics" {
-//    path = "github.com/aws/aws-sdk-go-v2/service/cloudwatch/types.MetricDataQuery"
-//  }
-//}
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+resource "aws" "cloudwatch" "alarms" {
+  path = "github.com/aws/aws-sdk-go-v2/service/cloudwatch/types.MetricAlarm"
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+    }
+  }
+
+  relation "aws" "cloudwatch" "alarm_metrics" {
+    path = "github.com/aws/aws-sdk-go-v2/service/cloudwatch/types.MetricDataQuery"
+  }
+}
+////////////////////////////////////////////////////////////////////////////////
 
 resource "aws" "cloudwatchlogs" "filters" {
   path = "github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types.MetricFilter"
@@ -229,37 +229,37 @@ resource "aws" "cloudwatchlogs" "filters" {
   }
 }
 
-//resource "aws" "directconnect" "gateways" {
-//  path = "github.com/aws/aws-sdk-go-v2/service/directconnect/types.DirectConnectGateway"
-//  ignoreError "IgnoreAccessDenied" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
-//  }
-//  multiplex "AwsAccountRegion" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
-//  }
-//  deleteFilter "AccountRegionFilter" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
-//  }
-//  userDefinedColumn "account_id" {
-//    type = "string"
-//    resolver "resolveAWSAccount" {
-//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
-//    }
-//  }
-//  userDefinedColumn "region" {
-//    type = "string"
-//    resolver "resolveAWSRegion" {
-//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
-//    }
-//  }
-//}
+resource "aws" "directconnect" "gateways" {
+  path = "github.com/aws/aws-sdk-go-v2/service/directconnect/types.DirectConnectGateway"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+    }
+  }
+}
 
 
 resource "aws" "ec2" "instances" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Instance"
 
   column "tags" {
-    type = 10 // TypeJson
+    type = "json"
   }
 }
 
@@ -324,36 +324,36 @@ resource "aws" "ec2" "instances" {
 
 
 
-//resource "aws" "ec2" "customer_gateways" {
-//  path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.CustomerGateway"
-//  ignoreError "IgnoreAccessDenied" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
-//  }
-//  multiplex "AwsAccountRegion" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
-//  }
-//  deleteFilter "AccountRegionFilter" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
-//  }
-//  userDefinedColumn "account_id" {
-//    type = 5
-//    resolver "resolveAWSAccount" {
-//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
-//    }
-//  }
-//  userDefinedColumn "region" {
-//    type = 5
-//    resolver "resolveAWSRegion" {
-//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
-//    }
-//  }
-//  column "tags" {
-//    // TypeJson
-//    type = 10
-//    generate_resolver=true
-//  }
-//}
-//
+resource "aws" "ec2" "customer_gateways" {
+  path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.CustomerGateway"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+    }
+  }
+  column "tags" {
+    // TypeJson
+    type = "json"
+    generate_resolver=true
+  }
+}
+
 resource "aws" "ec2" "flow_logs" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.FlowLog"
   ignoreError "IgnoreAccessDenied" {
