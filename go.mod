@@ -11,6 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.1.2
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.1.2
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.1.2
+	github.com/aws/aws-sdk-go-v2/service/efs v1.1.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.2.1
 	github.com/cloudquery/cq-provider-aws v0.2.16
 	github.com/cloudquery/cq-provider-sdk v0.0.0-20210331140705-3b9ca9d8c4a4

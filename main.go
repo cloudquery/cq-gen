@@ -11,6 +11,7 @@ import (
 	_ "github.com/aws/aws-sdk-go-v2/service/ecr/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/s3/types"
+	_ "github.com/aws/aws-sdk-go-v2/service/efs/types"
 	"github.com/cloudquery/cq-gen/codegen"
 )
 
