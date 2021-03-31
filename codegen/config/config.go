@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/cloudquery/cq-gen/code"
 	"github.com/creasty/defaults"
 	"github.com/hashicorp/hcl/v2/hclsimple"
 )
@@ -35,6 +36,10 @@ type FunctionConfig struct {
 func (r ResourceConfig) GetRelationConfig(name string) *ResourceConfig {
 	for _, r := range r.Relations {
 		if r.Name == name {
+			return &r
+
+		}
+		if _, typeName := code.PkgAndType(r.Path); typeName == name {
 			return &r
 		}
 	}

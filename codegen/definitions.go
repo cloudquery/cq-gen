@@ -3,6 +3,7 @@ package codegen
 import (
 	"github.com/cloudquery/cloudquery-plugin-sdk/plugin/schema"
 	"go/types"
+	"strings"
 )
 
 type TableDefinition struct {
@@ -52,6 +53,9 @@ func (t TableDefinition) UniqueResolvers() []*FunctionDefinition {
 func (t TableDefinition) RelationExists(name string) bool {
 	for _, rel := range t.Relations {
 		if rel.OriginalName == name {
+			return true
+		}
+		if strings.HasSuffix(rel.Name, rel.Name) {
 			return true
 		}
 	}
