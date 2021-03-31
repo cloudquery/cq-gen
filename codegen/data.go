@@ -1,7 +1,7 @@
 package codegen
 
 import (
-	"github.com/cloudquery/cloudquery-plugin-sdk/logging"
+	"github.com/cloudquery/cq-provider-sdk/logging"
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/rewrite"

@@ -2,7 +2,7 @@ package codegen
 
 import (
 	"fmt"
-	"github.com/cloudquery/cloudquery-plugin-sdk/plugin/schema"
+	"github.com/cloudquery/cq-provider-sdk/plugin/schema"
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/codegen/templates"
 	"github.com/iancoleman/strcase"
@@ -13,7 +13,7 @@ import (
 )
 
 const defaultImplementation = `panic("not implemented")`
-const sdkPath = "github.com/cloudquery/cloudquery-plugin-sdk"
+const sdkPath = "github.com/cloudquery/cq-provider-sdk"
 
 func (b builder) buildTable(resource config.ResourceConfig) (*TableDefinition, error) {
 	ro, err := b.finder.FindTypeFromName(resource.Path)

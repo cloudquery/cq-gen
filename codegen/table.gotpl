@@ -1,4 +1,4 @@
-{{ reserveImport "github.com/cloudquery/cloudquery-plugin-sdk/plugin/schema" }}
+{{ reserveImport "github.com/cloudquery/cq-provider-sdk/plugin/schema" }}
 {{ reserveImport "context" }}
 
 {{- define "BuildColumns" }}
