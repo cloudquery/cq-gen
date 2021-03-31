@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/cloudquery/cloudquery-plugin-sdk/plugin/schema"
 	"github.com/creasty/defaults"
 	"github.com/hashicorp/hcl/v2/hclsimple"
 )
@@ -63,7 +62,7 @@ type ColumnConfig struct {
 	// Unique resolver function to use
 	Resolver *FunctionConfig `hcl:"resolver,block"`
 	// Override column type, use carefully, validation will fail if interface{} of value isn't the same as expected ValueType
-	Type schema.ValueType `hcl:"type,optional"`
+	Type string `hcl:"type,optional"`
 	// Rename column name, if no resolver is passed schema.PathResolver will be used
 	Rename string `hcl:"rename,optional"`
 

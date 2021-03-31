@@ -145,7 +145,7 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 	for _, uc := range resource.UserDefinedColumn {
 		colDef := ColumnDefinition{
 			Name: uc.Name,
-			Type: uc.Type,
+			Type: schema.ValueTypeFromString(uc.Type),
 		}
 		if uc.GenerateResolver {
 			if uc.Resolver != nil {
@@ -226,7 +226,7 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 		columnResolver, err := b.buildFunctionDefinition(&config.FunctionConfig{
 			Name: templates.ToGoPrivate(fmt.Sprintf("resolve%s%s", strings.Title(resource.Domain), strings.Title(fieldName))),
 			Body: defaultImplementation,
-			Path: path.Join(sdkPath, "plugin/schema.TableResolver"),
+			Path: path.Join(sdkPath, "plugin/schema.ColumnResolver"),
 		})
 		if err != nil {
 			return err
@@ -236,7 +236,7 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 		colDef.Resolver.Signature = colDef.Resolver.Name
 		table.Functions = append(table.Functions, columnResolver)
 	}
-	if cfg.Type != schema.TypeInvalid {
+	if schema.ValueTypeFromString(cfg.Type) != schema.TypeInvalid {
 		valueType = TypeUserDefined
 	}
 	switch valueType {
@@ -266,7 +266,7 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 
 	case TypeUserDefined:
 		b.logger.Info("Changing column to user defined", "table", table.Name, "column", field.Name(), "valueType", valueType, "userDefinedType", cfg.Type)
-		colDef.Type = cfg.Type
+		colDef.Type = schema.ValueTypeFromString(cfg.Type)
 		table.Columns = append(table.Columns, colDef)
 	default:
 		colDef.Type = valueType
