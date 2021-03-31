@@ -10,6 +10,8 @@ import (
 	_ "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/ecr/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	_ "github.com/aws/aws-sdk-go-v2/service/efs/types"
+	_ "github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/cloudquery/cq-gen/codegen"
 )
