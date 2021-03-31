@@ -7,7 +7,7 @@
         Name: {{$column.Name|quote}},
         Type: schema.{{$column.Type.String}},
         {{- if $column.Resolver }}
-            Resolver: {{- if $column.Resolver.Signature }}{{$column.Resolver.Signature}}{{- else}}{{$column.Resolver.Type|call}}{{- end}},
+            Resolver: {{$column.Resolver|call}},
         {{- end }}
         },
     {{- end }}
@@ -17,16 +17,16 @@
     Name: {{.Name|quote}},
     Resolver: {{.Resolver.Name}},
     {{- if .MultiplexFunc }}
-        Multiplex: {{.MultiplexFunc.Type|call}},
+        Multiplex: {{.MultiplexFunc|call}},
     {{- end }}
     {{- if .IgnoreErrorFunc }}
-        IgnoreError: {{.IgnoreErrorFunc.Type|call}},
+        IgnoreError: {{.IgnoreErrorFunc|call}},
     {{- end }}
     {{- if .DeleteFilterFunc }}
-        DeleteFilter: {{.DeleteFilterFunc.Type|call}},
+        DeleteFilter: {{.DeleteFilterFunc|call}},
     {{- end }}
     {{- if .PostResourceResolver }}
-        PostResourceResolver: {{.PostResourceResolver.Type|call}},
+        PostResourceResolver: {{.PostResourceResolver|call}},
     {{- end }}
     Columns: []schema.Column{
     {{- template "BuildColumns" .Columns }}

@@ -3,7 +3,6 @@ package codegen
 import (
 	"fmt"
 	"github.com/cloudquery/cq-gen/codegen/config"
-	"github.com/cloudquery/cq-gen/codegen/templates"
 	"path"
 )
 
@@ -19,7 +18,7 @@ func Generate(configPath string) error {
 	}
 
 	for _, resource := range resources {
-		err = templates.Render(templates.Options{
+		err = Render(Options{
 			Template:    "codegen/table.gotpl",
 			Filename:    path.Join(cfg.OutputDirectory, fmt.Sprintf("%s_%s.go", resource.Config.Domain, resource.Config.Name)),
 			PackageName: path.Base(cfg.OutputDirectory),

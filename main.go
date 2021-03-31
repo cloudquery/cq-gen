@@ -15,6 +15,7 @@ import (
 	_ "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/emr/types"
+	_ "github.com/aws/aws-sdk-go-v2/service/sns/types"
 	"github.com/cloudquery/cq-gen/codegen"
 )
 

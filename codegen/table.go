@@ -2,9 +2,8 @@ package codegen
 
 import (
 	"fmt"
-	"github.com/cloudquery/cq-provider-sdk/plugin/schema"
 	"github.com/cloudquery/cq-gen/codegen/config"
-	"github.com/cloudquery/cq-gen/codegen/templates"
+	"github.com/cloudquery/cq-provider-sdk/plugin/schema"
 	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
 	"go/types"
@@ -53,41 +52,42 @@ func (b builder) buildTable(resource config.ResourceConfig) (*TableDefinition, e
 func (b builder) buildTableFunctions(table *TableDefinition, typeName string, resource config.ResourceConfig) error {
 
 	var err error
-	table.Resolver, err = b.buildFunctionDefinition(&config.FunctionConfig{
-		Name: templates.ToGoPrivate(fmt.Sprintf("fetch%s%s", strings.Title(resource.Domain), strings.Title(typeName))),
+	table.Resolver, err = b.buildFunctionDefinition(table, &config.FunctionConfig{
+		Name: ToGoPrivate(fmt.Sprintf("fetch%s%s", strings.Title(resource.Domain), strings.Title(typeName))),
 		Body: defaultImplementation,
 		Path: path.Join(sdkPath, "plugin/schema.TableResolver"),
 	})
 
 	if resource.IgnoreError != nil {
-		table.IgnoreErrorFunc, err = b.buildFunctionDefinition(resource.IgnoreError)
+		table.IgnoreErrorFunc, err = b.buildFunctionDefinition(table, resource.IgnoreError)
 		if err != nil {
 			return err
 		}
 	}
 	if resource.Multiplex != nil {
-		table.MultiplexFunc, err = b.buildFunctionDefinition(resource.Multiplex)
+		table.MultiplexFunc, err = b.buildFunctionDefinition(table, resource.Multiplex)
 		if err != nil {
 			return err
 		}
 	}
 
 	if resource.DeleteFilter != nil {
-		table.DeleteFilterFunc, err = b.buildFunctionDefinition(resource.DeleteFilter)
+		table.DeleteFilterFunc, err = b.buildFunctionDefinition(table, resource.DeleteFilter)
 		if err != nil {
 			return err
 		}
 	}
 	if resource.PostResourceResolver != nil {
-		table.PostResourceResolver, err = b.buildFunctionDefinition(resource.PostResourceResolver)
+		table.PostResourceResolver, err = b.buildFunctionDefinition(table, resource.PostResourceResolver)
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
-func (b builder) buildFunctionDefinition(cfg *config.FunctionConfig) (*FunctionDefinition, error) {
+func (b builder) buildFunctionDefinition(table *TableDefinition, cfg *config.FunctionConfig) (*FunctionDefinition, error) {
 	ro, err := b.finder.FindObjectFromName(cfg.Path)
 	if err != nil {
 		return nil, err
@@ -106,13 +106,22 @@ func (b builder) buildFunctionDefinition(cfg *config.FunctionConfig) (*FunctionD
 		return nil, fmt.Errorf("%s not a function", cfg.Path)
 	}
 
-	return &FunctionDefinition{
+	body := defaultImplementation
+	if cfg.Body != "" {
+		body = cfg.Body
+	}
+	def := &FunctionDefinition{
 		Name:      cfg.Name,
-		Body:      b.rewriter.GetFunctionBody(cfg.Name, cfg.Body),
+		Body:      b.rewriter.GetFunctionBody(cfg.Name, body),
 		Type:      ro,
 		Arguments: getFunctionParams(signature),
-	}, nil
-
+	}
+	if cfg.Generate {
+		// Set signature of function as the generated resolver name
+		def.Signature = cfg.Name
+		table.Functions = append(table.Functions, def)
+	}
+	return def, nil
 }
 
 func (b builder) buildTableRelations(table *TableDefinition, parent string, cfg config.ResourceConfig) error {
@@ -150,6 +159,7 @@ func (b builder) buildTableRelation(parent string, cfg config.ResourceConfig) (*
 
 func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.ResourceConfig) error {
 	for _, uc := range resource.UserDefinedColumn {
+		b.logger.Debug("adding user defined column", "table", table.Name, "column", uc.Name)
 		colDef := ColumnDefinition{
 			Name: uc.Name,
 			Type: schema.ValueTypeFromString(uc.Type),
@@ -158,8 +168,8 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 			if uc.Resolver != nil {
 				b.logger.Warn("overriding already defined column resolver", "column", uc.Name, "resolver", uc.Resolver.Name)
 			}
-			columnResolver, err := b.buildFunctionDefinition(&config.FunctionConfig{
-				Name: templates.ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain),  strings.Title(inflection.Singular(resource.Name)), strings.Title(uc.Name))),
+			columnResolver, err := b.buildFunctionDefinition(table, &config.FunctionConfig{
+				Name: ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain),  strings.Title(inflection.Singular(resource.Name)), strings.Title(uc.Name))),
 				Body: defaultImplementation,
 				Path: path.Join(sdkPath, "plugin/schema.ColumnResolver"),
 			})
@@ -167,9 +177,6 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 				return err
 			}
 			colDef.Resolver = columnResolver
-			// Set signature of function as the generated resolver name
-			colDef.Resolver.Signature = colDef.Resolver.Name
-			table.Functions = append(table.Functions, columnResolver)
 		} else if uc.Resolver != nil  {
 			ro, err := b.finder.FindObjectFromName(uc.Resolver.Path)
 			if err != nil {
@@ -206,7 +213,7 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 
 	fieldName := field.Name()
 	colDef := ColumnDefinition{
-		Name:     templates.ToSnake(fieldName),
+		Name:     ToSnake(fieldName),
 		Type:     0,
 		Resolver: nil,
 	}
@@ -229,10 +236,11 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 		if colDef.Resolver != nil {
 			b.logger.Warn("overriding already defined column resolver", "column", fieldName, "resolver", colDef.Resolver.Name)
 		}
-		columnResolver, err := b.buildFunctionDefinition(&config.FunctionConfig{
-			Name: templates.ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain),  strings.Title(inflection.Singular(resource.Name)), strings.Title(fieldName))),
-			Body: defaultImplementation,
-			Path: path.Join(sdkPath, "plugin/schema.ColumnResolver"),
+		columnResolver, err := b.buildFunctionDefinition(table, &config.FunctionConfig{
+			Name:     ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain),  strings.Title(inflection.Singular(resource.Name)), strings.Title(fieldName))),
+			Body:     defaultImplementation,
+			Path:     path.Join(sdkPath, "plugin/schema.ColumnResolver"),
+			Generate: true,
 		})
 		if err != nil {
 			return err
@@ -240,7 +248,6 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 		colDef.Resolver = columnResolver
 		// Set signature of function as the generated resolver name
 		colDef.Resolver.Signature = colDef.Resolver.Name
-		table.Functions = append(table.Functions, columnResolver)
 	}
 	if schema.ValueTypeFromString(cfg.Type) != schema.TypeInvalid {
 		valueType = TypeUserDefined

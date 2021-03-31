@@ -1,4 +1,4 @@
-package templates
+package codegen
 
 import (
 	"bytes"
@@ -112,9 +112,9 @@ func Funcs() template.FuncMap {
 		"isNil": func(i interface{}) bool {
 			return reflect2.IsNil(i)
 		},
-		"go":           ToGo,
-		"ref":          ref,
-		"call":         Call,
+		"go":   ToGo,
+		"ref":  ref,
+		"call": Call,
 	}
 }
 

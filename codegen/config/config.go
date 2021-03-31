@@ -29,9 +29,10 @@ type ResourceConfig struct {
 }
 
 type FunctionConfig struct {
-	Name string `hcl:"name,label"`
-	Body string `hcl:"body,optional"`
-	Path string `hcl:"path"`
+	Name     string `hcl:"name,label"`
+	Body     string `hcl:"body,optional"`
+	Path     string `hcl:"path"`
+	Generate bool   `hcl:"generate,optional"`
 }
 
 func (r ResourceConfig) GetRelationConfig(name string) *ResourceConfig {

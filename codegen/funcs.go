@@ -1,4 +1,4 @@
-package templates
+package codegen
 
 import (
 	"go/types"
@@ -33,19 +33,21 @@ func ref(p types.Type) string {
 	return CurrentImports.LookupType(p)
 }
 
-func Call(p types.Object) string {
+func Call(p *FunctionDefinition) string {
 
 	if p == nil {
 		return ""
 	}
-	path := p.Pkg().Path()
+	path := p.Type.Pkg().Path()
 	pkg := CurrentImports.Lookup(path)
 
 	if pkg != "" {
 		pkg += "."
 	}
-
-	return pkg + p.Name()
+	if p.Signature != "" {
+		return p.Signature
+	}
+	return pkg + p.Type.Name()
 }
 
 func ToGoPrivate(name string) string {
