@@ -527,34 +527,59 @@ output_directory = "providers/cq-provider-aws/resources"
 //    }
 //  }
 //}
+//
+//resource "aws" "elbv2" "target_groups" {
+//  path = "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types.TargetGroup"
+//  ignoreError "IgnoreAccessDenied" {
+//    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+//  }
+//  multiplex "AwsAccountRegion" {
+//    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+//  }
+//  deleteFilter "AccountRegionFilter" {
+//    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+//  }
+//  userDefinedColumn "account_id" {
+//    type = "string"
+//    resolver "resolveAWSAccount" {
+//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+//    }
+//  }
+//  userDefinedColumn "region" {
+//    type = "string"
+//    resolver "resolveAWSRegion" {
+//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+//    }
+//  }
+//}
+//
+//resource "aws" "elbv2" "load_balancers" {
+//  path = "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types.LoadBalancer"
+//  ignoreError "IgnoreAccessDenied" {
+//    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+//  }
+//  multiplex "AwsAccountRegion" {
+//    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+//  }
+//  deleteFilter "AccountRegionFilter" {
+//    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+//  }
+//  userDefinedColumn "account_id" {
+//    type = "string"
+//    resolver "resolveAWSAccount" {
+//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+//    }
+//  }
+//  userDefinedColumn "region" {
+//    type = "string"
+//    resolver "resolveAWSRegion" {
+//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+//    }
+//  }
+//}
 
-resource "aws" "elbv2" "target_groups" {
-  path = "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types.TargetGroup"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
-    }
-  }
-}
-
-resource "aws" "elbv2" "load_balancers" {
-  path = "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types.LoadBalancer"
+resource "aws" "emr" "clusters" {
+  path = "github.com/aws/aws-sdk-go-v2/service/emr/types.ClusterSummary"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
   }
