@@ -163,7 +163,7 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 			// Set signature of function as the generated resolver name
 			colDef.Resolver.Signature = colDef.Resolver.Name
 			table.Functions = append(table.Functions, columnResolver)
-		} else {
+		} else if uc.Resolver != nil  {
 			ro, err := b.finder.FindObjectFromName(uc.Resolver.Path)
 			if err != nil {
 				return fmt.Errorf("user defined column %s requires resolver definition %w", uc.Name, err)
@@ -171,7 +171,6 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 			colDef.Resolver = &FunctionDefinition{Type: ro}
 		}
 		table.Columns = append(table.Columns, colDef)
-
 	}
 	return nil
 }
