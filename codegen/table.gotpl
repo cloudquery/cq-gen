@@ -25,6 +25,9 @@
     {{- if .DeleteFilterFunc }}
         DeleteFilter: {{.DeleteFilterFunc.Type|call}},
     {{- end }}
+    {{- if .PostResourceResolver }}
+        PostResourceResolver: {{.PostResourceResolver.Type|call}},
+    {{- end }}
     Columns: []schema.Column{
     {{- template "BuildColumns" .Columns }}
     },

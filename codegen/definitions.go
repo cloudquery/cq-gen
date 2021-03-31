@@ -16,9 +16,10 @@ type TableDefinition struct {
 	// schema.TableResolver definition
 	Resolver *FunctionDefinition
 	// Table extra functions
-	IgnoreErrorFunc  *FunctionDefinition
-	MultiplexFunc    *FunctionDefinition
-	DeleteFilterFunc *FunctionDefinition
+	IgnoreErrorFunc      *FunctionDefinition
+	MultiplexFunc        *FunctionDefinition
+	DeleteFilterFunc     *FunctionDefinition
+	PostResourceResolver *FunctionDefinition
 
 	// Functions that were created by configuration request
 	Functions []*FunctionDefinition

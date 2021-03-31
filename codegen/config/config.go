@@ -22,9 +22,10 @@ type ResourceConfig struct {
 	Relations         []ResourceConfig `hcl:"relation,block"`
 	UserDefinedColumn []ColumnConfig   `hcl:"userDefinedColumn,block"`
 
-	IgnoreError  *FunctionConfig `hcl:"ignoreError,block"`
-	Multiplex    *FunctionConfig `hcl:"multiplex,block"`
-	DeleteFilter *FunctionConfig `hcl:"deleteFilter,block"`
+	IgnoreError          *FunctionConfig `hcl:"ignoreError,block"`
+	Multiplex            *FunctionConfig `hcl:"multiplex,block"`
+	DeleteFilter         *FunctionConfig `hcl:"deleteFilter,block"`
+	PostResourceResolver *FunctionConfig `hcl:"postResourceResolver,block"`
 }
 
 type FunctionConfig struct {

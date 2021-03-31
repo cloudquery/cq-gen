@@ -78,6 +78,12 @@ func (b builder) buildTableFunctions(table *TableDefinition, typeName string, re
 			return err
 		}
 	}
+	if resource.PostResourceResolver != nil {
+		table.PostResourceResolver, err = b.buildFunctionDefinition(resource.PostResourceResolver)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
