@@ -324,7 +324,7 @@ func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTable string
 			}
 			table.Relations = append(table.Relations, rel)
 		case TypeEmbedded:
-			if err := b.buildEmbeddedColumns(table, parentTable, fmt.Sprintf("%s.field.Name()", parentColumnName), getNamedType(field.Type()), columnCfg, resource); err != nil {
+			if err := b.buildEmbeddedColumns(table, parentTable, fmt.Sprintf("%s.%s", parentColumnName, field.Name()), getNamedType(field.Type()), columnCfg, resource); err != nil {
 				return err
 			}
 		default:

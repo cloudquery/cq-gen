@@ -25,6 +25,32 @@ func buildResources(cfg *config.Config) ([]*ResourceDefinition, error) {
 	return b.build(cfg)
 }
 
+func buildResource(cfg *config.Config, resource string) (*ResourceDefinition, error) {
+	rw, err := rewrite.New(cfg.OutputDirectory)
+	if err != nil {
+		return nil, err
+	}
+	b := builder{code.NewFinder(), rw, logging.New(&hclog.LoggerOptions{
+		Name:  "builder",
+		Level: hclog.Debug,
+	})}
+
+	resourceCfg, err := cfg.GetResource(resource)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := b.buildTable(resourceCfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ResourceDefinition{
+		Config: resourceCfg,
+		Table:  t,
+	}, nil
+}
+
 // builder generates all models code based from the configuration
 type builder struct {
 	finder   *code.Finder

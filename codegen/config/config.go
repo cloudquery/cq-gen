@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/creasty/defaults"
 	"github.com/hashicorp/hcl/v2/hclsimple"
@@ -10,6 +11,15 @@ type Config struct {
 	Service         string           `hcl:"service"`
 	OutputDirectory string           `hcl:"output_directory"`
 	Resources       []ResourceConfig `hcl:"resource,block"`
+}
+
+func (c Config) GetResource(resource string) (ResourceConfig, error) {
+	for _, r := range c.Resources {
+		if r.Name == resource {
+			return r, nil
+		}
+	}
+	return ResourceConfig{}, fmt.Errorf("didn't find resource %s in config", resource)
 }
 
 type ResourceConfig struct {

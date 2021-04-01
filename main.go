@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	_ "github.com/aws/aws-sdk-go-v2/service/autoscaling/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/cloudtrail/types"
@@ -21,7 +22,18 @@ import (
 )
 
 func main() {
-	err := codegen.Generate("config.hcl")
+
+	resource := flag.String("resource", "", "resource name to generate")
+	config := flag.String("config", "config.hcl", "resource name to generate")
+
+	flag.Parse()
+
+	var err error
+	if *resource != "" {
+		err = codegen.GenerateSingleResource(*config, *resource)
+	} else {
+		err = codegen.Generate(*config)
+	}
 	if err != nil {
 		fmt.Println(err)
 		return
