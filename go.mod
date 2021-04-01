@@ -25,7 +25,6 @@ require (
 	github.com/cloudquery/cq-provider-aws v0.2.17
 	github.com/cloudquery/cq-provider-sdk v0.0.0-20210401093836-ce64599334b2
 	github.com/creasty/defaults v1.5.1
-	github.com/fatih/camelcase v1.0.0
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/hashicorp/go-hclog v0.15.0
@@ -36,6 +35,7 @@ require (
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/modern-go/reflect2 v1.0.1
 	github.com/pkg/errors v0.9.1
+	github.com/serenize/snaker v0.0.0-20201027110005-a7ad2135616e
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/zclconf/go-cty v1.8.1 // indirect
 	golang.org/x/mod v0.4.2 // indirect

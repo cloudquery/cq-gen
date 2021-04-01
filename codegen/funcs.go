@@ -267,4 +267,5 @@ var commonInitialisms = map[string]bool{
 	"XSS":   true,
 	"AWS":   true,
 	"S3":    true,
+	"IPV6":  true,
 }
