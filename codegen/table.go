@@ -342,6 +342,9 @@ func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTableName st
 				b.logger.Debug("removing redundant suffix from column name", "parentName", parentNameParts, "column", field.Name(), "original", columnName)
 				columnName = strcase.ToSnake(parentNameParts)
 			}
+			if cfg.Rename != "" {
+				columnName = cfg.Rename
+			}
 			table.Columns = append(table.Columns, ColumnDefinition{
 				Name:     columnName,
 				Type:     valueType,
