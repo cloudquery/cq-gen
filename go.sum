@@ -98,6 +98,8 @@ github.com/aws/aws-sdk-go-v2/service/efs v1.1.2/go.mod h1:usiaxuisGN8Nq83C2llX1u
 github.com/aws/aws-sdk-go-v2/service/efs v1.2.0 h1:PCLM4aShavpVcyXqUoUsQpMJ+Z/PLOFjQuV3NKxitmg=
 github.com/aws/aws-sdk-go-v2/service/efs v1.2.0/go.mod h1:6ZQj15y/BJWGzjbc7JIjD9K4QEINDR5Es/2OW9frZ7I=
 github.com/aws/aws-sdk-go-v2/service/eks v1.1.2/go.mod h1:pxRGZ5JOjWAjnDa219dKFwra0HpHgtNeVGku7X/XGmM=
+github.com/aws/aws-sdk-go-v2/service/eks v1.2.0 h1:l8LN8xsHUSNLUmqDR1oZLOEgD7lLqNTrWfkuHnPplfE=
+github.com/aws/aws-sdk-go-v2/service/eks v1.2.0/go.mod h1:zJUTBr4SY2zx5zwoawWa//h9/0sSDpkFxS4kPh0v31I=
 github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.1.2 h1:MRrQb1YVSwWX8gPUpl69a4VeCbqpNl/iDPjVjpRkJ3k=
 github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.1.2/go.mod h1:yCoYDJc/WIJzItnZS0ZjdIbXhqSg/dERuv/+YH3hcSE=
 github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.2.0 h1:vHZW6a3gZb81XNgsTL3/dnDzuPGn3+8WSr9OR2u2UIs=
@@ -111,6 +113,8 @@ github.com/aws/aws-sdk-go-v2/service/emr v1.1.2/go.mod h1:1c6TJKKigHoRbZZG4hhDvS
 github.com/aws/aws-sdk-go-v2/service/emr v1.2.0 h1:JwDNxHv2oazaknN1la3lskZWvOS56cpyG+JZVJc7cIA=
 github.com/aws/aws-sdk-go-v2/service/emr v1.2.0/go.mod h1:EbPeddhwfEWE6ZJh5WM2+OoHhUEko8/zuloAs/4bqrA=
 github.com/aws/aws-sdk-go-v2/service/fsx v1.1.2/go.mod h1:25sbMti44jjaApw0Y8hGkZHh6C3Dqz0fBCvdvhaRmbQ=
+github.com/aws/aws-sdk-go-v2/service/fsx v1.2.0 h1:/hxERAW8wfc5F+aC8rwsB2tqMkWApAWJoaVM0cuhBg4=
+github.com/aws/aws-sdk-go-v2/service/fsx v1.2.0/go.mod h1:BFqIiyAdn9j1EaiCN418uBCUvXBrPHw7P4+p8wvJ72c=
 github.com/aws/aws-sdk-go-v2/service/iam v1.1.2/go.mod h1:QfZ/D110t/xfKWiq74jxn6dJcJQw5BiHedJnQGvemuM=
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.0.2 h1:GO0pL4QvQmA0fXJe3MHVO+emtg31MYq5/8sebSWgE6A=
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.0.2/go.mod h1:bYl7lGFQQdHia3uMQH4p6ImnuOeDNeUoydoXM5x8Yzw=
