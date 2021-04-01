@@ -34,9 +34,11 @@ func ref(p types.Type) string {
 }
 
 func Call(p *FunctionDefinition) string {
-
 	if p == nil {
 		return ""
+	}
+	if p.Type == nil {
+		return p.Signature
 	}
 	path := p.Type.Pkg().Path()
 	pkg := CurrentImports.Lookup(path)
