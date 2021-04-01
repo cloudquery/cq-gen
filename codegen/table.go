@@ -195,6 +195,7 @@ func (b builder) buildColumns(table *TableDefinition, named *types.Named, resour
 		field, tag := st.Field(i), st.Tag(i)
 		// Skip unexported, if the original field has a "-" tag or the field was requested to be skipped via config.
 		if !field.Exported() || strings.Contains(tag, "-") {
+			b.logger.Debug("skipping column", "table", table.Name, "column", field.Name())
 			continue
 		}
 		valueType := getValueType(field.Type())
@@ -289,8 +290,6 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 }
 
 func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTable string, parentColumnName string, named *types.Named, cfg config.ColumnConfig, resource config.ResourceConfig) error {
-	columns := make([]ColumnDefinition, 0)
-
 	st := named.Underlying().(*types.Struct)
 	for i := 0; i < st.NumFields(); i++ {
 		field, tag := st.Field(i), st.Tag(i)
@@ -333,7 +332,7 @@ func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTable string
 			if cfg.SkipPrefix {
 				columnName = strings.ToLower(strcase.ToSnake(field.Name()))
 			}
-			columns = append(columns, ColumnDefinition{
+			table.Columns = append(table.Columns, ColumnDefinition{
 				Name:     columnName,
 				Type:     valueType,
 				Resolver: &FunctionDefinition{Signature: fmt.Sprintf("schema.PathResolver(\"%s\")", fmt.Sprintf("%s.%s", parentColumnName, field.Name()))},
