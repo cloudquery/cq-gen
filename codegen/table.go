@@ -20,8 +20,9 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 		return nil, err
 	}
 
+	// TODO: move to function
 	fullName := inflection.Plural(resource.Name)
-	if parentTable != nil {
+	if parentTable != nil && !strings.HasPrefix(resource.Name, inflection.Singular(parentTable.Name)) {
 		fullName = fmt.Sprintf("%s%s", inflection.Singular(parentTable.Name), strings.Title(inflection.Plural(resource.Name)))
 	}
 	table := &TableDefinition{
@@ -334,7 +335,11 @@ func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTableName st
 			parentNameParts := strings.Join(strings.Split(parentColumnName, "."), "_")
 			columnName := strings.ToLower(fmt.Sprintf("%s_%s", strcase.ToSnake(parentNameParts), strcase.ToSnake(field.Name())))
 			if cfg.SkipPrefix {
-				columnName = strings.ToLower(strcase.ToSnake(field.Name()))
+				columnName = strcase.ToSnake(field.Name())
+			}
+			if strings.HasSuffix(parentNameParts, field.Name()) {
+				b.logger.Debug("removing redundant suffix from column name", "parentName", parentNameParts, "column", field.Name(), "original", columnName)
+				columnName = strcase.ToSnake(parentNameParts)
 			}
 			table.Columns = append(table.Columns, ColumnDefinition{
 				Name:     columnName,
