@@ -82,21 +82,6 @@ type ColumnConfig struct {
 	Type string `hcl:"type,optional"`
 	// Rename column name, if no resolver is passed schema.PathResolver will be used
 	Rename string `hcl:"rename,optional"`
-
-	// Configuration to pass to inner embedded columns
-	EmbeddedColumns []ColumnConfig `hcl:"embeddedColumn,block"`
-}
-
-func (c ColumnConfig) GetColumnConfig(name string) ColumnConfig {
-	for _, ec := range c.EmbeddedColumns {
-		if ec.Name == name {
-			return c
-		}
-	}
-	var ec ColumnConfig
-	defaults.Set(&ec)
-	ec.Name = name
-	return ec
 }
 
 func Parse(configPath string) (*Config, error) {

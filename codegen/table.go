@@ -280,7 +280,7 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 		table.Relations = append(table.Relations, rel)
 	case TypeEmbedded:
 		b.logger.Debug("Building embedded column", "table", table.TableName, "column", field.Name())
-		if err := b.buildEmbeddedColumns(table, parent, field.Name(), getNamedType(field.Type()), cfg, resource); err != nil {
+		if err := b.buildEmbeddedColumns(table, parent, field.Name(), getNamedType(field.Type()), resource); err != nil {
 			return err
 		}
 
@@ -295,18 +295,31 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 	return nil
 }
 
-func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTableName string, parentColumnName string, named *types.Named, cfg config.ColumnConfig, resource config.ResourceConfig) error {
+func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTableName string, parentColumnName string, named *types.Named, resource config.ResourceConfig) error {
 	st := named.Underlying().(*types.Struct)
+	parentNameParts := strings.Join(strings.Split(parentColumnName, "."), "_")
 	for i := 0; i < st.NumFields(); i++ {
 		field, tag := st.Field(i), st.Tag(i)
-		columnCfg := cfg.GetColumnConfig(field.Name())
+		columnName := strings.ToLower(fmt.Sprintf("%s_%s", naming.CamelToSnake(parentNameParts), naming.CamelToSnake(field.Name())))
+		if strings.HasSuffix(parentNameParts, field.Name()) {
+			b.logger.Debug("removing redundant suffix from column name", "parentName", parentNameParts, "column", field.Name(), "original", columnName)
+			columnName = naming.CamelToSnake(parentNameParts)
+		}
+		cfg := resource.GetColumnConfig(columnName)
 		// Skip unexported, if the original field has a "-" tag or the field was requested to be skipped via config.
-		if !field.Exported() || strings.Contains(tag, "-") || columnCfg.Skip {
+		if !field.Exported() || strings.Contains(tag, "-") || cfg.Skip {
 			continue
 		}
 		valueType := getValueType(field.Type())
 		if valueType == schema.TypeInvalid {
 			return fmt.Errorf("unsupported type %T", field.Type())
+		}
+		if cfg.SkipPrefix {
+			columnName = naming.CamelToSnake(field.Name())
+		}
+		if cfg.Rename != "" {
+			b.logger.Debug("renaming column", "rename", cfg.Rename, "column", field.Name(), "original", columnName)
+			columnName = cfg.Rename
 		}
 
 		switch valueType {
@@ -329,22 +342,10 @@ func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTableName st
 			}
 			table.Relations = append(table.Relations, rel)
 		case TypeEmbedded:
-			if err := b.buildEmbeddedColumns(table, parentTableName, fmt.Sprintf("%s.%s", parentColumnName, field.Name()), getNamedType(field.Type()), columnCfg, resource); err != nil {
+			if err := b.buildEmbeddedColumns(table, parentTableName, fmt.Sprintf("%s.%s", parentColumnName, field.Name()), getNamedType(field.Type()), resource); err != nil {
 				return err
 			}
 		default:
-			parentNameParts := strings.Join(strings.Split(parentColumnName, "."), "_")
-			columnName := strings.ToLower(fmt.Sprintf("%s_%s", strcase.ToSnake(parentNameParts), strcase.ToSnake(field.Name())))
-			if cfg.SkipPrefix {
-				columnName = strcase.ToSnake(field.Name())
-			}
-			if strings.HasSuffix(parentNameParts, field.Name()) {
-				b.logger.Debug("removing redundant suffix from column name", "parentName", parentNameParts, "column", field.Name(), "original", columnName)
-				columnName = strcase.ToSnake(parentNameParts)
-			}
-			if cfg.Rename != "" {
-				columnName = cfg.Rename
-			}
 			table.Columns = append(table.Columns, ColumnDefinition{
 				Name:     columnName,
 				Type:     valueType,
@@ -355,7 +356,6 @@ func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTableName st
 	return nil
 }
 
-// TODO: consider moving this as part of template so types will be added to imports if they don't exist
 func getFunctionParams(sig *types.Signature) string {
 
 	params := make([]string, sig.Params().Len())
