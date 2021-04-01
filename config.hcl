@@ -1,7 +1,6 @@
 service = "aws"
 output_directory = "providers/cq-provider-aws/resources"
 
-
 resource "aws" "autoscaling" "launch_configurations" {
   path = "github.com/aws/aws-sdk-go-v2/service/autoscaling/types.LaunchConfiguration"
 
@@ -40,9 +39,10 @@ resource "aws" "cloudtrail" "trails" {
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
   }
-  //  postResourceResolver "postResourceResolver" {
-  //    generate_resolver = true
-  //  }
+  postResourceResolver "postCloudtrailTrailResolver" {
+    path = "github.com/cloudquery/cq-provider-sdk/plugin/schema.RowResolver"
+    generate = true
+  }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
@@ -55,7 +55,7 @@ resource "aws" "cloudtrail" "trails" {
       path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
     }
   }
-  userDefinedColumn "cloud_watch_logs_log_group_name" {
+  userDefinedColumn "cloudwatch_logs_log_group_name" {
     type = "string"
     generate_resolver = true
   }
@@ -92,7 +92,7 @@ resource "aws" "cloudtrail" "trails" {
     type = "string"
   }
 
-  userDefinedColumn "latest_digest_delivery_error_time" {
+  userDefinedColumn "latest_digest_delivery_time" {
     type = "timestamp"
   }
 
@@ -124,7 +124,7 @@ resource "aws" "cloudtrail" "trails" {
     type = "string"
   }
 
-  userDefinedColumn "time_logging_stopeed" {
+  userDefinedColumn "time_logging_stopped" {
     type = "string"
   }
 
