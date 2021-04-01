@@ -18,6 +18,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.2.1
 	github.com/aws/aws-sdk-go-v2/service/sns v1.2.0
 	github.com/cloudquery/cq-provider-aws v0.2.17
+	github.com/cloudquery/cq-provider-sdk v0.0.0-20210331140705-3b9ca9d8c4a4
 	github.com/creasty/defaults v1.5.1
 	github.com/hashicorp/go-hclog v0.15.0
 	github.com/hashicorp/hcl/v2 v2.9.1
