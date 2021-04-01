@@ -7,12 +7,12 @@ import (
 )
 
 type TableDefinition struct {
-	OriginalName string
-	TypeName     string
-	Name         string
-	Description  string
-	Columns      []ColumnDefinition
-	Relations    []*TableDefinition
+	Name        string
+	DomainName  string
+	TableName   string
+	Description string
+	Columns     []ColumnDefinition
+	Relations   []*TableDefinition
 	// schema.TableResolver definition
 	Resolver *FunctionDefinition
 	// Table extra functions
@@ -23,6 +23,9 @@ type TableDefinition struct {
 
 	// Functions that were created by configuration request
 	Functions []*FunctionDefinition
+
+	// parent table definition
+	parentTable *TableDefinition
 }
 
 func (t TableDefinition) UniqueResolvers() []*FunctionDefinition {
@@ -53,10 +56,10 @@ func (t TableDefinition) UniqueResolvers() []*FunctionDefinition {
 
 func (t TableDefinition) RelationExists(name string) bool {
 	for _, rel := range t.Relations {
-		if rel.OriginalName == name {
+		if rel.Name == name {
 			return true
 		}
-		if strings.HasSuffix(rel.Name, rel.Name) {
+		if strings.HasSuffix(rel.TableName, rel.TableName) {
 			return true
 		}
 	}

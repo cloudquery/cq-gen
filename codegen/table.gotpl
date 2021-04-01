@@ -14,7 +14,7 @@
 {{- end }}
 
 {{- define "BuildTable" }}
-    Name: {{.Name|quote}},
+    Name: {{.TableName|quote}},
     Resolver: {{.Resolver.Name}},
     {{- if .MultiplexFunc }}
         Multiplex: {{.MultiplexFunc|call}},
@@ -42,21 +42,15 @@
     {{- end }}
 {{- end }}
 
-{{- define "BuildResolver" }}
-
-{{- end }}
-
 {{- define "BuildTableResolvers" }}
-    {{- template "BuildResolver" . }}
-    {{ range $resolver := .UniqueResolvers }}
+    {{- range $resolver := .UniqueResolvers }}
         func {{$resolver.Name}}{{$resolver.Arguments}} {
-        {{- $resolver.Body}}
-        }
+        {{- $resolver.Body}}}
     {{- end }}
 {{- end }}
 
 
-func {{.Table.TypeName|go}}() *schema.Table {
+func {{.Table.DomainName|go}}() *schema.Table {
 return &schema.Table{
 {{- template "BuildTable" .Table }}
 }

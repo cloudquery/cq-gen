@@ -14,23 +14,25 @@ import (
 const defaultImplementation = `panic("not implemented")`
 const sdkPath = "github.com/cloudquery/cq-provider-sdk"
 
-func (b builder) buildTable(resource config.ResourceConfig) (*TableDefinition, error) {
+func (b builder) buildTable(parentTable *TableDefinition, resource config.ResourceConfig) (*TableDefinition, error) {
 	ro, err := b.finder.FindTypeFromName(resource.Path)
 	if err != nil {
 		return nil, err
 	}
 
-	named := ro.(*types.Named)
-	typeName := inflection.Plural(named.Obj().Name())
-
+	fullName := inflection.Plural(resource.Name)
+	if parentTable != nil {
+		fullName = fmt.Sprintf("%s%s", inflection.Singular(parentTable.Name), strings.Title(inflection.Plural(resource.Name)))
+	}
 	table := &TableDefinition{
-		OriginalName: named.Obj().Name(),
-		TypeName:     resource.Domain + strcase.ToCamel(resource.Name),
-		Name:         strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, resource.Name)),
+		Name:        fullName,
+		DomainName:  resource.Domain + strcase.ToCamel(resource.Name),
+		TableName:   strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, strcase.ToSnake(fullName))),
+		parentTable: parentTable,
 	}
 
-	b.logger.Debug("Building table", "table", table.Name)
-	if err := b.buildTableFunctions(table, typeName, resource); err != nil {
+	b.logger.Debug("Building table", "table", table.TableName)
+	if err := b.buildTableFunctions(table, resource); err != nil {
 		return nil, err
 	}
 
@@ -38,22 +40,23 @@ func (b builder) buildTable(resource config.ResourceConfig) (*TableDefinition, e
 		return nil, err
 	}
 
+	named := ro.(*types.Named)
 	if err := b.buildColumns(table, named, resource); err != nil {
 		return nil, err
 	}
 
-	if err := b.buildTableRelations(table, resource.Name, resource); err != nil {
+	if err := b.buildTableRelations(table, resource); err != nil {
 		return nil, err
 	}
 
 	return table, nil
 }
 
-func (b builder) buildTableFunctions(table *TableDefinition, typeName string, resource config.ResourceConfig) error {
+func (b builder) buildTableFunctions(table *TableDefinition, resource config.ResourceConfig) error {
 
 	var err error
 	table.Resolver, err = b.buildFunctionDefinition(table, &config.FunctionConfig{
-		Name: ToGoPrivate(fmt.Sprintf("fetch%s%s", strings.Title(resource.Domain), strings.Title(typeName))),
+		Name: ToGoPrivate(fmt.Sprintf("fetch%s%s", strings.Title(resource.Domain), strings.Title(table.Name))),
 		Body: defaultImplementation,
 		Path: path.Join(sdkPath, "plugin/schema.TableResolver"),
 	})
@@ -124,14 +127,14 @@ func (b builder) buildFunctionDefinition(table *TableDefinition, cfg *config.Fun
 	return def, nil
 }
 
-func (b builder) buildTableRelations(table *TableDefinition, parent string, cfg config.ResourceConfig) error {
+func (b builder) buildTableRelations(table *TableDefinition, cfg config.ResourceConfig) error {
 
 	for _, relCfg := range cfg.Relations {
 		// if relation already exists i.e was built from one of the columns we skip it
 		if table.RelationExists(relCfg.Name) {
 			continue
 		}
-		relTable, err := b.buildTableRelation(parent, relCfg)
+		relTable, err := b.buildTableRelation(table, relCfg)
 		if err != nil {
 			return err
 		}
@@ -140,16 +143,16 @@ func (b builder) buildTableRelations(table *TableDefinition, parent string, cfg 
 	return nil
 }
 
-func (b builder) buildTableRelation(parent string, cfg config.ResourceConfig) (*TableDefinition, error) {
+func (b builder) buildTableRelation(parentTable *TableDefinition, cfg config.ResourceConfig) (*TableDefinition, error) {
 
-	b.logger.Debug("building column relation", "parent_table", parent, "table", cfg.Name)
+	b.logger.Debug("building column relation", "parent_table", parentTable.TableName, "table", cfg.Name)
 
-	rel, err := b.buildTable(cfg)
+	rel, err := b.buildTable(parentTable, cfg)
 	if err != nil {
 		return nil, err
 	}
 	rel.Columns = append([]ColumnDefinition{{
-		Name:     strings.ToLower(fmt.Sprintf("%s_id", parent)),
+		Name:     strings.ToLower(fmt.Sprintf("%s_id", parentTable.Name)),
 		Type:     schema.TypeUUID,
 		Resolver: &FunctionDefinition{Signature: "schema.ParentIdResolver"}},
 	}, rel.Columns...)
@@ -159,7 +162,7 @@ func (b builder) buildTableRelation(parent string, cfg config.ResourceConfig) (*
 
 func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.ResourceConfig) error {
 	for _, uc := range resource.UserDefinedColumn {
-		b.logger.Debug("adding user defined column", "table", table.Name, "column", uc.Name)
+		b.logger.Debug("adding user defined column", "table", table.TableName, "column", uc.Name)
 		colDef := ColumnDefinition{
 			Name: uc.Name,
 			Type: schema.ValueTypeFromString(uc.Type),
@@ -169,16 +172,16 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 				b.logger.Warn("overriding already defined column resolver", "column", uc.Name, "resolver", uc.Resolver.Name)
 			}
 			columnResolver, err := b.buildFunctionDefinition(table, &config.FunctionConfig{
-				Name: ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain),  strings.Title(inflection.Singular(resource.Name)), strings.Title(uc.Name))),
-				Body: defaultImplementation,
-				Path: path.Join(sdkPath, "plugin/schema.ColumnResolver"),
+				Name:     ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(uc.Name))),
+				Body:     defaultImplementation,
+				Path:     path.Join(sdkPath, "plugin/schema.ColumnResolver"),
 				Generate: true,
 			})
 			if err != nil {
 				return err
 			}
 			colDef.Resolver = columnResolver
-		} else if uc.Resolver != nil  {
+		} else if uc.Resolver != nil {
 			ro, err := b.finder.FindObjectFromName(uc.Resolver.Path)
 			if err != nil {
 				return fmt.Errorf("user defined column %s requires resolver definition %w", uc.Name, err)
@@ -196,16 +199,16 @@ func (b builder) buildColumns(table *TableDefinition, named *types.Named, resour
 		field, tag := st.Field(i), st.Tag(i)
 		// Skip unexported, if the original field has a "-" tag or the field was requested to be skipped via config.
 		if !field.Exported() || strings.Contains(tag, "-") {
-			b.logger.Debug("skipping column", "table", table.Name, "column", field.Name())
+			b.logger.Debug("skipping column", "table", table.TableName, "column", field.Name())
 			continue
 		}
 		valueType := getValueType(field.Type())
 		if valueType == schema.TypeInvalid {
 			return fmt.Errorf("unsupported type %T", field.Type())
 		}
-		b.logger.Debug("building column", "table", table.Name, "column", field.Name())
+		b.logger.Debug("building column", "table", table.TableName, "column", field.Name())
 		if err := b.buildTableColumn(table, named.Obj().Name(), field, valueType, resource); err != nil {
-			return fmt.Errorf("table %s build column %s failed. %w", table.TypeName, field.Name(), err)
+			return fmt.Errorf("table %s build column %s failed. %w", table.DomainName, field.Name(), err)
 		}
 	}
 	return nil
@@ -239,7 +242,7 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 			b.logger.Warn("overriding already defined column resolver", "column", fieldName, "resolver", colDef.Resolver.Name)
 		}
 		columnResolver, err := b.buildFunctionDefinition(table, &config.FunctionConfig{
-			Name:     ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain),  strings.Title(inflection.Singular(resource.Name)), strings.Title(fieldName))),
+			Name:     ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(fieldName))),
 			Body:     defaultImplementation,
 			Path:     path.Join(sdkPath, "plugin/schema.ColumnResolver"),
 			Generate: true,
@@ -257,30 +260,30 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 	switch valueType {
 	case TypeRelation:
 		obj := getNamedType(field.Type()).Obj()
-		b.logger.Debug("building column relation", "table", table.Name, "column", field.Name(), "object", obj.Name())
+		b.logger.Debug("building column relation", "table", table.TableName, "column", field.Name(), "object", obj.Name())
 		relationCfg := resource.GetRelationConfig(obj.Name())
 		if relationCfg == nil {
 			relationCfg = &config.ResourceConfig{
 				Service: resource.Service,
 				Domain:  resource.Domain,
-				Name:    strcase.ToSnake(fmt.Sprintf("%s_%s", resource.Name, obj.Name())),
+				Name:    columnName,
 				Path:    fmt.Sprintf("%s.%s", obj.Pkg().Path(), obj.Name()),
 			}
 		}
 		relationCfg.Path = fmt.Sprintf("%s.%s", obj.Pkg().Path(), obj.Name())
-		rel, err := b.buildTableRelation(resource.Name, *relationCfg)
+		rel, err := b.buildTableRelation(table, *relationCfg)
 		if err != nil {
 			return err
 		}
 		table.Relations = append(table.Relations, rel)
 	case TypeEmbedded:
-		b.logger.Debug("Building embedded column", "table", table.Name, "column", field.Name())
+		b.logger.Debug("Building embedded column", "table", table.TableName, "column", field.Name())
 		if err := b.buildEmbeddedColumns(table, parent, field.Name(), getNamedType(field.Type()), cfg, resource); err != nil {
 			return err
 		}
 
 	case TypeUserDefined:
-		b.logger.Info("Changing column to user defined", "table", table.Name, "column", field.Name(), "valueType", valueType, "userDefinedType", cfg.Type)
+		b.logger.Info("Changing column to user defined", "table", table.TableName, "column", field.Name(), "valueType", valueType, "userDefinedType", cfg.Type)
 		colDef.Type = schema.ValueTypeFromString(cfg.Type)
 		table.Columns = append(table.Columns, colDef)
 	default:
@@ -290,7 +293,7 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 	return nil
 }
 
-func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTable string, parentColumnName string, named *types.Named, cfg config.ColumnConfig, resource config.ResourceConfig) error {
+func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTableName string, parentColumnName string, named *types.Named, cfg config.ColumnConfig, resource config.ResourceConfig) error {
 	st := named.Underlying().(*types.Struct)
 	for i := 0; i < st.NumFields(); i++ {
 		field, tag := st.Field(i), st.Tag(i)
@@ -307,24 +310,24 @@ func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTable string
 		switch valueType {
 		case TypeRelation:
 			obj := getNamedType(field.Type()).Obj()
-			b.logger.Debug("building column relation", "table", table.Name, "column", field.Name(), "object", obj.Name())
+			b.logger.Debug("building column relation", "table", table.TableName, "column", field.Name(), "object", obj.Name())
 			relationCfg := resource.GetRelationConfig(obj.Name())
 			if relationCfg == nil {
 				relationCfg = &config.ResourceConfig{
 					Service: resource.Service,
 					Domain:  resource.Domain,
-					Name:    strcase.ToSnake(obj.Name()), // Add prefix?
+					Name:    field.Name(),
 					Path:    fmt.Sprintf("%s.%s", obj.Pkg().Path(), obj.Name()),
 				}
 			}
 			relationCfg.Path = fmt.Sprintf("%s.%s", obj.Pkg().Path(), obj.Name())
-			rel, err := b.buildTableRelation(parentTable, *relationCfg)
+			rel, err := b.buildTableRelation(table, *relationCfg)
 			if err != nil {
 				return err
 			}
 			table.Relations = append(table.Relations, rel)
 		case TypeEmbedded:
-			if err := b.buildEmbeddedColumns(table, parentTable, fmt.Sprintf("%s.%s", parentColumnName, field.Name()), getNamedType(field.Type()), columnCfg, resource); err != nil {
+			if err := b.buildEmbeddedColumns(table, parentTableName, fmt.Sprintf("%s.%s", parentColumnName, field.Name()), getNamedType(field.Type()), columnCfg, resource); err != nil {
 				return err
 			}
 		default:

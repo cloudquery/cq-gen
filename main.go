@@ -24,17 +24,11 @@ import (
 func main() {
 
 	resource := flag.String("resource", "", "resource name to generate")
+	domain := flag.String("domain", "", "domain of resource to generate")
 	config := flag.String("config", "config.hcl", "resource name to generate")
-
 	flag.Parse()
 
-	var err error
-	if *resource != "" {
-		err = codegen.GenerateSingleResource(*config, *resource)
-	} else {
-		err = codegen.Generate(*config)
-	}
-	if err != nil {
+	if err := codegen.Generate(*config, *domain, *resource); err != nil {
 		fmt.Println(err)
 		return
 	}

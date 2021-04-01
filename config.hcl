@@ -163,7 +163,7 @@ resource "aws" "cloudwatch" "alarms" {
     }
   }
 
-  relation "aws" "cloudwatch" "alarm_metrics" {
+  relation "aws" "cloudwatch" "metrics" {
     path = "github.com/aws/aws-sdk-go-v2/service/cloudwatch/types.MetricDataQuery"
   }
 }
