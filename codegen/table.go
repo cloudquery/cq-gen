@@ -6,6 +6,7 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/plugin/schema"
 	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
+	"github.com/serenize/snaker"
 	"go/types"
 	"path"
 	"strings"
@@ -13,6 +14,7 @@ import (
 
 const defaultImplementation = `panic("not implemented")`
 const sdkPath = "github.com/cloudquery/cq-provider-sdk"
+
 
 func (b builder) buildTable(parentTable *TableDefinition, resource config.ResourceConfig) (*TableDefinition, error) {
 	ro, err := b.finder.FindTypeFromName(resource.Path)
@@ -28,7 +30,7 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 	table := &TableDefinition{
 		Name:        fullName,
 		DomainName:  resource.Domain + strcase.ToCamel(resource.Name),
-		TableName:   strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, strcase.ToSnake(fullName))),
+		TableName:   strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, snaker.CamelToSnake(fullName))),
 		parentTable: parentTable,
 	}
 
@@ -57,7 +59,7 @@ func (b builder) buildTableFunctions(table *TableDefinition, resource config.Res
 
 	var err error
 	table.Resolver, err = b.buildFunctionDefinition(table, &config.FunctionConfig{
-		Name: ToGoPrivate(fmt.Sprintf("fetch%s%s", strings.Title(resource.Domain), strings.Title(table.Name))),
+		Name: strcase.ToLowerCamel(fmt.Sprintf("fetch%s%s", strings.Title(resource.Domain), strings.Title(table.Name))),
 		Body: defaultImplementation,
 		Path: path.Join(sdkPath, "plugin/schema.TableResolver"),
 	})
@@ -153,7 +155,7 @@ func (b builder) buildTableRelation(parentTable *TableDefinition, cfg config.Res
 		return nil, err
 	}
 	rel.Columns = append([]ColumnDefinition{{
-		Name:     strings.ToLower(fmt.Sprintf("%s_id", parentTable.Name)),
+		Name:     strings.ToLower(fmt.Sprintf("%s_id", inflection.Singular(parentTable.Name))),
 		Type:     schema.TypeUUID,
 		Resolver: &FunctionDefinition{Signature: "schema.ParentIdResolver"}},
 	}, rel.Columns...)
@@ -219,11 +221,10 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 
 	fieldName := field.Name()
 	colDef := ColumnDefinition{
-		Name:     ToSnake(fieldName),
+		Name:     snaker.CamelToSnake(fieldName),
 		Type:     0,
 		Resolver: nil,
 	}
-
 	columnName := strings.ToLower(strcase.ToSnake(field.Name()))
 	cfg := resource.GetColumnConfig(columnName)
 	if cfg.Skip {
