@@ -172,6 +172,7 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 				Name: ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain),  strings.Title(inflection.Singular(resource.Name)), strings.Title(uc.Name))),
 				Body: defaultImplementation,
 				Path: path.Join(sdkPath, "plugin/schema.ColumnResolver"),
+				Generate: true,
 			})
 			if err != nil {
 				return err
