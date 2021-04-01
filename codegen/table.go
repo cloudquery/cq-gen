@@ -3,10 +3,10 @@ package codegen
 import (
 	"fmt"
 	"github.com/cloudquery/cq-gen/codegen/config"
+	"github.com/cloudquery/cq-gen/naming"
 	"github.com/cloudquery/cq-provider-sdk/plugin/schema"
 	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
-	"github.com/serenize/snaker"
 	"go/types"
 	"path"
 	"strings"
@@ -30,7 +30,7 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 	table := &TableDefinition{
 		Name:        fullName,
 		DomainName:  resource.Domain + strcase.ToCamel(resource.Name),
-		TableName:   strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, snaker.CamelToSnake(fullName))),
+		TableName:   strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, naming.CamelToSnake(fullName))),
 		parentTable: parentTable,
 	}
 
@@ -221,11 +221,11 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 
 	fieldName := field.Name()
 	colDef := ColumnDefinition{
-		Name:     snaker.CamelToSnake(fieldName),
+		Name:     naming.CamelToSnake(fieldName),
 		Type:     0,
 		Resolver: nil,
 	}
-	columnName := strings.ToLower(strcase.ToSnake(field.Name()))
+	columnName := strings.ToLower(naming.CamelToSnake(field.Name()))
 	cfg := resource.GetColumnConfig(columnName)
 	if cfg.Skip {
 		return nil
