@@ -1107,7 +1107,7 @@ resource "aws" "iam" "virtual_mfa_devices" {
     path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/provider.AccountMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
@@ -1123,6 +1123,11 @@ resource "aws" "iam" "virtual_mfa_devices" {
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
     }
+  }
+
+  column "tags" {
+    type = "json"
+    generate_resolver=true
   }
 }
 
