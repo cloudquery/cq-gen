@@ -1206,6 +1206,63 @@ resource "aws" "kms" "keys" {
   }
 }
 
+resource "aws" "organizations" "accounts" {
+  path = "github.com/aws/aws-sdk-go-v2/service/organizations/types.Account"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.AccountMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+    }
+  }
+
+  column "id" {
+    type = "string"
+    rename = "resource_id"
+  }
+}
+
+resource "aws" "rds" "clusters" {
+  path = "github.com/aws/aws-sdk-go-v2/service/rds/types.DBCluster"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.AccountMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+    }
+  }
+
+}
+
+
 resource "aws" "sns" "topics" {
   path = "github.com/aws/aws-sdk-go-v2/service/sns/types.Topic"
 

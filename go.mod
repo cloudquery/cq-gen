@@ -21,6 +21,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/fsx v1.2.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/iam v1.3.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/kms v1.2.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/organizations v1.2.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/rds v1.2.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/redshift v1.2.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.3.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.2.0
