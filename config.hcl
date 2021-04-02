@@ -1089,10 +1089,120 @@ resource "aws" "iam" "roles" {
     generate_resolver=true
   }
 
+  column "assume_role_policy_document" {
+    type = "json"
+    generate_resolver=true
+  }
+
   column "tags" {
     // TypeJson
     type = "json"
     generate_resolver=true
+  }
+}
+
+resource "aws" "iam" "virtual_mfa_devices" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iam/types.VirtualMFADevice"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+    }
+  }
+}
+
+resource "aws" "kms" "keys" {
+  path = "github.com/aws/aws-sdk-go-v2/service/kms/types.KeyListEntry"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+  }
+
+  postResourceResolver "resolveKmsKey" {
+    path = "github.com/cloudquery/cq-provider-sdk/plugin/schema.RowResolver"
+    generate = true
+  }
+
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+    }
+  }
+
+  userDefinedColumn "rotation_enabled" {
+    type = "bool"
+  }
+  userDefinedColumn "cloud_hsm_cluster_id" {
+    type = "string"
+  }
+  userDefinedColumn "creation_date" {
+    type = "timestamp"
+  }
+  userDefinedColumn "custom_key_store_id" {
+    type = "string"
+  }
+  userDefinedColumn "customer_master_key_spec" {
+    type = "string"
+  }
+  userDefinedColumn "deletion_date" {
+    type = "timestamp"
+  }
+  userDefinedColumn "description" {
+    type = "string"
+  }
+  userDefinedColumn "enabled" {
+    type = "bool"
+  }
+  userDefinedColumn "encryption_algorithms" {
+    type = "stringarray"
+  }
+  userDefinedColumn "expiration_model" {
+    type = "string"
+  }
+  userDefinedColumn "manager" {
+    type = "string"
+  }
+  userDefinedColumn "key_state" {
+    type = "string"
+  }
+  userDefinedColumn "key_usage" {
+    type = "string"
+  }
+  userDefinedColumn "origin" {
+    type = "string"
+  }
+  userDefinedColumn "signing_algorithms" {
+    type = "stringarray"
+  }
+  userDefinedColumn "valid_to" {
+    type = "timestamp"
   }
 }
 
