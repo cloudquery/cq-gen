@@ -1129,6 +1129,10 @@ resource "aws" "iam" "virtual_mfa_devices" {
     type = "json"
     generate_resolver=true
   }
+  column "user_tags" {
+    type = "json"
+    generate_resolver=true
+  }
 }
 
 resource "aws" "kms" "keys" {

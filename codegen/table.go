@@ -15,7 +15,6 @@ import (
 const defaultImplementation = `panic("not implemented")`
 const sdkPath = "github.com/cloudquery/cq-provider-sdk"
 
-
 func (b builder) buildTable(parentTable *TableDefinition, resource config.ResourceConfig) (*TableDefinition, error) {
 	ro, err := b.finder.FindTypeFromName(resource.Path)
 	if err != nil {
@@ -290,20 +289,39 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 		table.Columns = append(table.Columns, colDef)
 	default:
 		colDef.Type = valueType
-		table.Columns = append(table.Columns, colDef)
+		table.Columns = append(table.Columns, b.addPathResolver(fieldName, colDef))
 	}
 	return nil
 }
 
+func (b builder) addPathResolver(fieldName string, definition ColumnDefinition) ColumnDefinition {
+	if definition.Resolver != nil {
+		return definition
+	}
+	// use strcase here since sdk uses it
+	if strcase.ToCamel(definition.Name) == fieldName {
+		return definition
+	}
+	b.logger.Debug("Adding path resolver column name. camelCase is not same as original field name", "column", strcase.ToCamel(definition.Name), "field", fieldName)
+	definition.Resolver = &FunctionDefinition{
+		Signature: fmt.Sprintf("schema.PathResolver(\"%s\")", fieldName),
+	}
+	return definition
+}
+
 func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTableName string, parentColumnName string, named *types.Named, resource config.ResourceConfig) error {
 	st := named.Underlying().(*types.Struct)
-	parentNameParts := strings.Join(strings.Split(parentColumnName, "."), "_")
+	parentNameParts := strings.Join(strings.Split(parentColumnName, "."), "")
 	for i := 0; i < st.NumFields(); i++ {
 		field, tag := st.Field(i), st.Tag(i)
 		columnName := strings.ToLower(fmt.Sprintf("%s_%s", naming.CamelToSnake(parentNameParts), naming.CamelToSnake(field.Name())))
 		if strings.HasSuffix(parentNameParts, field.Name()) {
 			b.logger.Debug("removing redundant suffix from column name", "parentName", parentNameParts, "column", field.Name(), "original", columnName)
 			columnName = naming.CamelToSnake(parentNameParts)
+		}
+		if strings.HasPrefix(field.Name(), parentNameParts) {
+			b.logger.Debug("removing redundant prefix from column name", "parentName", parentNameParts, "column", field.Name(), "original", columnName)
+			columnName = naming.CamelToSnake(field.Name())
 		}
 		cfg := resource.GetColumnConfig(columnName)
 		// Skip unexported, if the original field has a "-" tag or the field was requested to be skipped via config.
@@ -320,6 +338,10 @@ func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTableName st
 		if cfg.Rename != "" {
 			b.logger.Debug("renaming column", "rename", cfg.Rename, "column", field.Name(), "original", columnName)
 			columnName = cfg.Rename
+		}
+		if schema.ValueTypeFromString(cfg.Type) != schema.TypeInvalid {
+			b.logger.Info("Changing column to user defined", "table", table.TableName, "column", field.Name(), "valueType", valueType, "userDefinedType", cfg.Type)
+			valueType = schema.ValueTypeFromString(cfg.Type)
 		}
 
 		switch valueType {
