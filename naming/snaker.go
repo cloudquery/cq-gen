@@ -144,7 +144,9 @@ var commonInitialisms = map[string]bool{
 	"DB":    true,
 	"ARN":   true,
 	"IPV":   true,
-	"IAM":	 true,
+	"IAM":   true,
+	"QR":    true,
+	"PNG":   true,
 }
 
 // add exceptions here for things that are not automatically convertable

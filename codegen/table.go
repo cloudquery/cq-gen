@@ -15,7 +15,6 @@ import (
 const defaultImplementation = `panic("not implemented")`
 const sdkPath = "github.com/cloudquery/cq-provider-sdk"
 
-
 func (b builder) buildTable(parentTable *TableDefinition, resource config.ResourceConfig) (*TableDefinition, error) {
 	ro, err := b.finder.FindTypeFromName(resource.Path)
 	if err != nil {
@@ -44,7 +43,7 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 	}
 
 	named := ro.(*types.Named)
-	if err := b.buildColumns(table, named, resource); err != nil {
+	if err := b.buildColumns(table, named, resource, ""); err != nil {
 		return nil, err
 	}
 
@@ -196,7 +195,7 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 	return nil
 }
 
-func (b builder) buildColumns(table *TableDefinition, named *types.Named, resource config.ResourceConfig) error {
+func (b builder) buildColumns(table *TableDefinition, named *types.Named, resource config.ResourceConfig, fieldPath string) error {
 	st := named.Underlying().(*types.Struct)
 	for i := 0; i < st.NumFields(); i++ {
 		field, tag := st.Field(i), st.Tag(i)
@@ -210,23 +209,22 @@ func (b builder) buildColumns(table *TableDefinition, named *types.Named, resour
 			return fmt.Errorf("unsupported type %T", field.Type())
 		}
 		b.logger.Debug("building column", "table", table.TableName, "column", field.Name())
-		if err := b.buildTableColumn(table, named.Obj().Name(), field, valueType, resource); err != nil {
+		if err := b.buildTableColumn(table, fieldPath, field, valueType, resource); err != nil {
 			return fmt.Errorf("table %s build column %s failed. %w", table.DomainName, field.Name(), err)
 		}
 	}
 	return nil
 }
 
-func (b builder) buildTableColumn(table *TableDefinition, parent string, field *types.Var, valueType schema.ValueType, resource config.ResourceConfig) error {
-
+func (b builder) buildTableColumn(table *TableDefinition, fieldPath string, field *types.Var, valueType schema.ValueType, resource config.ResourceConfig) error {
 	fieldName := field.Name()
 	colDef := ColumnDefinition{
-		Name:     naming.CamelToSnake(fieldName),
+		Name:     b.getColumnName(fieldName, fieldPath),
 		Type:     0,
 		Resolver: nil,
 	}
-	columnName := strings.ToLower(naming.CamelToSnake(field.Name()))
-	cfg := resource.GetColumnConfig(columnName)
+
+	cfg := resource.GetColumnConfig(colDef.Name)
 	if cfg.Skip {
 		return nil
 	}
@@ -268,7 +266,7 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 			relationCfg = &config.ResourceConfig{
 				Service: resource.Service,
 				Domain:  resource.Domain,
-				Name:    columnName,
+				Name:    colDef.Name,
 				Path:    fmt.Sprintf("%s.%s", obj.Pkg().Path(), obj.Name()),
 			}
 		}
@@ -280,7 +278,7 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 		table.Relations = append(table.Relations, rel)
 	case TypeEmbedded:
 		b.logger.Debug("Building embedded column", "table", table.TableName, "column", field.Name())
-		if err := b.buildEmbeddedColumns(table, parent, field.Name(), getNamedType(field.Type()), resource); err != nil {
+		if err := b.buildColumns(table, getNamedType(field.Type()), resource, getParentPath(fieldPath, field.Name())); err != nil {
 			return err
 		}
 
@@ -290,70 +288,54 @@ func (b builder) buildTableColumn(table *TableDefinition, parent string, field *
 		table.Columns = append(table.Columns, colDef)
 	default:
 		colDef.Type = valueType
-		table.Columns = append(table.Columns, colDef)
+		table.Columns = append(table.Columns, b.addPathResolver(fieldName, fieldPath, colDef))
 	}
 	return nil
 }
 
-func (b builder) buildEmbeddedColumns(table *TableDefinition, parentTableName string, parentColumnName string, named *types.Named, resource config.ResourceConfig) error {
-	st := named.Underlying().(*types.Struct)
-	parentNameParts := strings.Join(strings.Split(parentColumnName, "."), "_")
-	for i := 0; i < st.NumFields(); i++ {
-		field, tag := st.Field(i), st.Tag(i)
-		columnName := strings.ToLower(fmt.Sprintf("%s_%s", naming.CamelToSnake(parentNameParts), naming.CamelToSnake(field.Name())))
-		if strings.HasSuffix(parentNameParts, field.Name()) {
-			b.logger.Debug("removing redundant suffix from column name", "parentName", parentNameParts, "column", field.Name(), "original", columnName)
-			columnName = naming.CamelToSnake(parentNameParts)
-		}
-		cfg := resource.GetColumnConfig(columnName)
-		// Skip unexported, if the original field has a "-" tag or the field was requested to be skipped via config.
-		if !field.Exported() || strings.Contains(tag, "-") || cfg.Skip {
-			continue
-		}
-		valueType := getValueType(field.Type())
-		if valueType == schema.TypeInvalid {
-			return fmt.Errorf("unsupported type %T", field.Type())
-		}
-		if cfg.SkipPrefix {
-			columnName = naming.CamelToSnake(field.Name())
-		}
-		if cfg.Rename != "" {
-			b.logger.Debug("renaming column", "rename", cfg.Rename, "column", field.Name(), "original", columnName)
-			columnName = cfg.Rename
-		}
-
-		switch valueType {
-		case TypeRelation:
-			obj := getNamedType(field.Type()).Obj()
-			b.logger.Debug("building column relation", "table", table.TableName, "column", field.Name(), "object", obj.Name())
-			relationCfg := resource.GetRelationConfig(obj.Name())
-			if relationCfg == nil {
-				relationCfg = &config.ResourceConfig{
-					Service: resource.Service,
-					Domain:  resource.Domain,
-					Name:    field.Name(),
-					Path:    fmt.Sprintf("%s.%s", obj.Pkg().Path(), obj.Name()),
-				}
-			}
-			relationCfg.Path = fmt.Sprintf("%s.%s", obj.Pkg().Path(), obj.Name())
-			rel, err := b.buildTableRelation(table, *relationCfg)
-			if err != nil {
-				return err
-			}
-			table.Relations = append(table.Relations, rel)
-		case TypeEmbedded:
-			if err := b.buildEmbeddedColumns(table, parentTableName, fmt.Sprintf("%s.%s", parentColumnName, field.Name()), getNamedType(field.Type()), resource); err != nil {
-				return err
-			}
-		default:
-			table.Columns = append(table.Columns, ColumnDefinition{
-				Name:     columnName,
-				Type:     valueType,
-				Resolver: &FunctionDefinition{Signature: fmt.Sprintf("schema.PathResolver(\"%s\")", fmt.Sprintf("%s.%s", parentColumnName, field.Name()))},
-			})
-		}
+func (b builder) addPathResolver(fieldName, fieldPath string, definition ColumnDefinition) ColumnDefinition {
+	if definition.Resolver != nil {
+		return definition
 	}
-	return nil
+	if fieldPath != "" {
+		b.logger.Debug("Adding embedded resolver path", "column", strcase.ToCamel(definition.Name), "field", fieldName)
+		definition.Resolver = &FunctionDefinition{
+			Signature: fmt.Sprintf("schema.PathResolver(\"%s.%s\")", fieldPath, fieldName),
+		}
+		return definition
+	}
+	// use strcase here since sdk uses it
+	if strcase.ToCamel(definition.Name) == fieldName {
+		return definition
+	}
+	b.logger.Debug("Adding path resolver column name. camelCase is not same as original field name", "column", strcase.ToCamel(definition.Name), "field", fieldName)
+	definition.Resolver = &FunctionDefinition{
+		Signature: fmt.Sprintf("schema.PathResolver(\"%s\")", fieldName),
+	}
+	return definition
+}
+
+func (b builder) getColumnName(fieldName string, parentFieldPath string) string {
+	if parentFieldPath == "" {
+		return naming.CamelToSnake(fieldName)
+	}
+	parentNameParts := strings.Replace(parentFieldPath, ".", "", -1)
+	if strings.HasSuffix(parentNameParts, fieldName) {
+		b.logger.Debug("removing redundant suffix from column name", "parentName", parentNameParts, "column", fieldName)
+		return naming.CamelToSnake(parentNameParts)
+	}
+	if strings.HasPrefix(fieldName, parentNameParts) {
+		b.logger.Debug("removing redundant prefix from column name", "parentName", parentNameParts, "column", fieldName)
+		return naming.CamelToSnake(fieldName)
+	}
+	return strings.ToLower(fmt.Sprintf("%s_%s", naming.CamelToSnake(parentNameParts), naming.CamelToSnake(fieldName)))
+}
+
+func getParentPath(fieldPath, field string) string {
+	if fieldPath == "" {
+		return field
+	}
+	return fmt.Sprintf("%s.%s", fieldPath, field)
 }
 
 func getFunctionParams(sig *types.Signature) string {
