@@ -27,7 +27,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.3.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.2.0
 	github.com/cloudquery/cq-provider-aws v0.2.17
-	github.com/cloudquery/cq-provider-sdk v0.0.0-20210401093836-ce64599334b2
+	github.com/cloudquery/cq-provider-sdk v0.0.1
 	github.com/creasty/defaults v1.5.1
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/google/go-cmp v0.5.5 // indirect

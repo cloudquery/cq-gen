@@ -61,7 +61,7 @@ resource "aws" "cloudtrail" "trails" {
   }
 
   userDefinedColumn "is_logging" {
-    type = "string"
+    type = "bool"
   }
 
   userDefinedColumn "latest_cloudwatch_logs_delivery_error" {
@@ -77,7 +77,7 @@ resource "aws" "cloudtrail" "trails" {
   }
 
   userDefinedColumn "latest_delivery_attempt_time" {
-    type = "timestamp"
+    type = "string"
   }
 
   userDefinedColumn "latest_delivery_error" {
@@ -101,7 +101,7 @@ resource "aws" "cloudtrail" "trails" {
   }
 
   userDefinedColumn "latest_notification_attempt_time" {
-    type = "timestamp"
+    type = "string"
   }
 
   userDefinedColumn "latest_notification_error" {
@@ -504,6 +504,14 @@ resource "aws" "ec2" "network_acls" {
     type = "json"
     generate_resolver=true
   }
+
+  relation "aws" "ec2" "network_acl_associations" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.NetworkAclAssociation"
+
+    column "network_acl_id" {
+      skip = true
+    }
+  }
 }
 
 resource "aws" "ec2" "route_tables" {
@@ -705,7 +713,7 @@ resource "aws" "ecr" "repositories" {
   }
 
   relation "aws" "ecr" "repository_images" {
-    path = "github.com/aws/aws-sdk-go-v2/service/ecr/types.Image"
+    path = "github.com/aws/aws-sdk-go-v2/service/ecr/types.ImageDetail"
     userDefinedColumn "account_id" {
       type = "string"
       resolver "resolveAWSAccount" {
