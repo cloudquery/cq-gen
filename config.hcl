@@ -865,9 +865,19 @@ resource "aws" "elasticbeanstalk" "environments" {
     }
   }
 
+  column "c_n_a_m_e" {
+    type = "string"
+    rename = "cname"
+  }
+
   column "resources_load_balancer_domain" {
     type = "string"
     rename = "load_balancer_domain"
+  }
+
+  column "resources_load_balancer_load_balancer_name" {
+    type = "string"
+    rename = "load_balancer_name"
   }
 }
 
@@ -943,6 +953,11 @@ resource "aws" "emr" "clusters" {
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
     }
+  }
+
+  column "id" {
+    type = "string"
+    rename = "resource_id"
   }
 }
 
