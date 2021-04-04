@@ -18,12 +18,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/emr v1.2.0
-	github.com/aws/aws-sdk-go-v2/service/fsx v1.2.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/iam v1.3.0
-	github.com/aws/aws-sdk-go-v2/service/kms v1.2.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/organizations v1.2.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/rds v1.2.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/redshift v1.2.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.3.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.2.0
 	github.com/cloudquery/cq-provider-aws v0.2.17
@@ -39,14 +34,11 @@ require (
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/modern-go/reflect2 v1.0.1
 	github.com/pkg/errors v0.9.1
-	github.com/serenize/snaker v0.0.0-20201027110005-a7ad2135616e
-	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/zclconf/go-cty v1.8.1 // indirect
 	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20210331175145-43e1dd70ce54 // indirect
 	golang.org/x/tools v0.1.0
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 
 )
 

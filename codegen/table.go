@@ -231,10 +231,7 @@ func (b builder) buildTableColumn(table *TableDefinition, fieldPath string, fiel
 
 	if cfg.Rename != "" {
 		colDef.Name = cfg.Rename
-		colDef.Resolver = &FunctionDefinition{
-			Name:      "schema.PathResolver",
-			Signature: fmt.Sprintf("schema.PathResolver(\"%s\")", fieldName),
-		}
+		colDef = b.addPathResolver(fieldName, fieldPath, colDef)
 	}
 
 	if cfg.GenerateResolver {
