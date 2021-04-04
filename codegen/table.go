@@ -242,7 +242,7 @@ func (b builder) buildTableColumn(table *TableDefinition, fieldPath string, fiel
 			b.logger.Warn("overriding already defined column resolver", "column", fieldName, "resolver", colDef.Resolver.Name)
 		}
 		columnResolver, err := b.buildFunctionDefinition(table, &config.FunctionConfig{
-			Name:     ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(fieldName))),
+			Name:     ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(colDef.Name))),
 			Body:     defaultImplementation,
 			Path:     path.Join(sdkPath, "plugin/schema.ColumnResolver"),
 			Generate: true,
