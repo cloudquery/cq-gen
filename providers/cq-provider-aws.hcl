@@ -322,11 +322,6 @@ resource "aws" "ec2" "instances" {
     path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
   }
 
-
-  column "tags" {
-    // TypeJson
-    type = "json"
-  }
   relation "aws" "ec2" "InstanceNetworkInterface" {
     path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.InstanceNetworkInterface"
 

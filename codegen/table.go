@@ -154,7 +154,7 @@ func (b builder) buildTableRelation(parentTable *TableDefinition, cfg config.Res
 		return nil, err
 	}
 	rel.Columns = append([]ColumnDefinition{{
-		Name:     strings.ToLower(fmt.Sprintf("%s_id", inflection.Singular(parentTable.Name))),
+		Name:     strings.ToLower(fmt.Sprintf("%s_id", naming.CamelToSnake(inflection.Singular(parentTable.Name)))),
 		Type:     schema.TypeUUID,
 		Resolver: &FunctionDefinition{Signature: "schema.ParentIdResolver"}},
 	}, rel.Columns...)
