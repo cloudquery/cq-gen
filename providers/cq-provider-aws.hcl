@@ -265,16 +265,6 @@ resource "aws" "ec2" "images" {
 
 }
 
-
-resource "aws" "ec2" "instances" {
-  path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Instance"
-
-  column "tags" {
-    type = "json"
-  }
-}
-
-
 resource "aws" "ec2" "byoip_cidrs" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.ByoipCidr"
   ignoreError "IgnoreAccessDenied" {
@@ -302,18 +292,8 @@ resource "aws" "ec2" "byoip_cidrs" {
   }
 }
 
-
-
 resource "aws" "ec2" "instances" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Instance"
-
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
-    }
-  }
-
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
   }
@@ -324,24 +304,49 @@ resource "aws" "ec2" "instances" {
     path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
   }
 
-
-  column "tags" {
-    // TypeJson
-    type = "json"
-  }
   relation "aws" "ec2" "InstanceNetworkInterface" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.InstanceNetworkInterface"
+
     relation "aws" "ec2" "InstancePrivateIpAddress" {
+      path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.InstancePrivateIpAddress"
       column "primary" {
         type = "bool"
         rename = "is_primary"
       }
     }
   }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+    }
+  }
+
+  column "capacity_reservation_specification_capacity_reservation_preference" {
+    rename = "cap_reservation_preference"
+  }
+
+  column "capacity_reservation_specification_capacity_reservation_target_capacity_reservation_id" {
+    rename = "cap_reservation_target_capacity_reservation_id"
+  }
+
+  column "capacity_reservation_specification_capacity_reservation_target_capacity_reservation_resource_group_arn" {
+    rename = "cap_reservation_target_capacity_reservation_rg_arn"
+  }
+
+  column "tags" {
+    // TypeJson
+    type = "json"
+    generate_resolver = true
+  }
 
 }
-
-
-
 
 resource "aws" "ec2" "customer_gateways" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.CustomerGateway"
@@ -857,7 +862,6 @@ resource "aws" "eks" "clusters" {
 
 }
 
-
 resource "aws" "elasticbeanstalk" "environments" {
   path = "github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk/types.EnvironmentDescription"
   ignoreError "IgnoreAccessDenied" {
@@ -1360,7 +1364,6 @@ resource "aws" "rds" "subnet_groups" {
   }
 }
 
-
 resource "aws" "sns" "topics" {
   path = "github.com/aws/aws-sdk-go-v2/service/sns/types.Topic"
 
@@ -1594,7 +1597,6 @@ resource "aws" "sns" "subscriptions" {
     }
   }
 }
-
 
 resource "aws" "redshift" "cluster" {
   path = "github.com/aws/aws-sdk-go-v2/service/redshift/types.Cluster"
