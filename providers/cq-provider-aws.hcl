@@ -254,7 +254,11 @@ resource "aws" "ec2" "images" {
   }
 
   column "tags" {
-    // TypeJson
+    type = "json"
+    generate_resolver=true
+  }
+
+  column "product_codes" {
     type = "json"
     generate_resolver = true
   }
@@ -533,8 +537,9 @@ resource "aws" "ec2" "route_tables" {
     }
   }
 
-  column "tags" {
+  column "route_table_id" {
     // TypeJson
+<<<<<<< HEAD
     type = "json"
     generate_resolver = true
   }
@@ -554,24 +559,58 @@ resource "aws" "ec2" "security_groups" {
   }
 
   userDefinedColumn "account_id" {
+=======
+>>>>>>> a59e1bb6966522f4d4298c071c287e2ea2801981
     type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
-    }
+    rename = "resource_id"
   }
 
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
-    }
-  }
   column "tags" {
     // TypeJson
     type = "json"
     generate_resolver = true
   }
+
+  relation "aws" "ec2" "associations" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.RouteTableAssociation"
+    column "route_table_id" {
+      skip = true
+    }
+  }
+
 }
+
+//resource "aws" "ec2" "security_groups" {
+//  path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.SecurityGroup"
+//  ignoreError "IgnoreAccessDenied" {
+//    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+//  }
+//  multiplex "AwsAccountRegion" {
+//    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+//  }
+//  deleteFilter "AccountRegionFilter" {
+//    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+//  }
+//
+//  userDefinedColumn "account_id" {
+//    type = "string"
+//    resolver "resolveAWSAccount" {
+//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+//    }
+//  }
+//
+//  userDefinedColumn "region" {
+//    type = "string"
+//    resolver "resolveAWSRegion" {
+//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+//    }
+//  }
+//  column "tags" {
+//    // TypeJson
+//    type = "json"
+//    generate_resolver=true
+//  }
+//}
 
 resource "aws" "ec2" "subnets" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Subnet"
@@ -825,11 +864,19 @@ resource "aws" "eks" "clusters" {
     }
   }
 
+<<<<<<< HEAD
   column "tags" {
     // TypeJson
     type = "json"
     generate_resolver = true
   }
+=======
+//  column "tags" {
+//    // TypeJson
+//    type = "json"
+//    generate_resolver=true
+//  }
+>>>>>>> a59e1bb6966522f4d4298c071c287e2ea2801981
 
 }
 
@@ -866,11 +913,19 @@ resource "aws" "elasticbeanstalk" "environments" {
     type = "string"
     rename = "load_balancer_domain"
   }
+<<<<<<< HEAD
   //
   //  column "resources_load_balancer_load_balancer_name" {
   //    type = "string"
   //    rename = "load_balancer_name"
   //  }
+=======
+
+  column "resources_load_balancer_load_balancer_name" {
+    type = "string"
+    rename = "load_balancer_name"
+  }
+>>>>>>> a59e1bb6966522f4d4298c071c287e2ea2801981
 }
 
 resource "aws" "elbv2" "target_groups" {
@@ -1420,6 +1475,19 @@ resource "aws" "sns" "topics" {
     generate = true
   }
 
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+    }
+  }
+
   // Topic attributes are returned as a string we define this to handle type conversion
   userDefinedColumn "owner" {
     type = "string"
@@ -1433,13 +1501,13 @@ resource "aws" "sns" "topics" {
   userDefinedColumn "display_name" {
     type = "string"
   }
-  userDefinedColumn "subscription_confirmed" {
+  userDefinedColumn "subscriptions_confirmed" {
     type = "int"
   }
-  userDefinedColumn "subscription_deleted" {
+  userDefinedColumn "subscriptions_deleted" {
     type = "int"
   }
-  userDefinedColumn "subscription_pending" {
+  userDefinedColumn "subscriptions_pending" {
     type = "int"
   }
   userDefinedColumn "effective_delivery_policy" {
@@ -1457,6 +1525,21 @@ resource "aws" "sns" "topics" {
 resource "aws" "s3" "buckets" {
   path = "github.com/aws/aws-sdk-go-v2/service/s3/types.Bucket"
 
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.AccountMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountFilter"
+  }
+
+  postResourceResolver "resolveS3BucketsAttributes" {
+    path = "github.com/cloudquery/cq-provider-sdk/plugin/schema.RowResolver"
+    generate = true
+  }
+
   userDefinedColumn "account_id" {
     type = "string"
     resolver "ResolveAwsAccount" {
@@ -1466,7 +1549,30 @@ resource "aws" "s3" "buckets" {
 
   userDefinedColumn "region" {
     type = "string"
+<<<<<<< HEAD
     generate_resolver = true
+=======
+  }
+
+  userDefinedColumn "logging_target_prefix" {
+    type = "string"
+  }
+
+  userDefinedColumn "logging_target_bucket" {
+    type = "string"
+  }
+
+  userDefinedColumn "versioning_status" {
+    type = "string"
+  }
+
+  userDefinedColumn "versioning_mfa_delete" {
+    type = "string"
+  }
+
+  userDefinedColumn "policy" {
+    type = "json"
+>>>>>>> a59e1bb6966522f4d4298c071c287e2ea2801981
   }
 
   relation "aws" "s3" "grants" {
@@ -1479,7 +1585,22 @@ resource "aws" "s3" "buckets" {
 
   relation "aws" "s3" "cors_rules" {
     path = "github.com/aws/aws-sdk-go-v2/service/s3/types.CORSRule"
+    column "id" {
+      rename = "resource_id"
+    }
   }
+
+//  relation "aws" "s3" "encryption_rules" {
+//    path = "github.com/aws/aws-sdk-go-v2/service/s3/types.ServerSideEncryptionRule"
+//
+//    column "apply_server_side_encryption_by_default_s_s_e_algorithm" {
+//      rename = "sse_algorithm"
+//
+//    }
+//    column "apply_server_side_encryption_by_default_k_m_s_master_key_id" {
+//      rename = "kms_master_key_id"
+//    }
+//  }
 
 }
 
@@ -1528,13 +1649,13 @@ resource "aws" "sns" "topics" {
     type = "string"
   }
   userDefinedColumn "subscription_confirmed" {
-    type = "int"
+    type = "bigint"
   }
   userDefinedColumn "subscription_deleted" {
-    type = "int"
+    type = "bigint"
   }
   userDefinedColumn "subscription_pending" {
-    type = "int"
+    type = "bigint"
   }
   userDefinedColumn "effective_delivery_policy" {
     type = "Json"
