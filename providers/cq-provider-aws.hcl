@@ -1379,6 +1379,19 @@ resource "aws" "sns" "topics" {
     generate = true
   }
 
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+    }
+  }
+
   // Topic attributes are returned as a string we define this to handle type conversion
   userDefinedColumn "owner" {
     type = "string"
@@ -1392,13 +1405,13 @@ resource "aws" "sns" "topics" {
   userDefinedColumn "display_name" {
     type = "string"
   }
-  userDefinedColumn "subscription_confirmed" {
+  userDefinedColumn "subscriptions_confirmed" {
     type = "int"
   }
-  userDefinedColumn "subscription_deleted" {
+  userDefinedColumn "subscriptions_deleted" {
     type = "int"
   }
-  userDefinedColumn "subscription_pending" {
+  userDefinedColumn "subscriptions_pending" {
     type = "int"
   }
   userDefinedColumn "effective_delivery_policy" {
@@ -1536,13 +1549,13 @@ resource "aws" "sns" "topics" {
     type = "string"
   }
   userDefinedColumn "subscription_confirmed" {
-    type = "int"
+    type = "bigint"
   }
   userDefinedColumn "subscription_deleted" {
-    type = "int"
+    type = "bigint"
   }
   userDefinedColumn "subscription_pending" {
-    type = "int"
+    type = "bigint"
   }
   userDefinedColumn "effective_delivery_policy" {
     type = "Json"
