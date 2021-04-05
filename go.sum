@@ -100,6 +100,7 @@ github.com/aws/aws-sdk-go-v2/service/efs v1.2.0 h1:PCLM4aShavpVcyXqUoUsQpMJ+Z/PL
 github.com/aws/aws-sdk-go-v2/service/efs v1.2.0/go.mod h1:6ZQj15y/BJWGzjbc7JIjD9K4QEINDR5Es/2OW9frZ7I=
 github.com/aws/aws-sdk-go-v2/service/eks v1.2.0 h1:l8LN8xsHUSNLUmqDR1oZLOEgD7lLqNTrWfkuHnPplfE=
 github.com/aws/aws-sdk-go-v2/service/eks v1.2.0/go.mod h1:zJUTBr4SY2zx5zwoawWa//h9/0sSDpkFxS4kPh0v31I=
+github.com/aws/aws-sdk-go-v2/service/eks v1.2.1/go.mod h1:XGNXr+eBGsXebPMHCHHJEaOWaenvyybnUU+dsdKpDXg=
 github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.2.0 h1:vHZW6a3gZb81XNgsTL3/dnDzuPGn3+8WSr9OR2u2UIs=
 github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.2.0/go.mod h1:KjNQ+Fqe7INQJHomPTkWW+y5QjP3B9T0Qjl2gSJAWVM=
 github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.2.0 h1:9lADbVulXuffsnKXULr1p82sHd9t8JiMF41jmgIRbkg=
@@ -112,6 +113,7 @@ github.com/aws/aws-sdk-go-v2/service/iam v1.3.0 h1:V95YLxbxLGlTcFR0KMMSZEaudIxYC
 github.com/aws/aws-sdk-go-v2/service/iam v1.3.0/go.mod h1:gPUYT7MBEb30j9eAsJ17LN9KbXtD1uqKOOKesCC4tjc=
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.0.2 h1:GO0pL4QvQmA0fXJe3MHVO+emtg31MYq5/8sebSWgE6A=
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.0.2/go.mod h1:bYl7lGFQQdHia3uMQH4p6ImnuOeDNeUoydoXM5x8Yzw=
+github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.0.3/go.mod h1:g3Xw4tO/W+ae4EMzkxB6nGnJ48cLM4i1Z61WmD+IKtY=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.0.3 h1:dST4y8pZKZdTPs4uwXmGCJmpycz1SHKmCSIhf3GqHEo=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.0.3/go.mod h1:C50Z41fJaJ7WgaeeCulOGAU3q4+4se4B3uOPFdhBi2I=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.0.4 h1:DRIpujxvhdv3+xLXCoaKk1VB4vk/Sh8sIOBewLJJpes=
@@ -122,16 +124,20 @@ github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.1.1 h1:+WCVceRPiUsrui5
 github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.1.1/go.mod h1:B+fb+BFbja6obFOHYmYE4iUMdej9aM2VGSpgdU1pn0M=
 github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.2.0 h1:UyMohSBk67eLigx1H5x7/kuy/WHnh/uh6OYMgHBRuJQ=
 github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.2.0/go.mod h1:1HPAelAWrpuMzwS4uZZuXVRuVYK7exd4Orhj8zEZekI=
+github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.2.1/go.mod h1:6A0VfJAnYwhcXzt7KsixOdFlITEH5NFl4QeYxlZ5TtQ=
 github.com/aws/aws-sdk-go-v2/service/kms v1.2.1 h1:X77wgZdglt2hU9zZS3DufyJiR4ZGW4F5x72OauDMSsM=
 github.com/aws/aws-sdk-go-v2/service/kms v1.2.1/go.mod h1:VJL8/fcYPX11A7hdOPAXtzU6+yDifhKW5MgwaA6HIwY=
 github.com/aws/aws-sdk-go-v2/service/organizations v1.2.1 h1:TvDVD1mBXP60NIHrqbP8uuzTf4vu48HlOm5jtoQQcW0=
 github.com/aws/aws-sdk-go-v2/service/organizations v1.2.1/go.mod h1:iy7PhC7Wxk3aRePrvaUU7ngXjcAedbTBeKYAYVhnvfI=
 github.com/aws/aws-sdk-go-v2/service/rds v1.2.1 h1:nh6V70gwG0bE6Ocz34rg5VZvmthKuDSa785CBpvY2g8=
 github.com/aws/aws-sdk-go-v2/service/rds v1.2.1/go.mod h1:QQ6pD2d3AUbZblcKzZ5aJ58mMMfcofx2j8KAXcHe8rg=
+github.com/aws/aws-sdk-go-v2/service/redshift v1.3.0 h1:Eiv449szSm77R2AFB8Up0oW3DGJTuaICBkOwptibmfQ=
+github.com/aws/aws-sdk-go-v2/service/redshift v1.3.0/go.mod h1:FSg9SNvu62Ac+jjWjTS7R/mmtXj9zl6nXwacwDGxK0s=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.2.1 h1:3qn6YVXpOCK9seQ8ZilDyMrhpEUaZNaJG8SXNiCvk+c=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.2.1/go.mod h1:3xGOyhtPPD/WXJUljmb5+ZXhNyHa4h6wgL6mWOF6S0c=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.3.0 h1:BBDKiFdz43IZPM74E4M4SckrBMHMGaHG+JEnTQ6vWvc=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.3.0/go.mod h1:vxUWTczq2syysv2JTx4F+ABmzGGE2Py5BfON41O368w=
+github.com/aws/aws-sdk-go-v2/service/s3 v1.4.0/go.mod h1:zFD4go1gW0I/WxeGfCNSsz/BnZSJyu5arLPMPnw0gvQ=
 github.com/aws/aws-sdk-go-v2/service/sns v1.1.2/go.mod h1:/vvAGyo3/TG5CSrJQarIlwzjE6O/DjBIvJTRkpYkvwA=
 github.com/aws/aws-sdk-go-v2/service/sns v1.2.0 h1:XszPoFEFZz4PrGA+5hN5JmTJoBB7H6HMS1W+Fg1JKCM=
 github.com/aws/aws-sdk-go-v2/service/sns v1.2.0/go.mod h1:LRNP8wmK+IJ9tlPFOPS6N49jKntWjtTfoOP4qlKCqx4=
@@ -165,6 +171,9 @@ github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDk
 github.com/cloudquery/cloudquery v0.11.5/go.mod h1:Y+6Zrr6W93/4c4l9oQBKDnYLWtNw9iFv8gtbkVoJ0y0=
 github.com/cloudquery/cq-provider-sdk v0.0.1 h1:u3NwVztmP81r0SKSEJRDO4DD43X2hwO99//lTStS0HI=
 github.com/cloudquery/cq-provider-sdk v0.0.1/go.mod h1:H2C2T55E6DCFW2w55BQ9Fdemc6J5MStfkGwALFWCOCg=
+github.com/cloudquery/cq-provider-sdk v0.0.3/go.mod h1:Dy4mbaXSTQ5fdDxI8c9B9zY6N/o/P+muoubULHEBncw=
+github.com/cloudquery/faker/v3 v3.7.1/go.mod h1:1b8WVG9Gh0T2hVo1a8dWeXfu0AhqSB6J/mmJaesqOeo=
+github.com/cloudquery/go-funk v0.8.2-0.20210404151606-aacdb5e7797f/go.mod h1:d8TwrmltY3K4mKFbay1pcyqTAz0s6yq+3VWYWg+2f50=
 github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
 github.com/cockroachdb/apd v1.1.0 h1:3LFP3629v+1aKXU5Q37mxmRxX/pIu1nijXydLShEq5I=
 github.com/cockroachdb/apd v1.1.0/go.mod h1:8Sl8LxpKi29FqWXR16WEFZRNSz3SoPzUzeMeY4+DwBQ=
@@ -244,6 +253,7 @@ github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6/go.mod h1:cIg4er
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
 github.com/golang/mock v1.2.0/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
 github.com/golang/mock v1.3.1/go.mod h1:sBzyDLLjw3U8JLTeZvSv8jJB+tU5PVekmnlKIyFUx0Y=
+github.com/golang/mock v1.5.0/go.mod h1:CWnOUgYIOo4TcNZ0wHX3YZCqsaM1I1Jvs6v3mP3KVu8=
 github.com/golang/protobuf v1.1.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.3.1/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=

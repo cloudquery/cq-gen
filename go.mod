@@ -14,15 +14,16 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/efs v1.2.0
-	github.com/aws/aws-sdk-go-v2/service/eks v1.2.0
+	github.com/aws/aws-sdk-go-v2/service/eks v1.2.1
 	github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/emr v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/iam v1.3.0
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.3.0
+	github.com/aws/aws-sdk-go-v2/service/redshift v1.3.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.2.0
 	github.com/cloudquery/cq-provider-aws v0.2.17
-	github.com/cloudquery/cq-provider-sdk v0.0.1
+	github.com/cloudquery/cq-provider-sdk v0.0.3
 	github.com/creasty/defaults v1.5.1
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/google/go-cmp v0.5.5 // indirect
@@ -34,6 +35,7 @@ require (
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/modern-go/reflect2 v1.0.1
 	github.com/pkg/errors v0.9.1
+	github.com/thoas/go-funk v0.8.0 // indirect
 	github.com/zclconf/go-cty v1.8.1 // indirect
 	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
