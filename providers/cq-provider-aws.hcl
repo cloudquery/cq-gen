@@ -265,7 +265,6 @@ resource "aws" "ec2" "images" {
 
 }
 
-
 resource "aws" "ec2" "instances" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Instance"
 
@@ -273,7 +272,6 @@ resource "aws" "ec2" "instances" {
     type = "json"
   }
 }
-
 
 resource "aws" "ec2" "byoip_cidrs" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.ByoipCidr"
@@ -301,8 +299,6 @@ resource "aws" "ec2" "byoip_cidrs" {
     }
   }
 }
-
-
 
 resource "aws" "ec2" "instances" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Instance"
@@ -339,9 +335,6 @@ resource "aws" "ec2" "instances" {
   }
 
 }
-
-
-
 
 resource "aws" "ec2" "customer_gateways" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.CustomerGateway"
@@ -565,37 +558,37 @@ resource "aws" "ec2" "route_tables" {
 
 }
 
-//resource "aws" "ec2" "security_groups" {
-//  path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.SecurityGroup"
-//  ignoreError "IgnoreAccessDenied" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
-//  }
-//  multiplex "AwsAccountRegion" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
-//  }
-//  deleteFilter "AccountRegionFilter" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
-//  }
-//
-//  userDefinedColumn "account_id" {
-//    type = "string"
-//    resolver "resolveAWSAccount" {
-//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
-//    }
-//  }
-//
-//  userDefinedColumn "region" {
-//    type = "string"
-//    resolver "resolveAWSRegion" {
-//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
-//    }
-//  }
-//  column "tags" {
-//    // TypeJson
-//    type = "json"
-//    generate_resolver=true
-//  }
-//}
+resource "aws" "ec2" "security_groups" {
+  path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.SecurityGroup"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+    }
+  }
+
+  column "tags" {
+    // TypeJson
+    type = "json"
+    generate_resolver=true
+  }
+}
 
 resource "aws" "ec2" "subnets" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Subnet"
