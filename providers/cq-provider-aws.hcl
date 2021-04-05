@@ -162,10 +162,28 @@ resource "aws" "cloudwatch" "alarms" {
       path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
     }
   }
-
-  relation "aws" "cloudwatch" "metrics" {
-    path = "github.com/aws/aws-sdk-go-v2/service/cloudwatch/types.MetricDataQuery"
+  column "dimensions" {
+    type = "json"
+    generate_resolver = true
   }
+
+  relation "aws" "cloudwatch" "alarm_metrics" {
+    path = "github.com/aws/aws-sdk-go-v2/service/cloudwatch/types.MetricDataQuery"
+
+    column "id" {
+      rename = "metric_id"
+    }
+    column "metric_stat_metric_dimensions" {
+      rename = "metric_stat_metric_dimensions"
+      type = "json"
+      generate_resolver = true
+    }
+
+    column "metric_stat_metric_metric_name" {
+      rename = "metric_stat_metric_name"
+    }
+  }
+
 }
 
 resource "aws" "cloudwatchlogs" "filters" {
@@ -255,7 +273,7 @@ resource "aws" "ec2" "images" {
 
   column "tags" {
     type = "json"
-    generate_resolver=true
+    generate_resolver = true
   }
 
   column "product_codes" {
@@ -563,7 +581,7 @@ resource "aws" "ec2" "route_tables" {
   column "tags" {
     // TypeJson
     type = "json"
-    generate_resolver=true
+    generate_resolver = true
   }
 
   relation "aws" "ec2" "associations" {
@@ -575,37 +593,37 @@ resource "aws" "ec2" "route_tables" {
 
 }
 
-//resource "aws" "ec2" "security_groups" {
-//  path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.SecurityGroup"
-//  ignoreError "IgnoreAccessDenied" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
-//  }
-//  multiplex "AwsAccountRegion" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
-//  }
-//  deleteFilter "AccountRegionFilter" {
-//    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
-//  }
-//
-//  userDefinedColumn "account_id" {
-//    type = "string"
-//    resolver "resolveAWSAccount" {
-//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
-//    }
-//  }
-//
-//  userDefinedColumn "region" {
-//    type = "string"
-//    resolver "resolveAWSRegion" {
-//      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
-//    }
-//  }
-//  column "tags" {
-//    // TypeJson
-//    type = "json"
-//    generate_resolver=true
-//  }
-//}
+resource "aws" "ec2" "security_groups" {
+  path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.SecurityGroup"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+    }
+  }
+
+  column "tags" {
+    // TypeJson
+    type = "json"
+    generate_resolver=true
+  }
+}
 
 resource "aws" "ec2" "subnets" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Subnet"
@@ -664,6 +682,98 @@ resource "aws" "ec2" "vpc_peering_connections" {
       path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
     }
   }
+
+  column "accepter_vpc_info_cidr_block_set" {
+    type = "stringArray"
+    rename = "accepter_cidr_block_set"
+    generate_resolver = true
+  }
+
+  column "accepter_vpc_info_ipv6_cidr_block_set" {
+    type = "stringArray"
+    rename = "accepter_ipv6_cidr_block_set"
+    generate_resolver = true
+  }
+
+  column "accepter_vpc_info_cidr_block" {
+    rename = "accepter_cidr_block"
+  }
+
+  column "accepter_vpc_info_cidr_block_set" {
+    rename = "accepter_cidr_block_set"
+  }
+  column "accepter_vpc_info_ipv6_cidr_block_set" {
+    rename = "accepter_ipv6_cidr_block_set"
+  }
+  column "accepter_vpc_info_owner_id" {
+    rename = "accepter_owner_id"
+  }
+
+  column "accepter_vpc_info_peering_options_allow_egress_from_local_vpc_to_remote_classic_link" {
+    rename = "accepter_allow_egress_local_vpc_to_remote_classic_link"
+  }
+
+  column "accepter_vpc_info_peering_options_allow_egress_from_local_classic_link_to_remote_vpc" {
+    rename = "accepter_allow_egress_local_classic_link_to_remote_vpc"
+  }
+
+  column "accepter_vpc_info_peering_options_allow_dns_resolution_from_remote_vpc" {
+    rename = "accepter_allow_dns_resolution_from_remote_vpc"
+  }
+
+  column "accepter_vpc_info_vpc_id" {
+    rename = "accepter_vpc_id"
+  }
+
+  column "accepter_vpc_info_region" {
+    rename = "accepter_vpc_region"
+  }
+
+  column "requester_vpc_info_cidr_block_set" {
+    type = "stringArray"
+    rename = "requester_cidr_block_set"
+    generate_resolver = true
+  }
+
+  column "requester_vpc_info_ipv6_cidr_block_set" {
+    type = "stringArray"
+    rename = "requester_ipv6_cidr_block_set"
+    generate_resolver = true
+  }
+
+  column "requester_vpc_info_cidr_block" {
+    rename = "requester_cidr_block"
+  }
+  column "requester_vpc_info_cidr_block_set" {
+    rename = "requester_cidr_block_set"
+  }
+  column "requester_vpc_info_ipv6_cidr_block_set" {
+    rename = "requester_ipv6_cidr_block_set"
+  }
+  column "requester_vpc_info_owner_id" {
+    rename = "requester_owner_id"
+  }
+
+  column "requester_vpc_info_peering_options_allow_egress_from_local_vpc_to_remote_classic_link" {
+    rename = "requester_allow_egress_local_vpc_to_remote_classic_link"
+  }
+
+  column "requester_vpc_info_peering_options_allow_egress_from_local_classic_link_to_remote_vpc" {
+    rename = "requester_allow_egress_local_classic_link_to_remote_vpc"
+  }
+
+  column "requester_vpc_info_peering_options_allow_dns_resolution_from_remote_vpc" {
+    rename = "requester_allow_dns_resolution_from_remote_vpc"
+  }
+
+  column "requester_vpc_info_vpc_id" {
+    rename = "requester_vpc_id"
+  }
+
+  column "requester_vpc_info_region" {
+    rename = "requester_vpc_region"
+  }
+
   column "tags" {
     // TypeJson
     type = "json"
