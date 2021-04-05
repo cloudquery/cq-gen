@@ -23,7 +23,7 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 
 	// TODO: move to function
 	fullName := inflection.Plural(resource.Name)
-	if parentTable != nil && !strings.HasPrefix(resource.Name, inflection.Singular(parentTable.Name)) {
+	if parentTable != nil && !strings.HasPrefix(strings.ToLower(resource.Name), strings.ToLower(inflection.Singular(parentTable.Name))) {
 		fullName = fmt.Sprintf("%s%s", inflection.Singular(parentTable.Name), strings.Title(inflection.Plural(resource.Name)))
 	}
 	table := &TableDefinition{
