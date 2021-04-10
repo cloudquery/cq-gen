@@ -7,37 +7,37 @@ resource "aws" "autoscaling" "launch_configurations" {
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 }
 
 resource "aws" "cloudtrail" "trails" {
   path = "github.com/aws/aws-sdk-go-v2/service/cloudtrail/types.Trail"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   postResourceResolver "postCloudtrailTrailResolver" {
     path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
@@ -46,13 +46,13 @@ resource "aws" "cloudtrail" "trails" {
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
   userDefinedColumn "cloudwatch_logs_log_group_name" {
@@ -141,25 +141,25 @@ resource "aws" "cloudwatch" "alarms" {
   path = "github.com/aws/aws-sdk-go-v2/service/cloudwatch/types.MetricAlarm"
 
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
   column "dimensions" {
@@ -189,13 +189,13 @@ resource "aws" "cloudwatch" "alarms" {
 resource "aws" "cloudwatchlogs" "filters" {
   path = "github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types.MetricFilter"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   column "filter_name" {
     type = "string"
@@ -209,13 +209,13 @@ resource "aws" "cloudwatchlogs" "filters" {
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 }
@@ -223,24 +223,24 @@ resource "aws" "cloudwatchlogs" "filters" {
 resource "aws" "directconnect" "gateways" {
   path = "github.com/aws/aws-sdk-go-v2/service/directconnect/types.DirectConnectGateway"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 }
@@ -248,26 +248,26 @@ resource "aws" "directconnect" "gateways" {
 resource "aws" "ec2" "images" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Image"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
 
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -286,26 +286,26 @@ resource "aws" "ec2" "images" {
 resource "aws" "ec2" "byoip_cidrs" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.ByoipCidr"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
 
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 }
@@ -313,13 +313,13 @@ resource "aws" "ec2" "byoip_cidrs" {
 resource "aws" "ec2" "instances" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Instance"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   relation "aws" "ec2" "InstanceNetworkInterface" {
@@ -336,13 +336,13 @@ resource "aws" "ec2" "instances" {
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -369,24 +369,24 @@ resource "aws" "ec2" "instances" {
 resource "aws" "ec2" "customer_gateways" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.CustomerGateway"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
   column "tags" {
@@ -399,24 +399,24 @@ resource "aws" "ec2" "customer_gateways" {
 resource "aws" "ec2" "flow_logs" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.FlowLog"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
   column "tags" {
@@ -429,26 +429,26 @@ resource "aws" "ec2" "flow_logs" {
 resource "aws" "ec2" "internet_gateways" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.InternetGateway"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
 
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -466,26 +466,26 @@ resource "aws" "ec2" "internet_gateways" {
 resource "aws" "ec2" "nat_gateways" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.NatGateway"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
 
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -503,26 +503,26 @@ resource "aws" "ec2" "nat_gateways" {
 resource "aws" "ec2" "network_acls" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.NetworkAcl"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
 
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -544,26 +544,26 @@ resource "aws" "ec2" "network_acls" {
 resource "aws" "ec2" "route_tables" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.RouteTable"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
 
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -591,25 +591,25 @@ resource "aws" "ec2" "route_tables" {
 resource "aws" "ec2" "security_groups" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.SecurityGroup"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -623,26 +623,26 @@ resource "aws" "ec2" "security_groups" {
 resource "aws" "ec2" "subnets" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Subnet"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
 
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
   column "tags" {
@@ -655,26 +655,26 @@ resource "aws" "ec2" "subnets" {
 resource "aws" "ec2" "vpc_peering_connections" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.VpcPeeringConnection"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
 
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -779,26 +779,26 @@ resource "aws" "ec2" "vpc_peering_connections" {
 resource "aws" "ec2" "vpcs" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Vpc"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
 
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
   column "tags" {
@@ -811,24 +811,24 @@ resource "aws" "ec2" "vpcs" {
 resource "aws" "ecr" "repositories" {
   path = "github.com/aws/aws-sdk-go-v2/service/ecr/types.Repository"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -849,13 +849,13 @@ resource "aws" "ecr" "repositories" {
     userDefinedColumn "account_id" {
       type = "string"
       resolver "resolveAWSAccount" {
-        path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+        path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
       }
     }
     userDefinedColumn "region" {
       type = "string"
       resolver "resolveAWSRegion" {
-        path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+        path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
       }
     }
     column "tags" {
@@ -869,24 +869,24 @@ resource "aws" "ecr" "repositories" {
 resource "aws" "ecs" "clusters" {
   path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.Cluster"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -913,24 +913,24 @@ resource "aws" "ecs" "clusters" {
 resource "aws" "efs" "filesystems" {
   path = "github.com/aws/aws-sdk-go-v2/service/efs/types.FileSystemDescription"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
   column "tags" {
@@ -943,24 +943,24 @@ resource "aws" "efs" "filesystems" {
 resource "aws" "eks" "clusters" {
   path = "github.com/aws/aws-sdk-go-v2/service/eks/types.Cluster"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -975,24 +975,24 @@ resource "aws" "eks" "clusters" {
 resource "aws" "elasticbeanstalk" "environments" {
   path = "github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk/types.EnvironmentDescription"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1015,24 +1015,24 @@ resource "aws" "elasticbeanstalk" "environments" {
 resource "aws" "elbv2" "target_groups" {
   path = "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types.TargetGroup"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 }
@@ -1040,24 +1040,24 @@ resource "aws" "elbv2" "target_groups" {
 resource "aws" "elbv2" "load_balancers" {
   path = "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types.LoadBalancer"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 }
@@ -1065,24 +1065,24 @@ resource "aws" "elbv2" "load_balancers" {
 resource "aws" "emr" "clusters" {
   path = "github.com/aws/aws-sdk-go-v2/service/emr/types.ClusterSummary"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1095,24 +1095,24 @@ resource "aws" "emr" "clusters" {
 resource "aws" "fsx" "backups" {
   path = "github.com/aws/aws-sdk-go-v2/service/fsx/types.Backup"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
   column "file_system" {
@@ -1128,24 +1128,24 @@ resource "aws" "fsx" "backups" {
 resource "aws" "iam" "groups" {
   path = "github.com/aws/aws-sdk-go-v2/service/iam/types.Group"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1158,24 +1158,24 @@ resource "aws" "iam" "groups" {
 resource "aws" "iam" "password_policies" {
   path = "github.com/aws/aws-sdk-go-v2/service/iam/types.PasswordPolicy"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 }
@@ -1183,24 +1183,24 @@ resource "aws" "iam" "password_policies" {
 resource "aws" "iam" "policies" {
   path = "github.com/aws/aws-sdk-go-v2/service/iam/types.ManagedPolicyDetail"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1217,24 +1217,24 @@ resource "aws" "iam" "policies" {
 resource "aws" "iam" "roles" {
   path = "github.com/aws/aws-sdk-go-v2/service/iam/types.Role"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1258,24 +1258,24 @@ resource "aws" "iam" "roles" {
 resource "aws" "iam" "virtual_mfa_devices" {
   path = "github.com/aws/aws-sdk-go-v2/service/iam/types.VirtualMFADevice"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1292,13 +1292,13 @@ resource "aws" "iam" "virtual_mfa_devices" {
 resource "aws" "kms" "keys" {
   path = "github.com/aws/aws-sdk-go-v2/service/kms/types.KeyListEntry"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   postResourceResolver "resolveKmsKey" {
@@ -1309,13 +1309,13 @@ resource "aws" "kms" "keys" {
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1372,24 +1372,24 @@ resource "aws" "kms" "keys" {
 resource "aws" "organizations" "accounts" {
   path = "github.com/aws/aws-sdk-go-v2/service/organizations/types.Account"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1402,24 +1402,24 @@ resource "aws" "organizations" "accounts" {
 resource "aws" "rds" "clusters" {
   path = "github.com/aws/aws-sdk-go-v2/service/rds/types.DBCluster"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1454,24 +1454,24 @@ resource "aws" "rds" "clusters" {
 resource "aws" "rds" "certificates" {
   path = "github.com/aws/aws-sdk-go-v2/service/rds/types.Certificate"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 }
@@ -1479,24 +1479,24 @@ resource "aws" "rds" "certificates" {
 resource "aws" "rds" "db_subnet_groups" {
   path = "github.com/aws/aws-sdk-go-v2/service/rds/types.DBSubnetGroup"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 }
@@ -1504,24 +1504,24 @@ resource "aws" "rds" "db_subnet_groups" {
 resource "aws" "rds" "instances" {
   path = "github.com/aws/aws-sdk-go-v2/service/rds/types.DBInstance"
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1545,13 +1545,13 @@ resource "aws" "sns" "topics" {
   path = "github.com/aws/aws-sdk-go-v2/service/sns/types.Topic"
 
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   postResourceResolver "resolveTopicAttributes" {
@@ -1562,13 +1562,13 @@ resource "aws" "sns" "topics" {
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1610,13 +1610,13 @@ resource "aws" "s3" "buckets" {
   path = "github.com/aws/aws-sdk-go-v2/service/s3/types.Bucket"
 
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
   }
 
   postResourceResolver "resolveS3BucketsAttributes" {
@@ -1627,7 +1627,7 @@ resource "aws" "s3" "buckets" {
   userDefinedColumn "account_id" {
     type = "string"
     resolver "ResolveAwsAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
 
@@ -1688,13 +1688,13 @@ resource "aws" "sns" "topics" {
   path = "github.com/aws/aws-sdk-go-v2/service/sns/types.Topic"
 
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
   postResourceResolver "resolveTopicAttributes" {
@@ -1705,13 +1705,13 @@ resource "aws" "sns" "topics" {
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1753,24 +1753,24 @@ resource "aws" "sns" "subscriptions" {
   path = "github.com/aws/aws-sdk-go-v2/service/sns/types.Subscription"
 
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 }
@@ -1779,24 +1779,24 @@ resource "aws" "redshift" "clusters" {
   path = "github.com/aws/aws-sdk-go-v2/service/redshift/types.Cluster"
 
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1811,24 +1811,24 @@ resource "aws" "redshift" "subnet_groups" {
   path = "github.com/aws/aws-sdk-go-v2/service/redshift/types.ClusterSubnetGroup"
 
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 

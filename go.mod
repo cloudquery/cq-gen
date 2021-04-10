@@ -22,7 +22,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/redshift v1.3.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.2.0
-	github.com/cloudquery/cq-provider-aws v0.3.3 // indirect
+	github.com/cloudquery/cq-provider-aws v0.3.3
 	github.com/cloudquery/cq-provider-sdk v0.1.1
 	github.com/creasty/defaults v1.5.1
 	github.com/fatih/color v1.10.0 // indirect
