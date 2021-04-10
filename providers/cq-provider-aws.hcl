@@ -40,7 +40,7 @@ resource "aws" "cloudtrail" "trails" {
     path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
   }
   postResourceResolver "postCloudtrailTrailResolver" {
-    path = "github.com/cloudquery/cq-provider-sdk/plugin/schema.RowResolver"
+    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
     generate = true
   }
   userDefinedColumn "account_id" {
@@ -1302,7 +1302,7 @@ resource "aws" "kms" "keys" {
   }
 
   postResourceResolver "resolveKmsKey" {
-    path = "github.com/cloudquery/cq-provider-sdk/plugin/schema.RowResolver"
+    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
     generate = true
   }
 
@@ -1555,7 +1555,7 @@ resource "aws" "sns" "topics" {
   }
 
   postResourceResolver "resolveTopicAttributes" {
-    path = "github.com/cloudquery/cq-provider-sdk/plugin/schema.RowResolver"
+    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
     generate = true
   }
 
@@ -1620,7 +1620,7 @@ resource "aws" "s3" "buckets" {
   }
 
   postResourceResolver "resolveS3BucketsAttributes" {
-    path = "github.com/cloudquery/cq-provider-sdk/plugin/schema.RowResolver"
+    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
     generate = true
   }
 
@@ -1698,7 +1698,7 @@ resource "aws" "sns" "topics" {
   }
 
   postResourceResolver "resolveTopicAttributes" {
-    path = "github.com/cloudquery/cq-provider-sdk/plugin/schema.RowResolver"
+    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
     generate = true
   }
 

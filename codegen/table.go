@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/naming"
-	"github.com/cloudquery/cq-provider-sdk/plugin/schema"
+	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
 	"go/types"
@@ -60,7 +60,7 @@ func (b builder) buildTableFunctions(table *TableDefinition, resource config.Res
 	table.Resolver, err = b.buildFunctionDefinition(table, &config.FunctionConfig{
 		Name: strcase.ToLowerCamel(fmt.Sprintf("fetch%s%s", strings.Title(resource.Domain), strings.Title(table.Name))),
 		Body: defaultImplementation,
-		Path: path.Join(sdkPath, "plugin/schema.TableResolver"),
+		Path: path.Join(sdkPath, "provider/schema.TableResolver"),
 	})
 
 	if resource.IgnoreError != nil {
@@ -176,7 +176,7 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 			columnResolver, err := b.buildFunctionDefinition(table, &config.FunctionConfig{
 				Name:     ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(uc.Name))),
 				Body:     defaultImplementation,
-				Path:     path.Join(sdkPath, "plugin/schema.ColumnResolver"),
+				Path:     path.Join(sdkPath, "provider/schema.ColumnResolver"),
 				Generate: true,
 			})
 			if err != nil {
@@ -241,7 +241,7 @@ func (b builder) buildTableColumn(table *TableDefinition, fieldPath string, fiel
 		columnResolver, err := b.buildFunctionDefinition(table, &config.FunctionConfig{
 			Name:     ToGoPrivate(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(colDef.Name))),
 			Body:     defaultImplementation,
-			Path:     path.Join(sdkPath, "plugin/schema.ColumnResolver"),
+			Path:     path.Join(sdkPath, "provider/schema.ColumnResolver"),
 			Generate: true,
 		})
 		if err != nil {

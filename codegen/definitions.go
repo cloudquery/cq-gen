@@ -1,7 +1,7 @@
 package codegen
 
 import (
-	"github.com/cloudquery/cq-provider-sdk/plugin/schema"
+	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 	"go/types"
 	"strings"
 )
