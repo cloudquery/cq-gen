@@ -1,3 +1,3 @@
 [submodule "providers/cq-provider-aws"]
 	path = providers/cq-provider-aws
-	url = https://github.com/cloudquery/cq-provider-aws
+    url = git@github.com:cloudquery/cq-provider-aws.git
