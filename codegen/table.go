@@ -21,7 +21,6 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 		return nil, err
 	}
 
-	// TODO: move to function
 	fullName := inflection.Plural(resource.Name)
 	if parentTable != nil && !strings.HasPrefix(strings.ToLower(resource.Name), strings.ToLower(inflection.Singular(parentTable.Name))) {
 		fullName = fmt.Sprintf("%s%s", inflection.Singular(parentTable.Name), strings.Title(inflection.Plural(resource.Name)))
@@ -43,7 +42,7 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 	}
 
 	named := ro.(*types.Named)
-	if err := b.buildColumns(table, named, resource, ""); err != nil {
+	if err := b.buildColumns(table, named, resource, "", ""); err != nil {
 		return nil, err
 	}
 
@@ -140,16 +139,28 @@ func (b builder) buildTableRelations(table *TableDefinition, cfg config.Resource
 		if err != nil {
 			return err
 		}
+		if relTable == nil {
+			continue
+		}
 		table.Relations = append(table.Relations, relTable)
 	}
 	return nil
 }
 
 func (b builder) buildTableRelation(parentTable *TableDefinition, cfg config.ResourceConfig) (*TableDefinition, error) {
-
+	if cfg.LimitDepth != 0 && b.depth >= cfg.LimitDepth {
+		b.logger.Warn("depth level exceeded", "parent_table", parentTable.TableName, "table", cfg.Name)
+		return nil, nil
+	}
 	b.logger.Debug("building column relation", "parent_table", parentTable.TableName, "table", cfg.Name)
 
-	rel, err := b.buildTable(parentTable, cfg)
+	innerB := builder{
+		finder:   b.finder,
+		rewriter: b.rewriter,
+		logger:   b.logger,
+		depth:    b.depth + 1,
+	}
+	rel, err := innerB.buildTable(parentTable, cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +206,7 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 	return nil
 }
 
-func (b builder) buildColumns(table *TableDefinition, named *types.Named, resource config.ResourceConfig, fieldPath string) error {
+func (b builder) buildColumns(table *TableDefinition, named *types.Named, resource config.ResourceConfig, fieldPath string, columnPath string) error {
 	st := named.Underlying().(*types.Struct)
 	for i := 0; i < st.NumFields(); i++ {
 		field, tag := st.Field(i), st.Tag(i)
@@ -204,22 +215,19 @@ func (b builder) buildColumns(table *TableDefinition, named *types.Named, resour
 			b.logger.Debug("skipping column", "table", table.TableName, "column", field.Name())
 			continue
 		}
-		valueType := getValueType(field.Type())
-		if valueType == schema.TypeInvalid {
-			return fmt.Errorf("unsupported type %T", field.Type())
-		}
+
 		b.logger.Debug("building column", "table", table.TableName, "column", field.Name())
-		if err := b.buildTableColumn(table, fieldPath, field, valueType, resource); err != nil {
+		if err := b.buildTableColumn(table, fieldPath, columnPath, field, resource); err != nil {
 			return fmt.Errorf("table %s build column %s failed. %w", table.DomainName, field.Name(), err)
 		}
 	}
 	return nil
 }
 
-func (b builder) buildTableColumn(table *TableDefinition, fieldPath string, field *types.Var, valueType schema.ValueType, resource config.ResourceConfig) error {
+func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath string, field *types.Var, resource config.ResourceConfig) error {
 	fieldName := field.Name()
 	colDef := ColumnDefinition{
-		Name:     b.getColumnName(fieldName, fieldPath),
+		Name:     b.getColumnName(fieldName, columnPath),
 		Type:     0,
 		Resolver: nil,
 	}
@@ -251,9 +259,17 @@ func (b builder) buildTableColumn(table *TableDefinition, fieldPath string, fiel
 		// Set signature of function as the generated resolver name
 		colDef.Resolver.Signature = colDef.Resolver.Name
 	}
+
+	var valueType schema.ValueType
 	if schema.ValueTypeFromString(cfg.Type) != schema.TypeInvalid {
 		valueType = TypeUserDefined
+	} else {
+		valueType = getValueType(field.Type())
+		if valueType == schema.TypeInvalid {
+			return fmt.Errorf("unsupported type %T for %s", field.Type(), b.getColumnName(field.Name(), columnPath))
+		}
 	}
+
 	switch valueType {
 	case TypeRelation:
 		obj := getNamedType(field.Type()).Obj()
@@ -272,10 +288,12 @@ func (b builder) buildTableColumn(table *TableDefinition, fieldPath string, fiel
 		if err != nil {
 			return err
 		}
-		table.Relations = append(table.Relations, rel)
+		if rel != nil {
+			table.Relations = append(table.Relations, rel)
+		}
 	case TypeEmbedded:
 		b.logger.Debug("Building embedded column", "table", table.TableName, "column", field.Name())
-		if err := b.buildColumns(table, getNamedType(field.Type()), resource, getParentPath(fieldPath, field.Name())); err != nil {
+		if err := b.buildColumns(table, getNamedType(field.Type()), resource, getParentPath(fieldPath, field.Name(), false), getParentPath(columnPath, field.Name(), cfg.SkipPrefix)); err != nil {
 			return err
 		}
 
@@ -328,7 +346,10 @@ func (b builder) getColumnName(fieldName string, parentFieldPath string) string 
 	return strings.ToLower(fmt.Sprintf("%s_%s", naming.CamelToSnake(parentNameParts), naming.CamelToSnake(fieldName)))
 }
 
-func getParentPath(fieldPath, field string) string {
+func getParentPath(fieldPath, field string, skipPrefix bool) string {
+	if skipPrefix {
+		return fieldPath
+	}
 	if fieldPath == "" {
 		return field
 	}

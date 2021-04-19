@@ -19,15 +19,16 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/emr v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/iam v1.3.0
-	github.com/aws/aws-sdk-go-v2/service/redshift v1.3.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.2.0
-	github.com/cloudquery/cq-provider-aws v0.3.3
-	github.com/cloudquery/cq-provider-sdk v0.1.1
+	github.com/cloudquery/cq-provider-aws v0.3.4
+	github.com/cloudquery/cq-provider-azure v0.0.0-00010101000000-000000000000 // indirect
+	github.com/cloudquery/cq-provider-gcp v0.1.2
+	github.com/cloudquery/cq-provider-sdk v0.1.2
+	github.com/cloudquery/cq-provider-template v0.0.0-20210406120752-4df23482cbd8 // indirect
 	github.com/creasty/defaults v1.5.1
 	github.com/fatih/color v1.10.0 // indirect
-	github.com/google/go-cmp v0.5.5 // indirect
-	github.com/hashicorp/go-hclog v0.15.0
+	github.com/hashicorp/go-hclog v0.16.0
 	github.com/hashicorp/hcl/v2 v2.9.1
 	github.com/iancoleman/strcase v0.1.3
 	github.com/jackc/pgx/v4 v4.11.0 // indirect
@@ -35,13 +36,14 @@ require (
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/modern-go/reflect2 v1.0.1
 	github.com/pkg/errors v0.9.1
-	github.com/thoas/go-funk v0.8.0 // indirect
 	github.com/zclconf/go-cty v1.8.1 // indirect
 	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20210331175145-43e1dd70ce54 // indirect
 	golang.org/x/tools v0.1.0
-
 )
 
 replace github.com/cloudquery/cq-provider-aws => ./providers/cq-provider-aws
+
+replace github.com/cloudquery/cq-provider-azure => ../cq-provider-azure-v2
+
+replace github.com/cloudquery/cq-provider-gcp => ./providers/cq-provider-gcp

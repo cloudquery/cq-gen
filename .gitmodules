@@ -1,3 +1,9 @@
 [submodule "providers/cq-provider-aws"]
     path = providers/cq-provider-aws
     url = git@github.com:cloudquery/cq-provider-aws.git
+[submodule "providers/cq-provider-azure"]
+	path = providers/cq-provider-azure
+	url = git@github.com/cloudquery/cq-provider-azure-v2.git
+[submodule "providers/cq-provider-gcp"]
+	path = providers/cq-provider-gcp
+	url = https://github.com/cloudquery/cq-provider-gcp-v2.git

@@ -151,6 +151,11 @@ var commonInitialisms = map[string]bool{
 	"CA":    true,
 	"KMS":   true,
 	"FQDN":  true,
+	"IOPS":  true,
+	"GB":    true,
+	"MB":    true,
+	"KB":    true,
+	"MBPS":  true,
 }
 
 // add exceptions here for things that are not automatically convertable

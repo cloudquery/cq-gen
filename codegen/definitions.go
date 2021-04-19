@@ -62,6 +62,9 @@ func (t TableDefinition) RelationExists(name string) bool {
 		if strings.HasSuffix(rel.DomainName, name) {
 			return true
 		}
+		if strings.HasSuffix(rel.TableName, name) {
+			return true
+		}
 	}
 	return false
 }

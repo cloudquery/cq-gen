@@ -52,7 +52,7 @@ func getBasicType(typ *types.Basic) schema.ValueType {
 		return schema.TypeSmallInt
 	case types.Uint16, types.Int32:
 		return schema.TypeInt
-	case types.Uint32, types.Int64, types.Int:
+	case types.Uint32, types.Int64, types.Int, types.Uint64:
 		return schema.TypeBigInt
 	case types.Float32, types.Float64:
 		return schema.TypeFloat
@@ -64,9 +64,11 @@ func getBasicType(typ *types.Basic) schema.ValueType {
 
 func getUniqueStructs(typ types.Type) schema.ValueType {
 	switch typ.String() {
-	case "time.Time":
+	case "time.Time", "*time.Time":
 		return schema.TypeTimestamp
-	case "uuid.UUID":
+	case "uuid.UUID", "*uuid.UUID":
+		return schema.TypeUUID
+	case "[16]byte":
 		return schema.TypeUUID
 	default:
 		return schema.TypeInvalid
@@ -84,7 +86,6 @@ func getNamedType(typ types.Type) *types.Named {
 	}
 	panic("type ")
 }
-
 
 func typeIdentifier(t types.Type) string {
 

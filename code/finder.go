@@ -1,4 +1,3 @@
-
 package code
 
 import (
@@ -55,13 +54,12 @@ func (f *Finder) FindType(pkgName string, typeName string) (types.Type, error) {
 
 	if fun, isFunc := obj.(*types.Func); isFunc {
 		if fun.Type().(*types.Signature).Params() != nil {
-			return  fun.Type().(*types.Signature).Params().At(0).Type(), nil
+			return fun.Type().(*types.Signature).Params().At(0).Type(), nil
 		}
 		return fun.Type(), nil
 	}
 	return obj.Type(), nil
 }
-
 
 func (f Finder) FindObjectFromName(name string) (types.Object, error) {
 	pkgName, typeName := PkgAndType(name)
@@ -82,7 +80,6 @@ func (f Finder) FindObject(pkgName string, typeName string) (types.Object, error
 		return nil, errors.Errorf("required package was not loaded: %s", fullName)
 	}
 
-
 	// then look for types directly
 	for astNode, def := range pkg.TypesInfo.Defs {
 		// only look at defs in the top scope
@@ -97,4 +94,3 @@ func (f Finder) FindObject(pkgName string, typeName string) (types.Object, error
 
 	return nil, errors.Errorf("unable to find type %s\n", fullName)
 }
-

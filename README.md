@@ -38,7 +38,7 @@ The cq-gen has a few high level concepts we will go over before deep diving into
 Two important values are the service name this configuration is part of and the output directory
 ```hcl
 service = "aws"
-output_directory = "providers/cq-provider-aws/resources"
+output_directory = "providers/cq-client-aws/resources"
 ```
 
 ###Resource
@@ -52,24 +52,24 @@ resource "aws" "redshift" "subnet_groups" {
   path = "github.com/aws/aws-sdk-go-v2/service/redshift/types.ClusterSubnetGroup"
 
   ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.IgnoreAccessDeniedServiceDisabled"
+    path = "github.com/cloudquery/cq-client-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-client-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/provider.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-client-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-client-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSRegion"
+      path = "github.com/cloudquery/cq-client-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -135,7 +135,7 @@ The only difference between a UserDefinedColumn and a [column](#column) is tha T
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/provider.ResolveAWSAccount"
+      path = "github.com/cloudquery/cq-client-aws/client.ResolveAWSAccount"
     }
   }
 ```
