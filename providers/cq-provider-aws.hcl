@@ -28,6 +28,39 @@ resource "aws" "autoscaling" "launch_configurations" {
   }
 }
 
+resource "aws" "cloudfront" "cache_policies" {
+  path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.CachePolicySummary"
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+
+  column "id" {
+    type = "string"
+    rename = "resource_id"
+  }
+
+  column "cache_policy" {
+    skip_prefix = true
+  }
+
+  column "cache_policy_config" {
+    skip_prefix = true
+  }
+
+  column "parameters_in_cache_key_and_forwarded_to_origin" {
+//    rename = "parameters"
+    skip_prefix = true
+  }
+}
+
 resource "aws" "cloudtrail" "trails" {
   path = "github.com/aws/aws-sdk-go-v2/service/cloudtrail/types.Trail"
   ignoreError "IgnoreAccessDenied" {
@@ -616,7 +649,7 @@ resource "aws" "ec2" "security_groups" {
   column "tags" {
     // TypeJson
     type = "json"
-    generate_resolver=true
+    generate_resolver = true
   }
 }
 

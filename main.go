@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	_ "github.com/aws/aws-sdk-go-v2/service/autoscaling/types"
+	_ "github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/cloudtrail/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
