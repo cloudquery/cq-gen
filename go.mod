@@ -4,8 +4,8 @@ go 1.15
 
 require (
 	github.com/agext/levenshtein v1.2.3 // indirect
-	github.com/aws/aws-sdk-go-v2/config v1.1.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/autoscaling v1.2.0
+	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.3.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/cloudtrail v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.2.0
@@ -19,10 +19,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/emr v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/iam v1.3.0
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.4.0
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.5.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.2.0
 	github.com/cloudquery/cq-provider-aws v0.3.13
-	github.com/cloudquery/cq-provider-sdk v0.1.6
+	github.com/cloudquery/cq-provider-sdk v0.1.7
 	github.com/creasty/defaults v1.5.1
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/hashicorp/go-hclog v0.16.0
