@@ -1612,15 +1612,22 @@ resource "aws" "rds" "instances" {
 
 resource "aws" "route53" "hosted_zones" {
   path = "github.com/aws/aws-sdk-go-v2/service/route53/types.HostedZone"
+
+  column "id" {
+    rename = "resource_id"
+    generate_resolver = true
+  }
+
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
   }
+
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
@@ -1628,34 +1635,77 @@ resource "aws" "route53" "hosted_zones" {
     }
   }
 
+  column "linked_service_service_principal" {
+    rename = "linked_service_principal"
+  }
+
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
+
+//  postResourceResolver "resolveTags" {
+//    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
+//    generate = true
+//  }
+
+  relation "aws" "route53" "query_logging_configs" {
+    path = "github.com/aws/aws-sdk-go-v2/service/route53/types.QueryLoggingConfig"
+    column "id" {
+      rename = "query_logging_config_id"
+    }
+
+    column "hosted_zone_id" {
+      skip = true
+    }
+  }
+
+  relation "aws" "route53" "resource_record_sets" {
+    path = "github.com/aws/aws-sdk-go-v2/service/route53/types.ResourceRecordSet"
+
+    column "alias_target" {
+      skip_prefix = true
+    }
+
+    column "hosted_zone_id" {
+      skip = true
+    }
+
+    column "resource_records" {
+      skip = true
+    }
+
+    userDefinedColumn "resource_records" {
+      type = "stringarray"
+      generate_resolver = true
+    }
+  }
+}
+
+
+resource "aws" "route53" "traffic_policies" {
+  path = "github.com/aws/aws-sdk-go-v2/service/route53/types.TrafficPolicy"
+
   column "id" {
     rename = "resource_id"
   }
 
-  column "linked_service_service_principal" {
-    rename = "linked_service_principal"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
-  //  userDefinedColumn "region" {
-  //    type = "string"
-  //    resolver "resolveAWSRegion" {
-  //      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-  //    }
-  //  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
+  }
 
-  //  column "tag_list" {
-  //    // TypeJson
-  //    rename = "tags"
-  //    type = "json"
-  //    generate_resolver = true
-  //  }
-
-  //  column "pending_modified_values_pending_cloudwatch_logs_exports_log_types_to_enable" {
-  //    rename = "pending_cloudwatch_logs_types_to_enable"
-  //  }
-  //
-  //  column "pending_modified_values_pending_cloudwatch_logs_exports_log_types_to_disable" {
-  //    rename = "pending_cloudwatch_logs_types_to_disable"
-  //  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
 }
 
 resource "aws" "sns" "topics" {
