@@ -1644,10 +1644,10 @@ resource "aws" "route53" "hosted_zones" {
     generate_resolver = true
   }
 
-//  postResourceResolver "resolveTags" {
-//    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
-//    generate = true
-//  }
+  //  postResourceResolver "resolveTags" {
+  //    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
+  //    generate = true
+  //  }
 
   relation "aws" "route53" "query_logging_configs" {
     path = "github.com/aws/aws-sdk-go-v2/service/route53/types.QueryLoggingConfig"
@@ -1679,6 +1679,70 @@ resource "aws" "route53" "hosted_zones" {
       type = "stringarray"
       generate_resolver = true
     }
+  }
+
+  relation "aws" "route53" "traffic_policy_instances" {
+    path = "github.com/aws/aws-sdk-go-v2/service/route53/types.TrafficPolicyInstance"
+
+    column "hosted_zone_id" {
+      skip = true
+    }
+
+    column "id" {
+      rename = "policy_id"
+    }
+  }
+
+  relation "aws" "route53" "vpc_association_authorizations" {
+    path = "github.com/aws/aws-sdk-go-v2/service/route53/types.VPC"
+
+    column "hosted_zone_id" {
+      skip = true
+    }
+  }
+}
+
+
+resource "aws" "route53" "health_checks" {
+  path = "github.com/aws/aws-sdk-go-v2/service/route53/types.HealthCheck"
+
+  column "id" {
+    rename = "resource_id"
+  }
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+
+  column health_check_config {
+    skip_prefix = true
+  }
+
+  column "cloud_watch_alarm_configuration_dimensions" {
+    skip = true
+  }
+
+  userDefinedColumn "cloud_watch_alarm_configuration_dimensions" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
   }
 }
 
