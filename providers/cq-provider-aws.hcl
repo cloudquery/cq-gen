@@ -1644,10 +1644,11 @@ resource "aws" "route53" "hosted_zones" {
     generate_resolver = true
   }
 
-  //  postResourceResolver "resolveTags" {
-  //    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
-  //    generate = true
-  //  }
+  userDefinedColumn "delegation_set_id" {
+    type = "string"
+    generate_resolver = true
+  }
+
 
   relation "aws" "route53" "query_logging_configs" {
     path = "github.com/aws/aws-sdk-go-v2/service/route53/types.QueryLoggingConfig"
@@ -1703,6 +1704,31 @@ resource "aws" "route53" "hosted_zones" {
 }
 
 
+resource "aws" "route53" "reusable_delegation_sets" {
+  path = "github.com/aws/aws-sdk-go-v2/service/route53/types.DelegationSet"
+
+  column "id" {
+    rename = "resource_id"
+  }
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+}
+
 resource "aws" "route53" "health_checks" {
   path = "github.com/aws/aws-sdk-go-v2/service/route53/types.HealthCheck"
 
@@ -1748,7 +1774,7 @@ resource "aws" "route53" "health_checks" {
 
 
 resource "aws" "route53" "traffic_policies" {
-  path = "github.com/aws/aws-sdk-go-v2/service/route53/types.TrafficPolicy"
+  path = "github.com/aws/aws-sdk-go-v2/service/route53/types.TrafficPolicySummary"
 
   column "id" {
     rename = "resource_id"
@@ -1768,6 +1794,14 @@ resource "aws" "route53" "traffic_policies" {
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+
+  relation "aws" "route53" "versions" {
+    path = "github.com/aws/aws-sdk-go-v2/service/route53/types.TrafficPolicy"
+
+    column "id" {
+      rename = "version_id"
     }
   }
 }
