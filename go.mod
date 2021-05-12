@@ -16,6 +16,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/efs v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/eks v1.2.1
 	github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.2.0
+	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.2.3
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/emr v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/iam v1.3.0

@@ -1130,6 +1130,46 @@ resource "aws" "elbv2" "load_balancers" {
   }
 }
 
+
+resource "aws" "elbv1" "load_balancers" {
+  path = "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing/types.LoadBalancerDescription"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  userDefinedColumn "attributes" {
+    //API_DescribeLoadBalancerAttributes
+    // TypeJson
+    type = "json"
+    generate_resolver = true
+  }
+
+  userDefinedColumn "tags" {
+    //API_DescribeTags
+    // TypeJson
+    type = "json"
+    generate_resolver = true
+  }
+}
+
 resource "aws" "emr" "clusters" {
   path = "github.com/aws/aws-sdk-go-v2/service/emr/types.ClusterSummary"
   ignoreError "IgnoreAccessDenied" {
@@ -1613,11 +1653,6 @@ resource "aws" "rds" "instances" {
 resource "aws" "route53" "hosted_zones" {
   path = "github.com/aws/aws-sdk-go-v2/service/route53/types.HostedZone"
 
-  column "id" {
-    rename = "resource_id"
-    generate_resolver = true
-  }
-
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -1635,18 +1670,21 @@ resource "aws" "route53" "hosted_zones" {
     }
   }
 
+
+  column "id" {
+    rename = "resource_id"
+  }
+
   column "linked_service_service_principal" {
     rename = "linked_service_principal"
   }
 
   userDefinedColumn "tags" {
     type = "json"
-    generate_resolver = true
   }
 
   userDefinedColumn "delegation_set_id" {
     type = "string"
-    generate_resolver = true
   }
 
 
@@ -1736,6 +1774,34 @@ resource "aws" "route53" "health_checks" {
     rename = "resource_id"
   }
 
+  column "cloud_watch_alarm_configuration_comparison_operator" {
+    rename = "cloud_watch_alarm_config_comparison_operator"
+  }
+
+  column "cloud_watch_alarm_configuration_evaluation_periods" {
+    rename = "cloud_watch_alarm_config_evaluation_periods"
+  }
+
+  column "cloud_watch_alarm_configuration_metric_name" {
+    rename = "cloud_watch_alarm_config_metric_name"
+  }
+
+  column "cloud_watch_alarm_configuration_namespace" {
+    rename = "cloud_watch_alarm_config_namespace"
+  }
+
+  column "cloud_watch_alarm_configuration_period" {
+    rename = "cloud_watch_alarm_config_period"
+  }
+
+  column "cloud_watch_alarm_configuration_statistic" {
+    rename = "cloud_watch_alarm_config_statistic"
+  }
+
+  column "cloud_watch_alarm_configuration_threshold" {
+    rename = "cloud_watch_alarm_config_threshold"
+  }
+
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -1757,6 +1823,10 @@ resource "aws" "route53" "health_checks" {
     skip_prefix = true
   }
 
+  column "enable_s_n_i" {
+    rename = "enable_sni"
+  }
+
   column "cloud_watch_alarm_configuration_dimensions" {
     skip = true
   }
@@ -1768,7 +1838,6 @@ resource "aws" "route53" "health_checks" {
 
   userDefinedColumn "tags" {
     type = "json"
-    generate_resolver = true
   }
 }
 
@@ -1790,6 +1859,7 @@ resource "aws" "route53" "traffic_policies" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
   }
 
+
   userDefinedColumn "account_id" {
     type = "string"
     resolver "resolveAWSAccount" {
@@ -1802,6 +1872,11 @@ resource "aws" "route53" "traffic_policies" {
 
     column "id" {
       rename = "version_id"
+    }
+
+    column "document" {
+      type = "Json"
+      generate_resolver = true
     }
   }
 }

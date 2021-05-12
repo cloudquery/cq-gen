@@ -15,6 +15,7 @@ import (
 	_ "github.com/aws/aws-sdk-go-v2/service/efs/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/eks/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk/types"
+	_ "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/emr/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/iam/types"
