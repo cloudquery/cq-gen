@@ -1155,18 +1155,82 @@ resource "aws" "elbv1" "load_balancers" {
     }
   }
 
-  userDefinedColumn "attributes" {
-    //API_DescribeLoadBalancerAttributes
-    // TypeJson
-    type = "json"
+  //github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing/types.LoadBalancerAttributes
+  //AccessLog
+  userDefinedColumn "attributes_access_log_enabled" {
+    type = "bool"
+    generate_resolver = true
+  }
+  userDefinedColumn "attributes_access_log_s3_bucket_name" {
+    type = "string"
+    generate_resolver = true
+  }
+  userDefinedColumn "attributes_access_log_s3_bucket_prefix" {
+    type = "string"
+    generate_resolver = true
+  }
+  userDefinedColumn "attributes_access_log_emit_interval" {
+    type = "int"
+    generate_resolver = true
+  }
+  //ConnectionSettings
+  userDefinedColumn "attributes_connection_settings_idle_timeout" {
+    type = "int"
+    generate_resolver = true
+  }
+  //CrossZoneLoadBalancing
+  userDefinedColumn "attributes_cross_zone_load_balancing_enabled" {
+    type = "bool"
+    generate_resolver = true
+  }
+  //ConnectionDraining
+  userDefinedColumn "attributes_connection_draining_enabled" {
+    type = "bool"
+    generate_resolver = true
+  }
+  userDefinedColumn "attributes_connection_draining_timeout" {
+    type = "int"
+    generate_resolver = true
+  }
+  //AdditionalAttributes
+  userDefinedColumn "attributes_additional_attributes" {
+    type = "Json"
     generate_resolver = true
   }
 
   userDefinedColumn "tags" {
-    //API_DescribeTags
     // TypeJson
     type = "json"
+  }
+
+  column "listener_descriptions" {
+    rename = "listeners"
+  }
+
+  column "source_security_group_group_name" {
+    rename = "source_security_group_name"
+  }
+
+  column "policies_other_policies" {
+    rename = "other_policies"
+  }
+
+  column "policies_l_b_cookie_stickiness_policies" {
+    rename = "policies_lb_cookie_stickiness_policies"
+  }
+
+  column "instances" {
+    type = "stringarray"
     generate_resolver = true
+  }
+
+  relation "aws" "elbv1" "load_balancer_policies" {
+    path = "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing/types.PolicyDescription"
+
+    column "policy_attribute_descriptions" {
+      type = "json"
+      generate_resolver = true
+    }
   }
 }
 
