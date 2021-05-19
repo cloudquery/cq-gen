@@ -19,6 +19,7 @@ import (
 	_ "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/emr/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/iam/types"
+	_ "github.com/aws/aws-sdk-go-v2/service/lambda/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/route53/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/sns/types"

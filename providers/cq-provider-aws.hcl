@@ -1395,7 +1395,7 @@ resource "aws" "iam" "group_policies" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
-  column "policy_document"{
+  column "policy_document" {
     type = "json"
     generate_resolver = true
   }
@@ -1419,7 +1419,7 @@ resource "aws" "iam" "role_policies" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
-  column "policy_document"{
+  column "policy_document" {
     type = "json"
     generate_resolver = true
   }
@@ -1443,7 +1443,7 @@ resource "aws" "iam" "user_policies" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
-  column "policy_document"{
+  column "policy_document" {
     type = "json"
     generate_resolver = true
   }
@@ -2370,6 +2370,155 @@ resource "aws" "redshift" "subnet_groups" {
 
   column "tags" {
     // TypeJson
+    type = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "aws" "lambda" "functions" {
+  path = "github.com/aws/aws-sdk-go-v2/service/lambda.GetFunctionOutput"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  postResourceResolver "resolvePolicyCodeSigningConfig" {
+    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
+    generate = true
+  }
+
+  userDefinedColumn "policy_document" {
+    type = "json"
+  }
+  userDefinedColumn "policy_revision_id" {
+    type = "string"
+  }
+
+  userDefinedColumn "code_signing_allowed_publishers_version_arns" {
+    type = "stringarray"
+  }
+  userDefinedColumn "code_signing_config_arn" {
+    type = "string"
+  }
+  userDefinedColumn "code_signing_config_id" {
+    type = "string"
+  }
+  userDefinedColumn "code_signing_policies_untrusted_artifact_on_deployment" {
+    type = "string"
+  }
+  userDefinedColumn "code_signing_description" {
+    type = "string"
+  }
+  userDefinedColumn "code_signing_last_modified" {
+    type = "timestamp"
+  }
+
+  relation "aws" "lambda" "function_aliases" {
+    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.AliasConfiguration"
+  }
+
+  relation "aws" "lambda" "function_event_invoke_configs" {
+    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.FunctionEventInvokeConfig"
+
+    column "destination_config"{
+      skip_prefix = true
+    }
+  }
+
+  relation "aws" "lambda" "function_versions" {
+    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.FunctionConfiguration"
+    column "image_config_response"{
+      skip_prefix = true
+    }
+  }
+
+  relation "aws" "lambda" "function_concurrency_configs" {
+    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.ProvisionedConcurrencyConfigListItem"
+    column "image_config_response"{
+      skip_prefix = true
+    }
+  }
+
+  relation "aws" "lambda" "function_event_source_mappings" {
+    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.EventSourceMappingConfiguration"
+    column "image_config_response"{
+      skip_prefix = true
+    }
+
+    column "source_access_configurations"{
+      rename = "access_configurations"
+    }
+
+    column "destination_config"{
+      skip_prefix = true
+    }
+  }
+  column "configuration" {
+    skip_prefix = true
+  }
+
+  column "image_config_response"{
+    skip_prefix = true
+  }
+  column "tags" {
+    type = "json"
+  }
+}
+
+
+resource "aws" "lambda" "layers" {
+  path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.LayersListItem"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+
+  relation "aws" "lambda" "layer_versions" {
+    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.LayerVersionsListItem"
+    relation "aws" "lambda" "layer_version_policies" {
+      path = "github.com/aws/aws-sdk-go-v2/service/lambda.GetLayerVersionPolicyOutput"
+    }
+  }
+
+
+
+  column "tags" {
     type = "json"
     generate_resolver = true
   }
