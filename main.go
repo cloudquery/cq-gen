@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	_ "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/autoscaling/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/cloudtrail/types"

@@ -3,6 +3,7 @@ module github.com/cloudquery/cq-gen
 go 1.15
 
 require (
+	github.com/aws/aws-sdk-go-v2/service/apigatewayv2 v1.3.0
 	github.com/aws/aws-sdk-go-v2/service/autoscaling v1.2.0
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.3.0
 	github.com/aws/aws-sdk-go-v2/service/cloudtrail v1.2.0
