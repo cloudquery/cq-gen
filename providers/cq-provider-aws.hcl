@@ -2020,7 +2020,7 @@ resource "aws" "config" "conformance_pack" {
   }
 }
 
-resource "aws" "waf" "webacl" {
+resource "aws" "waf" "webacls" {
   path = "github.com/aws/aws-sdk-go-v2/service/waf/types.WebACL"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
@@ -2049,6 +2049,31 @@ resource "aws" "waf" "webacl" {
       // TypeStringArray
       type = "stringArray"
       generate_resolver = true
+    }
+  }
+}
+
+resource "aws" "waf" "rulegroups" {
+  path = "github.com/aws/aws-sdk-go-v2/service/waf/types.RuleGroupSummary"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccount" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 }
