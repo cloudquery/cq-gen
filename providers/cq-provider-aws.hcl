@@ -2655,7 +2655,6 @@ resource "aws" "waf" "rules" {
   }
 }
 
-
 resource "aws" "lambda" "functions" {
   path = "github.com/aws/aws-sdk-go-v2/service/lambda.GetFunctionOutput"
   ignoreError "IgnoreAccessDenied" {
