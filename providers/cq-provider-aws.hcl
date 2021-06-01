@@ -2430,6 +2430,21 @@ resource "aws" "lambda" "functions" {
   userDefinedColumn "code_signing_last_modified" {
     type = "timestamp"
   }
+  column "configuration" {
+    skip_prefix = true
+  }
+
+  column "image_config_response" {
+    skip_prefix = true
+  }
+//  column "tags" {
+//    type = "json"
+//  }
+
+  column "environment_error_error_code" {
+    rename = "environment_error_code"
+  }
+
 
   relation "aws" "lambda" "function_aliases" {
     path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.AliasConfiguration"
@@ -2471,16 +2486,7 @@ resource "aws" "lambda" "functions" {
       skip_prefix = true
     }
   }
-  column "configuration" {
-    skip_prefix = true
-  }
 
-  column "image_config_response" {
-    skip_prefix = true
-  }
-  column "tags" {
-    type = "json"
-  }
 }
 
 
