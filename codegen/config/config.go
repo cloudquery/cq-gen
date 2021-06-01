@@ -38,6 +38,9 @@ type ResourceConfig struct {
 	PostResourceResolver *FunctionConfig `hcl:"postResourceResolver,block"`
 
 	LimitDepth int `hcl:"limit_depth,optional"`
+
+	EmbedRelation bool `hcl:"embed,optional"`
+	EmbedSkipPrefix bool `hcl:"embed_skip_prefix,optional"`
 }
 
 type FunctionConfig struct {

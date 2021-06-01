@@ -10,6 +10,7 @@ import (
 	_ "github.com/aws/aws-sdk-go-v2/service/cloudtrail/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
+	_ "github.com/aws/aws-sdk-go-v2/service/configservice/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/directconnect/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/ecr/types"
@@ -26,7 +27,6 @@ import (
 	_ "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/sns/types"
 	"github.com/cloudquery/cq-gen/codegen"
-	_ "github.com/cloudquery/cq-provider-aws/client"
 )
 
 func main() {

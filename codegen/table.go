@@ -153,6 +153,20 @@ func (b builder) buildTableRelation(parentTable *TableDefinition, cfg config.Res
 		return nil, nil
 	}
 	b.logger.Debug("building column relation", "parent_table", parentTable.TableName, "table", cfg.Name)
+	if cfg.EmbedRelation {
+		ro, err := b.finder.FindTypeFromName(cfg.Path)
+		if err != nil {
+			return nil, err
+		}
+		columnName := cfg.Name
+		if cfg.EmbedSkipPrefix {
+			columnName = ""
+		}
+		if err := b.buildColumns(parentTable, ro.(*types.Named), cfg, "", columnName); err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
 
 	innerB := builder{
 		finder:   b.finder,

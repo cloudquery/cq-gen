@@ -1,5 +1,5 @@
 service = "aws"
-output_directory = "../cq-provider-aws/resources"
+output_directory = "../forks/cq-provider-aws/resources"
 
 resource "aws" "autoscaling" "launch_configurations" {
   path = "github.com/aws/aws-sdk-go-v2/service/autoscaling/types.LaunchConfiguration"
@@ -1550,6 +1550,26 @@ resource "aws" "iam" "roles" {
   }
 }
 
+resource "aws" "iam" "server_certificates" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iam/types.ServerCertificateMetadata"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccount" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+}
+
+
 resource "aws" "iam" "virtual_mfa_devices" {
   path = "github.com/aws/aws-sdk-go-v2/service/iam/types.VirtualMFADevice"
   ignoreError "IgnoreAccessDenied" {
@@ -2182,11 +2202,18 @@ resource "aws" "s3" "buckets" {
     type = "json"
   }
 
+  userDefinedColumn "tags" {
+    type = "json"
+  }
+
   relation "aws" "s3" "grants" {
     path = "github.com/aws/aws-sdk-go-v2/service/s3/types.Grant"
 
     column "grantee" {
       skip_prefix = true
+    }
+    column "id" {
+      rename = "resource_id"
     }
   }
 
@@ -2196,20 +2223,78 @@ resource "aws" "s3" "buckets" {
       rename = "resource_id"
     }
   }
+  relation "aws" "s3" "public_access_block" {
+    path = "github.com/aws/aws-sdk-go-v2/service/s3/types.PublicAccessBlockConfiguration"
+    embed = true
+    embed_skip_prefix = true
+  }
 
-  //  relation "aws" "s3" "encryption_rules" {
-  //    path = "github.com/aws/aws-sdk-go-v2/service/s3/types.ServerSideEncryptionRule"
-  //
-  //    column "apply_server_side_encryption_by_default_s_s_e_algorithm" {
-  //      rename = "sse_algorithm"
-  //
-  //    }
-  //    column "apply_server_side_encryption_by_default_k_m_s_master_key_id" {
-  //      rename = "kms_master_key_id"
-  //    }
-  //  }
+  relation "aws" "s3" "encryption_rules" {
+    path = "github.com/aws/aws-sdk-go-v2/service/s3/types.ServerSideEncryptionRule"
 
+    column "apply_server_side_encryption_by_default_s_s_e_algorithm" {
+      rename = "sse_algorithm"
+
+    }
+    column "apply_server_side_encryption_by_default_kms_master_key_id" {
+      rename = "kms_master_key_id"
+    }
+  }
+
+  relation "aws" "s3" "replication" {
+    path = "github.com/aws/aws-sdk-go-v2/service/s3/types.ReplicationConfiguration"
+    embed = true
+    column "role" {
+      generate_resolver = false
+    }
+    relation "aws" "s3" "replication_rules" {
+      path = "github.com/aws/aws-sdk-go-v2/service/s3/types.ReplicationRule"
+
+      column "filter" {
+        type = "json"
+        generate_resolver = true
+      }
+      column "destination_replication_time_time_minutes" {
+        rename = "destination_replication_time_minutes"
+      }
+
+      column "id" {
+        rename = "resource_id"
+      }
+
+      column "source_selection_criteria_replica_modifications_status" {
+        rename = "source_replica_modifications_status"
+      }
+      column "source_selection_criteria_sse_kms_encrypted_objects_status" {
+        rename = "source_sse_kms_encrypted_objects_status"
+      }
+    }
+  }
+
+
+  relation "aws" "s3" "lifecycle" {
+    path = "github.com/aws/aws-sdk-go-v2/service/s3/types.LifecycleRule"
+    column "filter" {
+      type = "json"
+      generate_resolver = true
+    }
+    column "id" {
+      rename = "resource_id"
+    }
+    column "transitions" {
+      type = "json"
+      generate_resolver = true
+    }
+    column "noncurrent_version_expiration_noncurrent_days" {
+      rename = "noncurrent_version_expiration_days"
+    }
+    column "noncurrent_version_transitions" {
+      type = "json"
+      generate_resolver = true
+    }
+  }
 }
+
 
 resource "aws" "sns" "topics" {
   path = "github.com/aws/aws-sdk-go-v2/service/sns/types.Topic"
@@ -2370,6 +2455,93 @@ resource "aws" "redshift" "subnet_groups" {
 
   column "tags" {
     // TypeJson
+    type = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "aws" "access_analyzer" "analyzer" {
+  path = "github.com/aws/aws-sdk-go-v2/service/accessanalyzer/types.AnalyzerSummary"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccount" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  column "tags" {
+    // TypeJson
+    type = "json"
+  }
+
+  relation "aws" "access_analyzer" "finding" {
+    path = "github.com/aws/aws-sdk-go-v2/service/accessanalyzer/types.FindingSummary"
+
+    column "id" {
+      type = "string"
+      rename = "finding_id"
+    }
+  }
+}
+
+resource "aws" "config" "configuration_recorders" {
+  path = "github.com/aws/aws-sdk-go-v2/service/configservice/types.ConfigurationRecorder"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccount" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+}
+
+resource "aws" "config" "conformance_pack" {
+  path = "github.com/aws/aws-sdk-go-v2/service/configservice/types.ConformancePackDetail"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccount" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+  column "conformance_pack_input_parameters" {
     type = "json"
     generate_resolver = true
   }
