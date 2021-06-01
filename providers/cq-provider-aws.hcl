@@ -3199,7 +3199,6 @@ resource "aws" "apigateway" "api_keys" {
   }
 }
 
-
 resource "aws" "apigateway" "vpc_links" {
   path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.VpcLink"
   ignoreError "IgnoreAccessDenied" {
