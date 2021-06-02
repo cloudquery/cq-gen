@@ -1,5 +1,5 @@
 service = "gcp"
-output_directory = "../cq-provider-gcp/resources"
+output_directory = "../forks/cq-provider-gcp/resources"
 
 
 resource "gcp" "kms" "keyring" {
@@ -96,7 +96,7 @@ resource "gcp" "sql" "instances" {
     skip_prefix = true
   }
   column "settings_database_flags" {
-    type="json"
+    type = "json"
     generate_resolver = true
   }
   column "id" {
@@ -223,34 +223,33 @@ resource "gcp" "compute" "instances" {
       skip_prefix = true
     }
     column "guest_os_features" {
-      type="stringarray"
+      type = "stringarray"
       generate_resolver = true
     }
     column "shielded_instance_initial_state_dbxs" {
-      type="json"
+      type = "json"
       generate_resolver = true
     }
     column "shielded_instance_initial_state_dbs" {
-      type="json"
+      type = "json"
       generate_resolver = true
     }
     column "shielded_instance_initial_state_keks" {
-      type="json"
+      type = "json"
       generate_resolver = true
     }
   }
 
 
   column "metadata_items" {
-    type="json"
+    type = "json"
     generate_resolver = true
   }
   column "guest_accelerators" {
-    type="json"
+    type = "json"
     generate_resolver = true
   }
 }
-
 
 
 resource "gcp" "compute" "images" {
@@ -282,19 +281,19 @@ resource "gcp" "compute" "images" {
     rename = "resource_id"
   }
   column "guest_os_features" {
-    type="stringarray"
+    type = "stringarray"
     generate_resolver = true
   }
   column "shielded_instance_initial_state_dbxs" {
-    type="json"
+    type = "json"
     generate_resolver = true
   }
   column "shielded_instance_initial_state_dbs" {
-    type="json"
+    type = "json"
     generate_resolver = true
   }
   column "shielded_instance_initial_state_keks" {
-    type="json"
+    type = "json"
     generate_resolver = true
   }
 
@@ -535,7 +534,7 @@ resource "gcp" "compute" "disks" {
     skip = true
   }
   column "guest_os_features" {
-    type="stringarray"
+    type = "stringarray"
     generate_resolver = true
   }
 
@@ -623,4 +622,175 @@ resource "gcp" "compute" "addresses" {
     type = "string"
     rename = "resource_id"
   }
+}
+
+
+resource "gcp" "compute" "addresses" {
+  path = "google.golang.org/api/compute/v1.Address"
+
+  multiplex "ProjectMultiplex" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
+  }
+
+  userDefinedColumn "project_id" {
+    type = "string"
+    resolver "resolveResourceProject" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
+    }
+  }
+
+  column "id" {
+    type = "string"
+    rename = "resource_id"
+  }
+}
+
+
+resource "gcp" "bigquery" "datasets" {
+  path = "google.golang.org/api/bigquery/v2.Dataset"
+
+  multiplex "ProjectMultiplex" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
+  }
+
+  userDefinedColumn "project_id" {
+    type = "string"
+    resolver "resolveResourceProject" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
+    }
+  }
+
+  column "id" {
+    type = "string"
+    rename = "resource_id"
+  }
+
+  column "dataset_reference_dataset_id" {
+    rename = "reference_dataset_id"
+  }
+
+  column "dataset_reference_project_id" {
+    rename = "reference_project_id"
+  }
+
+  column "satisfies_p_z_s" {
+    rename = "satisfies_pzs"
+  }
+
+  relation "gcp" "bigquery" "dataset_accesses" {
+    path = "google.golang.org/api/bigquery/v2.DatasetAccess"
+
+    column "dataset_dataset_dataset_id" {
+      // rename = "dataset_id"
+      skip = true
+    }
+
+    column "dataset_dataset_project_id" {
+      rename = "project_id"
+    }
+
+    column "dataset_target_types" {
+      type = "stringarray"
+      rename = "target_types"
+      generate_resolver = true
+    }
+  }
+
+  relation "gcp" "bigquery" "dataset_routines" {
+    path = "google.golang.org/api/bigquery/v2.Routine"
+    column "arguments" {
+      // todo
+      skip = true
+    }
+
+    column "return_type" {
+      type = "string"
+      // todo maybe add unified resolver for  StandardSqlTableType
+      generate_resolver = true
+    }
+
+    userDefinedColumn "return_table" {
+      type = "json"
+      generate_resolver = true
+    }
+
+    column "return_table_type" {
+      skip = true
+    }
+
+    //        relation "gcp" "bigquery" "dataset_routine_return_table_type_columns" {
+    //          path = "google.golang.org/api/bigquery/v2.StandardSqlTableType"
+    //          column "name" {
+    //            // todo
+    //            skip = true
+    //          }
+    //        }
+
+  }
+
+  relation "gcp" "bigquery" "dataset_models" {
+    path = "google.golang.org/api/bigquery/v2.Model"
+
+    column "feature_columns" {
+      type = "stringarray"
+      generate_resolver = true
+      //      skip = true
+    }
+    column "label_columns" {
+      type = "stringarray"
+      generate_resolver = true
+      //      skip = true
+    }
+
+    relation "gcp" "bigquery" "dataset_model_training_runs" {
+      path = "google.golang.org/api/bigquery/v2.TrainingRun"
+      column "evaluation_metrics_arima_forecasting_metrics_has_drift" {
+        //todo boolarray
+        skip = true
+      }
+
+      column "training_options_hidden_units" {
+        //todo bigintarray
+        skip = true
+      }
+
+      relation "gcp" "bigquery" "dataset_model_training_run_results" {
+        path = "google.golang.org/api/bigquery/v2.IterationResult"
+
+        relation "gcp" "bigquery" "dataset_model_training_run_result_model_info" {
+          path = "google.golang.org/api/bigquery/v2.ArimaModelInfo"
+          column "arima_coefficients_auto_regressive_coefficients" {
+            //todo float64array
+            skip = true
+          }
+          column "arima_coefficients_moving_average_coefficients" {
+            //todo float64array
+            skip = true
+          }
+        }
+      }
+    }
+  }
+
+
+//  relation "gcp" "bigquery" "dataset_table" {
+//    path = "google.golang.org/api/bigquery/v2.Table"
+//
+//    column "schema" {
+//      skip = true
+//    }
+//
+//    relation "gcp" "bigquery" "dataset_table_configuration" {
+//      path = "google.golang.org/api/bigquery/v2.Table"
+//
+//      column "schema" {
+//        skip = true
+//      }
+//      //todo make it skip recursive dependencies
+//      column "external_data_configuration" {
+//        skip = true
+//      }
+//
+//    }
+//  }
 }

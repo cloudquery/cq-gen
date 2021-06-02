@@ -3,8 +3,10 @@ module github.com/cloudquery/cq-gen
 go 1.15
 
 require (
-	github.com/aws/aws-sdk-go-v2/internal/ini v1.0.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/apigateway v1.4.1
+	github.com/aws/aws-sdk-go-v2/service/apigatewayv2 v1.3.1
 	github.com/aws/aws-sdk-go-v2/service/autoscaling v1.5.0
+	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.3.0
 	github.com/aws/aws-sdk-go-v2/service/cloudtrail v1.3.1
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.4.1
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.4.0
@@ -16,12 +18,15 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/efs v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/eks v1.5.0
 	github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.3.1
+	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.3.0
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.3.1
 	github.com/aws/aws-sdk-go-v2/service/emr v1.3.1
 	github.com/aws/aws-sdk-go-v2/service/iam v1.5.0
+	github.com/aws/aws-sdk-go-v2/service/lambda v1.3.1
+	github.com/aws/aws-sdk-go-v2/service/route53 v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.9.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.4.1
-	github.com/cloudquery/cq-provider-aws v0.4.3 // indirect
+	github.com/cloudquery/cq-provider-gcp v0.3.1
 	github.com/cloudquery/cq-provider-sdk v0.2.1
 	github.com/creasty/defaults v1.5.1
 	github.com/fatih/color v1.12.0 // indirect
