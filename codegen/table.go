@@ -2,14 +2,15 @@ package codegen
 
 import (
 	"fmt"
+	"go/types"
+	"path"
+	"strings"
+
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/naming"
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
-	"go/types"
-	"path"
-	"strings"
 )
 
 const defaultImplementation = `panic("not implemented")`

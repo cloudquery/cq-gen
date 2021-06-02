@@ -21,6 +21,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.9.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.4.1
 	github.com/aws/aws-sdk-go-v2/service/waf v1.2.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/wafv2 v1.5.1 // indirect
 	github.com/cloudquery/cq-provider-aws v0.4.5 // indirect
 	github.com/cloudquery/cq-provider-sdk v0.2.1
 	github.com/creasty/defaults v1.5.1
