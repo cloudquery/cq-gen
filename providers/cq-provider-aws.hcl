@@ -2608,6 +2608,10 @@ resource "aws" "waf" "rule_groups" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
+  userDefinedColumn "arn" {
+    type = "string"
+    generate_resolver = true
+  }
   userDefinedColumn "rule_ids" {
     type = "stringArray"
     generate_resolver = true
@@ -2665,6 +2669,10 @@ resource "aws" "waf" "rules" {
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
+  }
+  userDefinedColumn "arn" {
+    type = "string"
+    generate_resolver = true
   }
   userDefinedColumn "tags" {
     type = "json"
