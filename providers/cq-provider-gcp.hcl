@@ -46,6 +46,13 @@ resource "gcp" "storage" "bucket" {
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
   }
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
+  }
+  ignoreError "IgnoreError" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
+  }
+
 
   userDefinedColumn "project_id" {
     type = "string"
@@ -62,7 +69,15 @@ resource "gcp" "storage" "bucket" {
     rename = "resource_id"
   }
 
-  relation "gcp" "storage" "object_acls" {
+  //  relation "gcp" "storage" "object_acls" {
+  //    path = "google.golang.org/api/storage/v1.ObjectAccessControl"
+  //    column "id" {
+  //      type = "string"
+  //      rename = "resource_id"
+  //    }
+  //  }
+
+  relation "gcp" "storage" "default_object_acls" {
     path = "google.golang.org/api/storage/v1.ObjectAccessControl"
     column "id" {
       type = "string"
@@ -70,8 +85,16 @@ resource "gcp" "storage" "bucket" {
     }
   }
 
-  relation "gcp" "storage" "default_object_acls" {
-    path = "google.golang.org/api/storage/v1.ObjectAccessControl"
+  relation "gcp" "storage" "bucket_policy" {
+    path = "google.golang.org/api/storage/v1.Policy"
+    column "id" {
+      type = "string"
+      rename = "resource_id"
+    }
+  }
+
+  relation "gcp" "storage" "bucket_acl" {
+    path = "google.golang.org/api/storage/v1.BucketAccessControl"
     column "id" {
       type = "string"
       rename = "resource_id"
@@ -667,130 +690,225 @@ resource "gcp" "bigquery" "datasets" {
 
   column "dataset_reference_dataset_id" {
     rename = "reference_dataset_id"
+    skip = true
   }
 
   column "dataset_reference_project_id" {
     rename = "reference_project_id"
+    skip = true
   }
 
   column "satisfies_p_z_s" {
     rename = "satisfies_pzs"
   }
 
-  relation "gcp" "bigquery" "dataset_accesses" {
-    path = "google.golang.org/api/bigquery/v2.DatasetAccess"
-
-    column "dataset_dataset_dataset_id" {
-      // rename = "dataset_id"
-      skip = true
-    }
-
-    column "dataset_dataset_project_id" {
-      rename = "project_id"
-    }
-
-    column "dataset_target_types" {
-      type = "stringarray"
-      rename = "target_types"
-      generate_resolver = true
-    }
+  column "access" {
+    skip = true
   }
-
-  relation "gcp" "bigquery" "dataset_routines" {
-    path = "google.golang.org/api/bigquery/v2.Routine"
-    column "arguments" {
-      // todo
-      skip = true
-    }
-
-    column "return_type" {
-      type = "string"
-      // todo maybe add unified resolver for  StandardSqlTableType
-      generate_resolver = true
-    }
-
-    userDefinedColumn "return_table" {
-      type = "json"
-      generate_resolver = true
-    }
-
-    column "return_table_type" {
-      skip = true
-    }
-
-    //        relation "gcp" "bigquery" "dataset_routine_return_table_type_columns" {
-    //          path = "google.golang.org/api/bigquery/v2.StandardSqlTableType"
-    //          column "name" {
-    //            // todo
-    //            skip = true
-    //          }
-    //        }
-
-  }
-
-  relation "gcp" "bigquery" "dataset_models" {
-    path = "google.golang.org/api/bigquery/v2.Model"
-
-    column "feature_columns" {
-      type = "stringarray"
-      generate_resolver = true
-      //      skip = true
-    }
-    column "label_columns" {
-      type = "stringarray"
-      generate_resolver = true
-      //      skip = true
-    }
-
-    relation "gcp" "bigquery" "dataset_model_training_runs" {
-      path = "google.golang.org/api/bigquery/v2.TrainingRun"
-      column "evaluation_metrics_arima_forecasting_metrics_has_drift" {
-        //todo boolarray
-        skip = true
-      }
-
-      column "training_options_hidden_units" {
-        //todo bigintarray
-        skip = true
-      }
-
-      relation "gcp" "bigquery" "dataset_model_training_run_results" {
-        path = "google.golang.org/api/bigquery/v2.IterationResult"
-
-        relation "gcp" "bigquery" "dataset_model_training_run_result_model_info" {
-          path = "google.golang.org/api/bigquery/v2.ArimaModelInfo"
-          column "arima_coefficients_auto_regressive_coefficients" {
-            //todo float64array
-            skip = true
-          }
-          column "arima_coefficients_moving_average_coefficients" {
-            //todo float64array
-            skip = true
-          }
-        }
-      }
-    }
-  }
-
-
-//  relation "gcp" "bigquery" "dataset_table" {
-//    path = "google.golang.org/api/bigquery/v2.Table"
-//
-//    column "schema" {
-//      skip = true
-//    }
-//
-//    relation "gcp" "bigquery" "dataset_table_configuration" {
-//      path = "google.golang.org/api/bigquery/v2.Table"
-//
-//      column "schema" {
-//        skip = true
-//      }
-//      //todo make it skip recursive dependencies
-//      column "external_data_configuration" {
-//        skip = true
-//      }
-//
-//    }
-//  }
 }
+
+resource "gcp" "bigquery" "dataset_accesses" {
+  path = "google.golang.org/api/bigquery/v2.DatasetAccess"
+
+  column "dataset_dataset_dataset_id" {
+    rename = "dataset_id"
+    skip = true
+  }
+
+  userDefinedColumn "dataset_id" {
+    type = "uuid"
+    resolver "Resolver" {
+      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentIdResolver"
+    }
+  }
+
+  column "dataset_dataset_project_id" {
+    rename = "project_id"
+    skip = true
+  }
+
+  column "dataset_target_types" {
+    type = "stringarray"
+    rename = "target_types"
+    generate_resolver = true
+  }
+}
+
+resource "gcp" "bigquery" "dataset_tables" {
+  path = "google.golang.org/api/bigquery/v2.Table"
+  limit_depth = 1
+  column "schema" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  userDefinedColumn "dataset_id" {
+    type = "uuid"
+    resolver "Resolver" {
+      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentIdResolver"
+    }
+  }
+
+  column "external_data_configuration_schema" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "id" {
+    rename = "resource_id"
+  }
+
+  column "model_model_options_labels" {
+    rename = "model_options_labels"
+  }
+  column "model_model_options_loss_type" {
+    rename = "model_options_loss_type"
+  }
+  column "model_model_options_model_type" {
+    rename = "model_options_model_type"
+  }
+
+  column "snapshot_definition_base_table_reference_dataset_id" {
+    skip = true
+  }
+  column "snapshot_definition_base_table_reference_project_id" {
+    skip = true
+  }
+  column "snapshot_definition_base_table_reference_table_id" {
+    skip = true
+  }
+  column "snapshot_definition_snapshot_time" {
+    skip = true
+  }
+
+  column "table_reference_dataset_id" {
+    skip = true
+  }
+  column "table_reference_project_id" {
+    skip = true
+  }
+  column "table_reference_table_id" {
+    skip = true
+  }
+
+  //  column "external_data_configuration_autodetect" {
+  //    skip = true
+  //  }
+  //  column "external_data_configuration_compression" {
+  //    skip = true
+  //  }
+  //  column "external_data_configuration_connection_id" {
+  //    skip = true
+  //  }
+  //  column "external_data_configuration_ignore_unknown_values" {
+  //    skip = true
+  //  }
+  //  column "external_data_configuration_max_bad_records" {
+  //    skip = true
+  //  }
+  //  column "external_data_configuration_schema" {
+  //    skip = true
+  //  }
+  //  column "external_data_configuration_source_format" {
+  //    skip = true
+  //  }
+  //  column "external_data_configuration_source_uris" {
+  //    skip = true
+  //  }
+  column "external_data_configuration_bigtable_options_ignore_unspecified_column_families" {
+    skip = true
+  }
+  column "external_data_configuration_bigtable_options_read_rowkey_as_string" {
+    skip = true
+  }
+  column "external_data_configuration_csv_options_allow_jagged_rows" {
+    skip = true
+  }
+  column "external_data_configuration_csv_options_allow_quoted_newlines" {
+    skip = true
+  }
+  column "external_data_configuration_csv_options_encoding" {
+    skip = true
+  }
+  column "external_data_configuration_csv_options_field_delimiter" {
+    skip = true
+  }
+  column "external_data_configuration_csv_options_quote" {
+    skip = true
+  }
+  column "external_data_configuration_csv_options_skip_leading_rows" {
+    skip = true
+  }
+  column "external_data_configuration_google_sheets_options_range" {
+    skip = true
+  }
+  column "external_data_configuration_google_sheets_options_skip_leading_rows" {
+    skip = true
+  }
+  column "external_data_configuration_hive_partitioning_options_mode" {
+    skip = true
+  }
+  column "external_data_configuration_hive_partitioning_options_require_partition_filter" {
+    skip = true
+  }
+  column "external_data_configuration_hive_partitioning_options_source_uri_prefix" {
+    skip = true
+  }
+  column "external_data_configuration_parquet_options_enable_list_inference" {
+    skip = true
+  }
+  column "external_data_configuration_parquet_options_enable_list_inference" {
+    skip = true
+  }
+  column "external_data_configuration_parquet_options_enum_as_string" {
+    skip = true
+  }
+
+  column "external_data_configuration_bigtable_options_column_families" {
+    skip = true
+  }
+
+
+  relation "gcp" "bigquery" "dataset_model_training_runs" {
+    path = "google.golang.org/api/bigquery/v2.BqmlTrainingRun"
+    column "iteration_results" {
+      skip = true
+    }
+  }
+
+}
+
+
+resource "gcp" "compute" "projects" {
+  path = "google.golang.org/api/compute/v1.Project"
+
+
+  multiplex "ProjectMultiplex" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
+  }
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
+  }
+  ignoreError "IgnoreError" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
+  }
+
+
+  userDefinedColumn "project_id" {
+    type = "string"
+    resolver "resolveResourceProject" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
+    }
+  }
+
+  column "id" {
+    rename = "resource_id"
+  }
+
+  column "common_instance_metadata_items" {
+    type = "json"
+    generate_resolver = true
+  }
+
+}
+
