@@ -2547,7 +2547,7 @@ resource "aws" "config" "conformance_pack" {
   }
 }
 
-resource "aws" "waf" "webacls" {
+resource "aws" "waf" "web_acls" {
   path = "github.com/aws/aws-sdk-go-v2/service/waf/types.WebACL"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
@@ -2564,6 +2564,11 @@ resource "aws" "waf" "webacls" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
+
   userDefinedColumn "region" {
     type = "string"
     resolver "resolveAWSRegion" {
@@ -2580,8 +2585,8 @@ resource "aws" "waf" "webacls" {
   }
 }
 
-resource "aws" "waf" "rulegroups" {
-  path = "github.com/aws/aws-sdk-go-v2/service/waf/types.RuleGroupSummary"
+resource "aws" "waf" "rule_groups" {
+  path = "github.com/aws/aws-sdk-go-v2/service/waf/types.RuleGroup"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -2603,9 +2608,17 @@ resource "aws" "waf" "rulegroups" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
+  userDefinedColumn "rule_ids" {
+    type = "stringArray"
+    generate_resolver = true
+  }
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
 }
 
-resource "aws" "waf" "subscribed_rulegroups" {
+resource "aws" "waf" "subscribed_rule_groups" {
   path = "github.com/aws/aws-sdk-go-v2/service/waf/types.SubscribedRuleGroupSummary"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
@@ -2631,7 +2644,7 @@ resource "aws" "waf" "subscribed_rulegroups" {
 }
 
 resource "aws" "waf" "rules" {
-  path = "github.com/aws/aws-sdk-go-v2/service/waf/types.RuleSummary"
+  path = "github.com/aws/aws-sdk-go-v2/service/waf/types.Rule"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -2652,6 +2665,14 @@ resource "aws" "waf" "rules" {
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
+  }
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  relation "aws" "waf" "predicates" {
+    path = "github.com/aws/aws-sdk-go-v2/service/waf/types.Predicate"
   }
 }
 
