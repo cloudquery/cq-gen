@@ -1,16 +1,19 @@
 package codegen
 
 import (
+	"fmt"
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/rewrite"
 	"github.com/cloudquery/cq-provider-sdk/logging"
 	"github.com/hashicorp/go-hclog"
+	"path"
 )
 
 type ResourceDefinition struct {
-	Config config.ResourceConfig
-	Table  *TableDefinition
+	Config          config.ResourceConfig
+	Table           *TableDefinition
+	RemainingSource string
 }
 
 func buildResources(cfg *config.Config, domain string, resource string) ([]*ResourceDefinition, error) {
@@ -47,8 +50,9 @@ func (b builder) build(cfg *config.Config, domain string, resourceName string) (
 			return nil, err
 		}
 		resources = append(resources, &ResourceDefinition{
-			Config: resource,
-			Table:  t,
+			Config:          resource,
+			Table:           t,
+			RemainingSource: b.rewriter.RemainingSource(path.Join(cfg.OutputDirectory, fmt.Sprintf("%s_%s.go", resource.Domain, resource.Name))),
 		})
 	}
 	return resources, nil
