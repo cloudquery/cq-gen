@@ -2804,6 +2804,10 @@ resource "aws" "wafv2" "rule_groups" {
     type = "json"
     generate_resolver = true
   }
+  userDefinedColumn "policy" {
+    type = "json"
+    generate_resolver = true
+  }
 
   column "id" {
     type = "string"
