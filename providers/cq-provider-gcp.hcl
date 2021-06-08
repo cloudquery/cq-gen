@@ -882,7 +882,6 @@ resource "gcp" "bigquery" "dataset_tables" {
 resource "gcp" "compute" "projects" {
   path = "google.golang.org/api/compute/v1.Project"
 
-
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
   }
@@ -909,6 +908,94 @@ resource "gcp" "compute" "projects" {
     type = "json"
     generate_resolver = true
   }
-
 }
+
+
+resource "gcp" "compute" "target_ssl_proxies" {
+  path = "google.golang.org/api/compute/v1.TargetSslProxy"
+
+  multiplex "ProjectMultiplex" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
+  }
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
+  }
+  ignoreError "IgnoreError" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
+  }
+
+
+  userDefinedColumn "project_id" {
+    type = "string"
+    resolver "resolveResourceProject" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
+    }
+  }
+
+  column "id" {
+    rename = "resource_id"
+  }
+}
+resource "gcp" "compute" "target_https_proxies" {
+  path = "google.golang.org/api/compute/v1.TargetHttpsProxy"
+
+  multiplex "ProjectMultiplex" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
+  }
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
+  }
+  ignoreError "IgnoreError" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
+  }
+
+
+  userDefinedColumn "project_id" {
+    type = "string"
+    resolver "resolveResourceProject" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
+    }
+  }
+
+  column "id" {
+    rename = "resource_id"
+  }
+}
+
+
+resource "gcp" "compute" "ssl_policies" {
+  path = "google.golang.org/api/compute/v1.SslPolicy"
+
+  multiplex "ProjectMultiplex" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
+  }
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
+  }
+  ignoreError "IgnoreError" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
+  }
+
+
+  userDefinedColumn "project_id" {
+    type = "string"
+    resolver "resolveResourceProject" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
+    }
+  }
+
+  column "id" {
+    rename = "resource_id"
+  }
+
+  relation "gcp" "compute" "ssl_policy_warnings"{
+    path = "google.golang.org/api/compute/v1.SslPolicyWarnings"
+
+    column "data"{
+      type = "json"
+      generate_resolver = true
+    }
+  }
+}
+
 
