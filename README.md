@@ -10,6 +10,8 @@ CloudQuery Provider Generator
 
 *CQ-Gen* allows creating providers resources fast and from a client source.
 
+For rewriter to work correctly, use "replace" in go.mod to point to your local provider code
+
 Usage 
 =====
 
@@ -18,7 +20,7 @@ To use cq-gen you first must add the provider as a submodule (future release wil
 Currently, all providers reside in the provider directory.
 
 After the submodule is created add a config file for cq-gen to know how to 
-generate. You can look at [cq-provider-aws](provider/cq-provider-aws.hcl) as an example.
+generate. You can look at [cq-provider-aws](providers/cq-provider-aws.hcl) as an example.
 
 ### Execution
 To execute cq-gen all you need to do is execute the main.go which has 3 main flags:
@@ -90,6 +92,50 @@ resource "aws" "redshift" "subnet_groups" {
 }
 ```
 
+#### All ResourceConfig Options:
+
+```go
+
+type ResourceConfig struct {
+    // Name of service i.e AWS,Azure etc'
+    Service     string `hcl:"service,label"`
+    // Domain this resource belongs too, i.e Storage, Users etc'
+    Domain      string `hcl:"domain,label"`
+    // Name of the resource table
+    Name        string `hcl:"name,label"`
+    // Description of the table
+    Description string `hcl:"description,optional"`
+    // Path to the struct we are generating from
+    Path        string `hcl:"path,optional"`
+    
+    // Column configurations we want to modify
+    Columns           []ColumnConfig   `hcl:"column,block"`
+    // Relations configurations we want to modify / add
+    Relations         []ResourceConfig `hcl:"relation,block"`
+    // UserDefinedColumns are a list of columns we add that aren't part of the original struct
+    UserDefinedColumn []ColumnConfig   `hcl:"userDefinedColumn,block"`
+    
+    // Function configurations will be omitted if not givien
+    IgnoreError          *FunctionConfig `hcl:"ignoreError,block"`
+    Multiplex            *FunctionConfig `hcl:"multiplex,block"`
+    DeleteFilter         *FunctionConfig `hcl:"deleteFilter,block"`
+    PostResourceResolver *FunctionConfig `hcl:"postResourceResolver,block"`
+    
+    // LimitDepth limits the depth cq-gen enters the structs, this is to avoid recursive structs
+    LimitDepth int `hcl:"limit_depth,optional"`
+    
+    // EmbedRelation embeds all of the relations columns into the parent struct
+    EmbedRelation   bool `hcl:"embed,optional"`
+    // EmbedSkipPrefix skips the embedded relation name prefix for all it's embedded columns
+    EmbedSkipPrefix bool `hcl:"embed_skip_prefix,optional"`
+    // Disables reading the struct for description comments for each column
+    DisableReadDescriptions bool `hcl:"disable_auto_descriptions,optional"`
+}
+```
+
+The resource config allows us to control how a resource is generated in cq-gen. 
+There are a few important flags to take note:
+
 ### Column
 Every resource has a set of columns, by default column configs are auto generated based on the resource type. 
 However, if you wish to control the name of the column, or it's type or perhaps force a resolver generation.
@@ -108,20 +154,22 @@ The following config changes the column FilterPattern into a type string and ren
 #### All ColumnConfigs Options:
 ```go
 type ColumnConfig struct {
-	// Name of column as defined by resource, in snake_case, be careful with abbreviations
-	Name       string `hcl:"name,label"`
-	// SkipPrefix Whether we want to skip adding the embedded prefix to a column
-	SkipPrefix bool   `hcl:"skip_prefix,optional" defaults:"false"`
-	// Skip
-	Skip       bool   `hcl:"skip,optional" defaults:"false"`
-	// GenerateResolver whether to force a resolver creation
-	GenerateResolver bool `hcl:"generate_resolver,optional"`
-	// Resolver unique resolver function to use
-	Resolver *FunctionConfig `hcl:"resolver,block"`
-	// Type Overrides column type, use carefully, validation will fail if interface{} of value isn't the same as expected ValueType
-	Type string `hcl:"type,optional"`
-	// Rename column name, if no resolver is passed schema.PathResolver will be used
-	Rename string `hcl:"rename,optional"`
+    // Name of column as defined by resource, in snake_case, be careful with abbreviations
+    Name string `hcl:"name,label"`
+    // Description of column to display to user, this overrides if the column has a description in the struct
+    Description string `hcl:"description,optional"`
+    // SkipPrefix Whether we want to skip adding the embedded prefix to a column
+    SkipPrefix bool `hcl:"skip_prefix,optional" defaults:"false"`
+    // Skip
+    Skip bool `hcl:"skip,optional" defaults:"false"`
+    // GenerateResolver whether to force a resolver creation
+    GenerateResolver bool `hcl:"generate_resolver,optional"`
+    // Resolver unique resolver function to use
+    Resolver *FunctionConfig `hcl:"resolver,block"`
+    // Type Overrides column type, use carefully, validation will fail if interface{} of value isn't the same as expected ValueType
+    Type string `hcl:"type,optional"`
+    // Rename column name, if no resolver is passed schema.PathResolver will be used
+    Rename string `hcl:"rename,optional"`
 }
 
 ```
@@ -140,7 +188,7 @@ The only difference between a UserDefinedColumn and a [column](#column) is tha T
   }
 ```
 
-**Note**: note the resolver here i.e [resolver](#resolvers) is a user defined function giving the path inside the provider,
+**Note**: note the resolver here i.e. [resolver](#resolvers) is a user defined function giving the path inside the provider,
 if this isn't given a generator will be created instead.
 
 ### Resolvers
