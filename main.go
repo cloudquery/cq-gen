@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-
 	_ "github.com/aws/aws-sdk-go-v2/service/apigateway/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/autoscaling/types"
@@ -28,7 +27,6 @@ import (
 	_ "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	_ "github.com/aws/aws-sdk-go-v2/service/sns/types"
 	"github.com/cloudquery/cq-gen/codegen"
-	// _ "google.golang.org/api/bigquery/v2"
 )
 
 func main() {

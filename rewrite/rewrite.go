@@ -1,6 +1,7 @@
 package rewrite
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/cloudquery/cq-gen/code"
 	"go/ast"
@@ -122,6 +123,38 @@ func (r *Rewriter) ExistingImports(filename string) []Import {
 		return imps
 	}
 	return nil
+}
+
+func (r *Rewriter) RemainingSource(filename string) string {
+	filename, err := filepath.Abs(filename)
+	if err != nil {
+		panic(err)
+	}
+	for _, f := range r.pkg.Syntax {
+		pos := r.pkg.Fset.Position(f.Pos())
+
+		if filename != pos.Filename {
+			continue
+		}
+
+		var buf bytes.Buffer
+
+		for _, d := range f.Decls {
+			if r.copied[d] {
+				continue
+			}
+
+			if d, isGen := d.(*ast.GenDecl); isGen && d.Tok == token.IMPORT {
+				continue
+			}
+
+			buf.WriteString(r.getSource(d.Pos(), d.End()))
+			buf.WriteString("\n")
+		}
+
+		return strings.TrimSpace(buf.String())
+	}
+	return ""
 }
 
 type Import struct {

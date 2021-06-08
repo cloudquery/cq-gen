@@ -25,12 +25,15 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 	if parentTable != nil && !strings.HasPrefix(strings.ToLower(resource.Name), strings.ToLower(inflection.Singular(parentTable.Name))) {
 		fullName = fmt.Sprintf("%s%s", inflection.Singular(parentTable.Name), strings.Title(inflection.Plural(resource.Name)))
 	}
+
 	table := &TableDefinition{
 		Name:        fullName,
 		DomainName:  resource.Domain + strcase.ToCamel(resource.Name),
 		TableName:   strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, naming.CamelToSnake(fullName))),
 		parentTable: parentTable,
 	}
+	// will only mark table function as copied
+	b.rewriter.GetFunctionBody(ToGo(table.DomainName), "")
 
 	b.logger.Debug("Building table", "table", table.TableName)
 	if err := b.buildTableFunctions(table, resource); err != nil {
@@ -114,9 +117,14 @@ func (b builder) buildFunctionDefinition(table *TableDefinition, cfg *config.Fun
 	if cfg.Body != "" {
 		body = cfg.Body
 	}
+
+	funcBody := b.rewriter.GetFunctionBody(cfg.Name, body)
+	if funcBody == defaultImplementation {
+		b.logger.Debug("Using default implementation for function", "function", cfg.Name)
+	}
 	def := &FunctionDefinition{
 		Name:      cfg.Name,
-		Body:      b.rewriter.GetFunctionBody(cfg.Name, body),
+		Body:      funcBody,
 		Type:      ro,
 		Arguments: getFunctionParams(signature),
 	}
