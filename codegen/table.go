@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/naming"
+	"github.com/cloudquery/cq-gen/rewrite"
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
+	"go/ast"
 	"go/types"
 	"path"
 	"strings"
@@ -32,6 +34,11 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 		TableName:   strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, naming.CamelToSnake(fullName))),
 		parentTable: parentTable,
 	}
+
+	if resource.Description != "" {
+		table.Description = resource.Description
+	}
+
 	// will only mark table function as copied
 	b.rewriter.GetFunctionBody(ToGo(table.DomainName), "")
 
@@ -200,6 +207,7 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 		b.logger.Debug("adding user defined column", "table", table.TableName, "column", uc.Name)
 		colDef := ColumnDefinition{
 			Name: uc.Name,
+			Description: uc.Description,
 			Type: schema.ValueTypeFromString(uc.Type),
 		}
 		if uc.GenerateResolver {
@@ -229,7 +237,10 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 }
 
 func (b builder) buildColumns(table *TableDefinition, named *types.Named, resource config.ResourceConfig, fieldPath string, columnPath string) error {
+
 	st := named.Underlying().(*types.Struct)
+	rw, _ := rewrite.New("C:\\Users\\Ron-Work\\go\\pkg\\mod\\github.com\\aws\\aws-sdk-go-v2\\service\\iam@v1.5.0\\types")
+	spec := rw.GetStructSpec(named.Obj().Name())
 	for i := 0; i < st.NumFields(); i++ {
 		field, tag := st.Field(i), st.Tag(i)
 		// Skip unexported, if the original field has a "-" tag or the field was requested to be skipped via config.
@@ -239,14 +250,14 @@ func (b builder) buildColumns(table *TableDefinition, named *types.Named, resour
 		}
 
 		b.logger.Debug("building column", "table", table.TableName, "column", field.Name())
-		if err := b.buildTableColumn(table, fieldPath, columnPath, field, resource); err != nil {
+		if err := b.buildTableColumn(table, fieldPath, columnPath, field, resource, spec); err != nil {
 			return fmt.Errorf("table %s build column %s failed. %w", table.DomainName, field.Name(), err)
 		}
 	}
 	return nil
 }
 
-func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath string, field *types.Var, resource config.ResourceConfig) error {
+func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath string, field *types.Var, resource config.ResourceConfig, spec *ast.TypeSpec) error {
 	fieldName := field.Name()
 	colDef := ColumnDefinition{
 		Name:     b.getColumnName(fieldName, columnPath),
@@ -262,6 +273,15 @@ func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath 
 	if cfg.Rename != "" {
 		colDef.Name = cfg.Rename
 		colDef = b.addPathResolver(fieldName, fieldPath, colDef)
+	}
+
+	if cfg.Description != "" {
+		colDef.Description = cfg.Description
+	} else if spec != nil && !resource.DisableReadDescriptions {
+		desc := getSpecColumnDescription(spec, field.Name())
+		if desc != "" {
+			colDef.Description = desc
+		}
 	}
 
 	if cfg.GenerateResolver {
@@ -397,4 +417,23 @@ func getFunctionParams(sig *types.Signature) string {
 		return fmt.Sprintf("(%s) %s", strings.Join(params, ","), results[0])
 	}
 	return fmt.Sprintf("(%s) (%s)", strings.Join(params, ","), strings.Join(results, ","))
+}
+
+
+func getSpecColumnDescription(spec *ast.TypeSpec, columnName string) string {
+
+	s := spec.Type.(*ast.StructType)
+	for _, f := range s.Fields.List {
+		if f.Names[0].Name != columnName {
+			continue
+		}
+		if f.Comment != nil {
+			return f.Comment.Text()
+		}
+		if f.Doc != nil {
+			data := strings.SplitN(f.Doc.Text(), "\n\n", 2)
+			return data[0]
+		}
+	}
+	return ""
 }

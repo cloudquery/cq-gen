@@ -23,10 +23,11 @@ func (c Config) GetResource(resource string) (ResourceConfig, error) {
 }
 
 type ResourceConfig struct {
-	Service string `hcl:"service,label"`
-	Domain  string `hcl:"domain,label"`
-	Name    string `hcl:"name,label"`
-	Path    string `hcl:"path,optional"`
+	Service     string `hcl:"service,label"`
+	Domain      string `hcl:"domain,label"`
+	Name        string `hcl:"name,label"`
+	Description string `hcl:"description,optional"`
+	Path        string `hcl:"path,optional"`
 
 	Columns           []ColumnConfig   `hcl:"column,block"`
 	Relations         []ResourceConfig `hcl:"relation,block"`
@@ -39,8 +40,10 @@ type ResourceConfig struct {
 
 	LimitDepth int `hcl:"limit_depth,optional"`
 
-	EmbedRelation bool `hcl:"embed,optional"`
+	EmbedRelation   bool `hcl:"embed,optional"`
 	EmbedSkipPrefix bool `hcl:"embed_skip_prefix,optional"`
+
+	DisableReadDescriptions bool `hcl:"disable_auto_descriptions,optional"`
 }
 
 type FunctionConfig struct {
@@ -83,6 +86,8 @@ func (r ResourceConfig) GetColumnConfig(name string) ColumnConfig {
 type ColumnConfig struct {
 	// Name of column as defined by resource, in snake_case, be careful with abbreviations
 	Name string `hcl:"name,label"`
+	// Description of column to display to user
+	Description string `hcl:"description,optional"`
 	// SkipPrefix Whether we want to skip adding the embedded prefix to a column
 	SkipPrefix bool `hcl:"skip_prefix,optional" defaults:"false"`
 	// Skip

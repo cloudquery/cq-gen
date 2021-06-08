@@ -42,6 +42,4 @@ require (
 )
 
 // Note: add replace for your local provider so cq-gen rewriter will work properlly
-//replace (
-//	github.com/cloudquery/cq-provider-aws v0.4.3 => ../forks/cq-provider-aws
-//)
+//replace github.com/cloudquery/cq-provider-aws v0.4.5 => ../forks/cq-provider-aws
