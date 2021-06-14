@@ -1,6 +1,7 @@
 package rewrite
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/cloudquery/cq-gen/code"
 	"go/ast"
@@ -17,12 +18,7 @@ type Rewriter struct {
 	files  map[string]string
 	copied map[ast.Decl]bool
 }
-
-func New(dir string) (*Rewriter, error) {
-	importPath := code.ImportPathForDir(dir)
-	if importPath == "" {
-		return nil, fmt.Errorf("import path not found for directory: %q", dir)
-	}
+func NewFromImportPath(importPath string) (*Rewriter, error) {
 	pkgs, err := packages.Load(&packages.Config{
 		Mode: packages.NeedSyntax | packages.NeedTypes,
 	}, importPath)
@@ -38,6 +34,14 @@ func New(dir string) (*Rewriter, error) {
 		files:  map[string]string{},
 		copied: map[ast.Decl]bool{},
 	}, nil
+}
+
+func New(dir string) (*Rewriter, error) {
+	importPath := code.ImportPathForDir(dir)
+	if importPath == "" {
+		return nil, fmt.Errorf("import path not found for directory: %q", dir)
+	}
+	return NewFromImportPath(importPath)
 }
 
 func (r *Rewriter) getSource(start, end token.Pos) string {
@@ -64,6 +68,55 @@ func (r *Rewriter) getFile(filename string) string {
 	}
 
 	return r.files[filename]
+}
+func (r *Rewriter) GetStructDocs(name string) *ast.CommentGroup {
+	for _, f := range r.pkg.Syntax {
+		for _, d := range f.Decls {
+			d, isGen := d.(*ast.GenDecl)
+			if !isGen {
+				continue
+			}
+			if d.Tok != token.TYPE || len(d.Specs) == 0 {
+				continue
+			}
+			spec, isTypeSpec := d.Specs[0].(*ast.TypeSpec)
+			if !isTypeSpec {
+				continue
+			}
+
+			if spec.Name.Name != name {
+				continue
+			}
+			return d.Doc
+		}
+	}
+	return nil
+}
+
+func (r *Rewriter) GetStructSpec(name string) *ast.TypeSpec {
+	for _, f := range r.pkg.Syntax {
+		for _, d := range f.Decls {
+			d, isGen := d.(*ast.GenDecl)
+			if !isGen {
+				continue
+			}
+			if d.Tok != token.TYPE || len(d.Specs) == 0 {
+				continue
+			}
+
+			spec, isTypeSpec := d.Specs[0].(*ast.TypeSpec)
+			if !isTypeSpec {
+				continue
+			}
+
+			if spec.Name.Name != name {
+				continue
+			}
+
+			return spec
+		}
+	}
+	return nil
 }
 
 func (r *Rewriter) getFunction(funcName string) string {
@@ -122,6 +175,38 @@ func (r *Rewriter) ExistingImports(filename string) []Import {
 		return imps
 	}
 	return nil
+}
+
+func (r *Rewriter) RemainingSource(filename string) string {
+	filename, err := filepath.Abs(filename)
+	if err != nil {
+		panic(err)
+	}
+	for _, f := range r.pkg.Syntax {
+		pos := r.pkg.Fset.Position(f.Pos())
+
+		if filename != pos.Filename {
+			continue
+		}
+
+		var buf bytes.Buffer
+
+		for _, d := range f.Decls {
+			if r.copied[d] {
+				continue
+			}
+
+			if d, isGen := d.(*ast.GenDecl); isGen && d.Tok == token.IMPORT {
+				continue
+			}
+
+			buf.WriteString(r.getSource(d.Pos(), d.End()))
+			buf.WriteString("\n")
+		}
+
+		return strings.TrimSpace(buf.String())
+	}
+	return ""
 }
 
 type Import struct {

@@ -5,6 +5,9 @@
     {{- range $column := .}}
         {
         Name: {{$column.Name|quote}},
+        {{- if $column.Description }}
+        Description: {{ $column.Description|quote }},
+        {{- end }}
         Type: schema.{{$column.Type.String}},
         {{- if $column.Resolver }}
             Resolver: {{$column.Resolver|call}},
@@ -15,6 +18,9 @@
 
 {{- define "BuildTable" }}
     Name: {{.TableName|quote}},
+    {{- if .Description }}
+    Description: {{ $.Description|quote }},
+    {{- end }}
     Resolver: {{.Resolver.Name}},
     {{- if .MultiplexFunc }}
         Multiplex: {{.MultiplexFunc|call}},
@@ -61,3 +67,12 @@ return &schema.Table{
 // ====================================================================================================================
 
 {{- template "BuildTableResolvers" .Table }}
+
+{{- if .RemainingSource }}
+// ====================================================================================================================
+//                                                  User Defined Helpers
+// ====================================================================================================================
+
+{{ .RemainingSource }}
+
+{{- end }}

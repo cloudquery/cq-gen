@@ -23,24 +23,39 @@ func (c Config) GetResource(resource string) (ResourceConfig, error) {
 }
 
 type ResourceConfig struct {
-	Service string `hcl:"service,label"`
-	Domain  string `hcl:"domain,label"`
-	Name    string `hcl:"name,label"`
-	Path    string `hcl:"path,optional"`
+	// Name of service i.e AWS,Azure etc'
+	Service     string `hcl:"service,label"`
+	// Domain this resource belongs too, i.e Storage, Users etc'
+	Domain      string `hcl:"domain,label"`
+	// Name of the resource table
+	Name        string `hcl:"name,label"`
+	// Description of the table
+	Description string `hcl:"description,optional"`
+	// Path to the struct we are generating from
+	Path        string `hcl:"path,optional"`
 
+	// Column configurations we want to modify
 	Columns           []ColumnConfig   `hcl:"column,block"`
+	// Relations configurations we want to modify / add
 	Relations         []ResourceConfig `hcl:"relation,block"`
+	// UserDefinedColumns are a list of columns we add that aren't part of the original struct
 	UserDefinedColumn []ColumnConfig   `hcl:"userDefinedColumn,block"`
 
+	// Function configurations will be omitted if not givien
 	IgnoreError          *FunctionConfig `hcl:"ignoreError,block"`
 	Multiplex            *FunctionConfig `hcl:"multiplex,block"`
 	DeleteFilter         *FunctionConfig `hcl:"deleteFilter,block"`
 	PostResourceResolver *FunctionConfig `hcl:"postResourceResolver,block"`
 
+	// LimitDepth limits the depth cq-gen enters the structs, this is to avoid recursive structs
 	LimitDepth int `hcl:"limit_depth,optional"`
 
-	EmbedRelation bool `hcl:"embed,optional"`
+	// EmbedRelation embeds all of the relations columns into the parent struct
+	EmbedRelation   bool `hcl:"embed,optional"`
+	// EmbedSkipPrefix skips the embedded relation name prefix for all it's embedded columns
 	EmbedSkipPrefix bool `hcl:"embed_skip_prefix,optional"`
+	// Disables reading the struct for description comments for each column
+	DisableReadDescriptions bool `hcl:"disable_auto_descriptions,optional"`
 }
 
 type FunctionConfig struct {
@@ -83,6 +98,8 @@ func (r ResourceConfig) GetColumnConfig(name string) ColumnConfig {
 type ColumnConfig struct {
 	// Name of column as defined by resource, in snake_case, be careful with abbreviations
 	Name string `hcl:"name,label"`
+	// Description of column to display to user
+	Description string `hcl:"description,optional"`
 	// SkipPrefix Whether we want to skip adding the embedded prefix to a column
 	SkipPrefix bool `hcl:"skip_prefix,optional" defaults:"false"`
 	// Skip
