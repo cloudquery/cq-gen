@@ -17,9 +17,9 @@ func init() {
 	}
 }
 
-// goModuleRoot returns the root of the current go module if there is a go.mod file in the directory tree
+// GoModuleRoot returns the root of the current go module if there is a go.mod file in the directory tree
 // If not, it returns false
-func goModuleRoot(dir string) (string, bool) {
+func GoModuleRoot(dir string) (string, bool) {
 	dir, err := filepath.Abs(dir)
 	if err != nil {
 		panic(err)
@@ -58,7 +58,7 @@ func ImportPathForDir(dir string) (res string) {
 	}
 	dir = filepath.ToSlash(dir)
 
-	modDir, ok := goModuleRoot(dir)
+	modDir, ok := GoModuleRoot(dir)
 	if ok {
 		return modDir
 	}

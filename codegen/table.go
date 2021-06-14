@@ -2,6 +2,7 @@ package codegen
 
 import (
 	"fmt"
+	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/naming"
 	"github.com/cloudquery/cq-gen/rewrite"
@@ -196,6 +197,7 @@ func (b builder) buildTableRelation(parentTable *TableDefinition, cfg config.Res
 	rel.Columns = append([]ColumnDefinition{{
 		Name:     strings.ToLower(fmt.Sprintf("%s_id", naming.CamelToSnake(inflection.Singular(parentTable.Name)))),
 		Type:     schema.TypeUUID,
+		Description: fmt.Sprintf("Unique ID of %s table (FK)", parentTable.TableName),
 		Resolver: &FunctionDefinition{Signature: "schema.ParentIdResolver"}},
 	}, rel.Columns...)
 
@@ -206,9 +208,9 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 	for _, uc := range resource.UserDefinedColumn {
 		b.logger.Debug("adding user defined column", "table", table.TableName, "column", uc.Name)
 		colDef := ColumnDefinition{
-			Name: uc.Name,
+			Name:        uc.Name,
 			Description: uc.Description,
-			Type: schema.ValueTypeFromString(uc.Type),
+			Type:        schema.ValueTypeFromString(uc.Type),
 		}
 		if uc.GenerateResolver {
 			if uc.Resolver != nil {
@@ -239,7 +241,12 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 func (b builder) buildColumns(table *TableDefinition, named *types.Named, resource config.ResourceConfig, fieldPath string, columnPath string) error {
 
 	st := named.Underlying().(*types.Struct)
-	rw, _ := rewrite.New("C:\\Users\\Ron-Work\\go\\pkg\\mod\\github.com\\aws\\aws-sdk-go-v2\\service\\iam@v1.5.0\\types")
+	pkg, _ := code.PkgAndType(resource.Path)
+	rw, _ := rewrite.NewFromImportPath(pkg)
+	docs := rw.GetStructDocs(named.Obj().Name())
+	if docs != nil && table.Description == "" {
+		table.Description = strings.ReplaceAll(strings.SplitN(docs.Text(), ".", 2)[0] + ".", "\n", " ")
+	}
 	spec := rw.GetStructSpec(named.Obj().Name())
 	for i := 0; i < st.NumFields(); i++ {
 		field, tag := st.Field(i), st.Tag(i)
@@ -419,7 +426,6 @@ func getFunctionParams(sig *types.Signature) string {
 	return fmt.Sprintf("(%s) (%s)", strings.Join(params, ","), strings.Join(results, ","))
 }
 
-
 func getSpecColumnDescription(spec *ast.TypeSpec, columnName string) string {
 
 	s := spec.Type.(*ast.StructType)
@@ -431,8 +437,8 @@ func getSpecColumnDescription(spec *ast.TypeSpec, columnName string) string {
 			return f.Comment.Text()
 		}
 		if f.Doc != nil {
-			data := strings.SplitN(f.Doc.Text(), "\n\n", 2)
-			return data[0]
+			data := strings.SplitN(f.Doc.Text(), ". ", 2)
+			return strings.TrimSpace(strings.ReplaceAll(data[0], "\n", " "))
 		}
 	}
 	return ""
