@@ -119,6 +119,32 @@ func (r *Rewriter) GetStructSpec(name string) *ast.TypeSpec {
 	return nil
 }
 
+func (r *Rewriter) GetStructSpec(name string) *ast.TypeSpec {
+	for _, f := range r.pkg.Syntax {
+		for _, d := range f.Decls {
+			d, isGen := d.(*ast.GenDecl)
+			if !isGen {
+				continue
+			}
+			if d.Tok != token.TYPE || len(d.Specs) == 0 {
+				continue
+			}
+
+			spec, isTypeSpec := d.Specs[0].(*ast.TypeSpec)
+			if !isTypeSpec {
+				continue
+			}
+
+			if spec.Name.Name != name {
+				continue
+			}
+
+			return spec
+		}
+	}
+	return nil
+}
+
 func (r *Rewriter) getFunction(funcName string) string {
 	for _, f := range r.pkg.Syntax {
 		for _, d := range f.Decls {

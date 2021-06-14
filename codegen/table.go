@@ -427,7 +427,6 @@ func getFunctionParams(sig *types.Signature) string {
 }
 
 func getSpecColumnDescription(spec *ast.TypeSpec, columnName string) string {
-
 	s := spec.Type.(*ast.StructType)
 	for _, f := range s.Fields.List {
 		if f.Names[0].Name != columnName {
