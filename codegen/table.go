@@ -245,7 +245,7 @@ func (b builder) buildColumns(table *TableDefinition, named *types.Named, resour
 	rw, _ := rewrite.NewFromImportPath(pkg)
 	docs := rw.GetStructDocs(named.Obj().Name())
 	if docs != nil && table.Description == "" {
-		table.Description = strings.ReplaceAll(strings.SplitN(docs.Text(), ".", 2)[0] + ".", "\n", " ")
+		table.Description = strings.ReplaceAll(strings.SplitN(docs.Text(), ". ", 2)[0], "\n", " ")
 	}
 	spec := rw.GetStructSpec(named.Obj().Name())
 	for i := 0; i < st.NumFields(); i++ {
@@ -436,8 +436,8 @@ func getSpecColumnDescription(spec *ast.TypeSpec, columnName string) string {
 			return f.Comment.Text()
 		}
 		if f.Doc != nil {
-			data := strings.SplitN(f.Doc.Text(), ". ", 2)
-			return strings.TrimSpace(strings.ReplaceAll(data[0], "\n", " "))
+			data := strings.SplitN(f.Doc.Text(), ". ", 2)[0]
+			return strings.TrimSpace(strings.ReplaceAll(data, "\n", " "))
 		}
 	}
 	return ""

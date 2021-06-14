@@ -2379,6 +2379,7 @@ resource "aws" "sns" "topics" {
 
 resource "aws" "s3" "buckets" {
   path = "github.com/aws/aws-sdk-go-v2/service/s3/types.Bucket"
+  description = "An Amazon S3 bucket is a public cloud storage resource available in Amazon Web Services' (AWS) Simple Storage Service (S3)"
 
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
@@ -2887,27 +2888,36 @@ resource "aws" "lambda" "functions" {
 
   userDefinedColumn "policy_document" {
     type = "json"
+    description = "The resource-based policy."
   }
   userDefinedColumn "policy_revision_id" {
     type = "string"
+    description = "A unique identifier for the current revision of the policy."
   }
 
   userDefinedColumn "code_signing_allowed_publishers_version_arns" {
     type = "stringarray"
+    description = "The Amazon Resource Name (ARN) for each of the signing profiles. A signing profile defines a trusted user who can sign a code package."
   }
   userDefinedColumn "code_signing_config_arn" {
+    description = "The Amazon Resource Name (ARN) of the Code signing configuration."
     type = "string"
   }
   userDefinedColumn "code_signing_config_id" {
+    description = "Unique identifier for the Code signing configuration."
     type = "string"
   }
   userDefinedColumn "code_signing_policies_untrusted_artifact_on_deployment" {
+    description = "Code signing configuration policy for deployment validation failure."
     type = "string"
   }
   userDefinedColumn "code_signing_description" {
+    description = "Code signing configuration description."
     type = "string"
   }
   userDefinedColumn "code_signing_last_modified" {
+    description = "The date and time that the Code signing configuration was last modified, in ISO-8601 format (YYYY-MM-DDThh:mm:ss.sTZD)."
+
     type = "timestamp"
   }
   column "configuration" {
@@ -2917,9 +2927,6 @@ resource "aws" "lambda" "functions" {
   column "image_config_response" {
     skip_prefix = true
   }
-  //  column "tags" {
-  //    type = "json"
-  //  }
 
   column "environment_error_error_code" {
     rename = "environment_error_code"
