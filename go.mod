@@ -26,6 +26,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/route53 v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.9.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.4.1
+	github.com/cloudquery/cq-provider-aws v0.4.6 // indirect
+	github.com/cloudquery/cq-provider-gcp v0.3.1 // indirect
 	github.com/cloudquery/cq-provider-sdk v0.2.1
 	github.com/creasty/defaults v1.5.1
 	github.com/fatih/color v1.12.0 // indirect
@@ -45,3 +47,6 @@ require (
 //replace (
 //	github.com/cloudquery/cq-provider-aws v0.4.3 => ../forks/cq-provider-aws
 //)
+
+// Note: add replace for your local provider so cq-gen rewriter will work properlly
+replace github.com/cloudquery/cq-provider-gcp => ../forks/cq-provider-gcp

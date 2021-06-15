@@ -2,11 +2,25 @@ service = "gcp"
 output_directory = "../forks/cq-provider-gcp/resources"
 
 
-resource "gcp" "kms" "keyring" {
+resource "gcp" "kms" "keyrings" {
   path = "google.golang.org/api/cloudkms/v1.KeyRing"
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
+  }
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
+  }
+  ignoreError "IgnoreError" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
+  }
+  postResourceResolver "PostResourceResolver" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.AddGcpMetadata"
+  }
+
+  column "create_time" {
+    type = "timestamp"
+    generate_resolver = true
   }
 
   userDefinedColumn "project_id" {
@@ -17,13 +31,49 @@ resource "gcp" "kms" "keyring" {
   }
   userDefinedColumn "location" {
     type = "string"
-    resolver "resolveResourceLocation" {
-      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveLocation"
-    }
   }
 
   relation "gcp" "kms" "cryptoKey" {
     path = "google.golang.org/api/cloudkms/v1.CryptoKey"
+
+    postResourceResolver "PostResourceResolver" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.AddGcpMetadata"
+    }
+    ignoreError "IgnoreError" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
+    }
+
+    column "create_time" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+    column "next_rotation_time" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+    column "primary_create_time" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+    column "primary_destroy_event_time" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+    column "primary_destroy_time" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+    column "primary_generate_time" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+    column "primary_import_time" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+
+
+
 
     userDefinedColumn "project_id" {
       type = "string"
@@ -31,12 +81,13 @@ resource "gcp" "kms" "keyring" {
         path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
       }
     }
+
     userDefinedColumn "location" {
       type = "string"
-      resolver "resolveResourceLocation" {
-        path = "github.com/cloudquery/cq-provider-gcp/client.ResolveLocation"
-      }
     }
+    //    relation "gcp" "kms" "policy" {
+    //      path = "google.golang.org/api/cloudkms/v1.Policy"
+    //    }
   }
 }
 
@@ -162,7 +213,46 @@ resource "gcp" "iam" "service_accounts" {
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
   }
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
+  }
+  ignoreError "IgnoreError" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
+  }
 
+
+  //  userDefinedColumn "project_id" {
+  //    type = "string"
+  //    resolver "resolveResourceProject" {
+  //      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
+  //    }
+  //  }
+
+  relation "gcp" "iam" "service_account_keys" {
+    path = "google.golang.org/api/iam/v1.ServiceAccountKey"
+
+    column "private_key_data" {
+      skip = true
+    }
+
+    column "public_key_data" {
+      skip = true
+    }
+
+    column "private_key_type" {
+      skip = true
+    }
+
+    column "valid_after_time" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+
+    column "valid_before_time" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+  }
 }
 
 
@@ -908,6 +998,10 @@ resource "gcp" "compute" "projects" {
     type = "json"
     generate_resolver = true
   }
+
+  relation "gcp" "compute" "project_policy" {
+    path = "google.golang.org/api/compute/v1.Policy"
+  }
 }
 
 
@@ -1202,7 +1296,7 @@ resource "gcp" "monitoring" "alert_policies" {
 
 
 resource "gcp" "logging" "sinks" {
-  path = "google.golang.org/api/dns/v1.LogSink"
+  path = "google.golang.org/api/logging/v2.LogSink"
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"

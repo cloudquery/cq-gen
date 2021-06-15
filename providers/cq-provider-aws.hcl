@@ -1321,10 +1321,12 @@ resource "aws" "iam" "groups" {
     }
   }
 
-  userDefinedColumn "policies" {
+  userDefinedColumn "attached_policies" {
     type = "json"
     generate_resolver = true
   }
+
+//relation "inline_policies"
 }
 
 
