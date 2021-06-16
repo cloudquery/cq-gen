@@ -53,7 +53,7 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 	}
 
 	named := ro.(*types.Named)
-	if err := b.buildColumns(table, named, resource, "", ""); err != nil {
+	if err := b.buildColumns(table, named, resource, "", "", "", nil); err != nil {
 		return nil, err
 	}
 
@@ -151,6 +151,12 @@ func (b builder) buildTableRelations(table *TableDefinition, cfg config.Resource
 		if table.RelationExists(relCfg.Name) {
 			continue
 		}
+
+		// parent LimitDepth should be transferred to rel
+		if cfg.LimitDepth > 0 {
+			relCfg.LimitDepth = cfg.LimitDepth
+		}
+
 		relTable, err := b.buildTableRelation(table, relCfg)
 		if err != nil {
 			return err
@@ -178,7 +184,7 @@ func (b builder) buildTableRelation(parentTable *TableDefinition, cfg config.Res
 		if cfg.EmbedSkipPrefix {
 			columnName = ""
 		}
-		if err := b.buildColumns(parentTable, ro.(*types.Named), cfg, "", columnName); err != nil {
+		if err := b.buildColumns(parentTable, ro.(*types.Named), cfg, "", columnName, "", nil); err != nil {
 			return nil, err
 		}
 		return nil, nil
@@ -189,16 +195,17 @@ func (b builder) buildTableRelation(parentTable *TableDefinition, cfg config.Res
 		rewriter: b.rewriter,
 		logger:   b.logger,
 		depth:    b.depth + 1,
+		cfg:      b.cfg,
 	}
 	rel, err := innerB.buildTable(parentTable, cfg)
 	if err != nil {
 		return nil, err
 	}
 	rel.Columns = append([]ColumnDefinition{{
-		Name:     strings.ToLower(fmt.Sprintf("%s_id", naming.CamelToSnake(inflection.Singular(parentTable.Name)))),
-		Type:     schema.TypeUUID,
+		Name:        strings.ToLower(fmt.Sprintf("%s_id", naming.CamelToSnake(inflection.Singular(parentTable.Name)))),
+		Type:        schema.TypeUUID,
 		Description: fmt.Sprintf("Unique ID of %s table (FK)", parentTable.TableName),
-		Resolver: &FunctionDefinition{Signature: "schema.ParentIdResolver"}},
+		Resolver:    &FunctionDefinition{Signature: "schema.ParentIdResolver"}},
 	}, rel.Columns...)
 
 	return rel, nil
@@ -238,7 +245,7 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 	return nil
 }
 
-func (b builder) buildColumns(table *TableDefinition, named *types.Named, resource config.ResourceConfig, fieldPath string, columnPath string) error {
+func (b builder) buildColumns(table *TableDefinition, named *types.Named, resource config.ResourceConfig, fieldPath string, columnPath string, prentFieldName string, parentSpec *ast.TypeSpec) error {
 
 	st := named.Underlying().(*types.Struct)
 	pkg, _ := code.PkgAndType(resource.Path)
@@ -257,14 +264,14 @@ func (b builder) buildColumns(table *TableDefinition, named *types.Named, resour
 		}
 
 		b.logger.Debug("building column", "table", table.TableName, "column", field.Name())
-		if err := b.buildTableColumn(table, fieldPath, columnPath, field, resource, spec); err != nil {
+		if err := b.buildTableColumn(table, fieldPath, columnPath, field, resource, spec, prentFieldName, parentSpec); err != nil {
 			return fmt.Errorf("table %s build column %s failed. %w", table.DomainName, field.Name(), err)
 		}
 	}
 	return nil
 }
 
-func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath string, field *types.Var, resource config.ResourceConfig, spec *ast.TypeSpec) error {
+func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath string, field *types.Var, resource config.ResourceConfig, spec *ast.TypeSpec, prentFieldName string, parentSpec *ast.TypeSpec) error {
 	fieldName := field.Name()
 	colDef := ColumnDefinition{
 		Name:     b.getColumnName(fieldName, columnPath),
@@ -284,8 +291,15 @@ func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath 
 
 	if cfg.Description != "" {
 		colDef.Description = cfg.Description
-	} else if spec != nil && !resource.DisableReadDescriptions {
-		desc := getSpecColumnDescription(spec, field.Name())
+	} else if !resource.DisableReadDescriptions {
+		parser := getDescriptionParser(b.cfg.DescriptionParser)
+		desc := ""
+		if cfg.ExtractDescriptionFromParentField && parentSpec != nil {
+			desc = getSpecColumnDescription(parser, parentSpec, prentFieldName)
+		} else if spec != nil {
+			desc = getSpecColumnDescription(parser, spec, field.Name())
+		}
+
 		if desc != "" {
 			colDef.Description = desc
 		}
@@ -333,6 +347,12 @@ func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath 
 			}
 		}
 		relationCfg.Path = fmt.Sprintf("%s.%s", obj.Pkg().Path(), obj.Name())
+
+		// parent LimitDepth should be transferred to rel
+		if resource.LimitDepth > 0 {
+			relationCfg.LimitDepth = resource.LimitDepth
+		}
+
 		rel, err := b.buildTableRelation(table, *relationCfg)
 		if err != nil {
 			return err
@@ -342,7 +362,7 @@ func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath 
 		}
 	case TypeEmbedded:
 		b.logger.Debug("Building embedded column", "table", table.TableName, "column", field.Name())
-		if err := b.buildColumns(table, getNamedType(field.Type()), resource, getParentPath(fieldPath, field.Name(), false), getParentPath(columnPath, field.Name(), cfg.SkipPrefix)); err != nil {
+		if err := b.buildColumns(table, getNamedType(field.Type()), resource, getParentPath(fieldPath, field.Name(), false), getParentPath(columnPath, field.Name(), cfg.SkipPrefix), field.Name(), spec); err != nil {
 			return err
 		}
 
@@ -424,21 +444,4 @@ func getFunctionParams(sig *types.Signature) string {
 		return fmt.Sprintf("(%s) %s", strings.Join(params, ","), results[0])
 	}
 	return fmt.Sprintf("(%s) (%s)", strings.Join(params, ","), strings.Join(results, ","))
-}
-
-func getSpecColumnDescription(spec *ast.TypeSpec, columnName string) string {
-	s := spec.Type.(*ast.StructType)
-	for _, f := range s.Fields.List {
-		if f.Names[0].Name != columnName {
-			continue
-		}
-		if f.Comment != nil {
-			return f.Comment.Text()
-		}
-		if f.Doc != nil {
-			data := strings.SplitN(f.Doc.Text(), ". ", 2)[0]
-			return strings.TrimSpace(strings.ReplaceAll(data, "\n", " "))
-		}
-	}
-	return ""
 }

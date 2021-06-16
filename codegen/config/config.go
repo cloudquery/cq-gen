@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	Service         string           `hcl:"service"`
-	OutputDirectory string           `hcl:"output_directory"`
-	Resources       []ResourceConfig `hcl:"resource,block"`
+	Service           string           `hcl:"service"`
+	OutputDirectory   string           `hcl:"output_directory"`
+	DescriptionParser string           `hcl:"description_parser,optional"`
+	Resources         []ResourceConfig `hcl:"resource,block"`
 }
 
 func (c Config) GetResource(resource string) (ResourceConfig, error) {
@@ -24,22 +25,22 @@ func (c Config) GetResource(resource string) (ResourceConfig, error) {
 
 type ResourceConfig struct {
 	// Name of service i.e AWS,Azure etc'
-	Service     string `hcl:"service,label"`
+	Service string `hcl:"service,label"`
 	// Domain this resource belongs too, i.e Storage, Users etc'
-	Domain      string `hcl:"domain,label"`
+	Domain string `hcl:"domain,label"`
 	// Name of the resource table
-	Name        string `hcl:"name,label"`
+	Name string `hcl:"name,label"`
 	// Description of the table
 	Description string `hcl:"description,optional"`
 	// Path to the struct we are generating from
-	Path        string `hcl:"path,optional"`
+	Path string `hcl:"path,optional"`
 
 	// Column configurations we want to modify
-	Columns           []ColumnConfig   `hcl:"column,block"`
+	Columns []ColumnConfig `hcl:"column,block"`
 	// Relations configurations we want to modify / add
-	Relations         []ResourceConfig `hcl:"relation,block"`
+	Relations []ResourceConfig `hcl:"relation,block"`
 	// UserDefinedColumns are a list of columns we add that aren't part of the original struct
-	UserDefinedColumn []ColumnConfig   `hcl:"userDefinedColumn,block"`
+	UserDefinedColumn []ColumnConfig `hcl:"userDefinedColumn,block"`
 
 	// Function configurations will be omitted if not givien
 	IgnoreError          *FunctionConfig `hcl:"ignoreError,block"`
@@ -51,7 +52,7 @@ type ResourceConfig struct {
 	LimitDepth int `hcl:"limit_depth,optional"`
 
 	// EmbedRelation embeds all of the relations columns into the parent struct
-	EmbedRelation   bool `hcl:"embed,optional"`
+	EmbedRelation bool `hcl:"embed,optional"`
 	// EmbedSkipPrefix skips the embedded relation name prefix for all it's embedded columns
 	EmbedSkipPrefix bool `hcl:"embed_skip_prefix,optional"`
 	// Disables reading the struct for description comments for each column
@@ -112,6 +113,8 @@ type ColumnConfig struct {
 	Type string `hcl:"type,optional"`
 	// Rename column name, if no resolver is passed schema.PathResolver will be used
 	Rename string `hcl:"rename,optional"`
+	// ExtractDescriptionFromParentField, take column description from parent spec
+	ExtractDescriptionFromParentField bool `hcl:"extract_description_from_parent_field,optional" defaults:"false"`
 }
 
 func Parse(configPath string) (*Config, error) {
