@@ -2,8 +2,11 @@ package codegen
 
 import (
 	"go/ast"
+	"regexp"
 	"strings"
 )
+
+var azureDescriptionRegex = regexp.MustCompile(`^(?is)(?P<Column>.*? - )?(?P<Attr>.*?;)?(?P<Description>.*?)$`)
 
 type DescriptionParser interface {
 	Parse(description string) string
@@ -21,16 +24,16 @@ type AzureDescriptionParser struct {
 }
 
 func (p *AzureDescriptionParser) Parse(description string) string {
-	parts := strings.SplitN(description, "; ", 2)
+
+	matches := azureDescriptionRegex.FindStringSubmatch(description)
 	var data string
-	switch len(parts) {
-	case 0:
+
+	if len(matches) == 0 {
 		data = ""
-	case 1:
-		data = parts[0]
-	default:
-		data = parts[1]
+	} else {
+		data = matches[len(matches) -1]
 	}
+
 	return strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(data, ".", ""), "\n", " "))
 }
 
