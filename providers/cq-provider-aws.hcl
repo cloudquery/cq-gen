@@ -3703,3 +3703,225 @@ resource "aws" "apigateway" "vpc_links" {
   }
 }
 
+resource "aws" "elasticsearch" "domains" {
+  path = "github.com/aws/aws-sdk-go-v2/service/elasticsearchservice/types.ElasticsearchDomainStatus"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  column "advanced_security_options_enabled" {
+    rename = "advanced_security_enabled"
+  }
+
+  column "advanced_security_options_internal_user_database_enabled" {
+    rename = "advanced_security_internal_user_database_enabled"
+  }
+
+  column "advanced_security_options_saml_options_enabled" {
+    rename = "advanced_security_saml_enabled"
+  }
+
+  column "advanced_security_options_saml_options_idp_entity_id" {
+    rename = "advanced_security_saml_idp_entity_id"
+    description = "The unique Entity ID of the application in SAML Identity Provider."
+  }
+
+  column "advanced_security_options_saml_options_idp_metadata_content" {
+    rename = "advanced_security_saml_roles_key"
+    description = "The Metadata of the SAML application in XML format."
+  }
+
+  column "advanced_security_options_saml_options_session_timeout_minutes" {
+    rename = "advanced_security_saml_session_timeout_minutes"
+  }
+
+  column "advanced_security_options_saml_options_subject_key" {
+    rename = "advanced_security_saml_subject_key"
+  }
+
+  column "auto_tune_options_error_message" {
+    rename = "auto_tune_error_message"
+  }
+
+  column "cognito_options_enabled" {
+    rename = "cognito_enabled"
+  }
+
+  column "cognito_options_identity_pool_id" {
+    rename = "cognito_identity_pool_id"
+  }
+
+  column "cognito_options_role_arn" {
+    rename = "cognito_role_arn"
+  }
+
+  column "cognito_options_user_pool_id" {
+    rename = "cognito_user_pool_id"
+  }
+
+  column "domain_endpoint_options_custom_endpoint" {
+    rename = "domain_endpoint_custom"
+  }
+
+  column "domain_endpoint_options_custom_endpoint_certificate_arn" {
+    rename = "domain_endpoint_custom_certificate_arn"
+  }
+
+  column "domain_endpoint_options_custom_endpoint_enabled" {
+    rename = "domain_endpoint_custom_enabled"
+  }
+
+  column "domain_endpoint_options_enforce_https" {
+    rename = "domain_endpoint_enforce_https"
+  }
+
+  column "domain_endpoint_options_tls_security_policy" {
+    rename = "domain_endpoint_tls_security_policy"
+    description = "Specify the TLS security policy that needs to be applied to the HTTPS endpoint of Elasticsearch domain."
+  }
+
+  column "elasticsearch_cluster_config_cold_storage_options_enabled" {
+    rename = "cluster_cold_storage_options_enabled"
+    description = "True to enable cold storage for an Elasticsearch domain."
+  }
+
+  column "elasticsearch_cluster_config_dedicated_master_count" {
+    rename = "cluster_dedicated_master_count"
+  }
+
+  column "elasticsearch_cluster_config_dedicated_master_enabled" {
+    rename = "cluster_dedicated_master_enabled"
+  }
+
+  column "elasticsearch_cluster_config_dedicated_master_type" {
+    rename = "cluster_dedicated_master_type"
+  }
+
+  column "elasticsearch_cluster_config_instance_count" {
+    rename = "cluster_instance_count"
+  }
+
+  column "elasticsearch_cluster_config_instance_type" {
+    rename = "cluster_instance_type"
+  }
+
+  column "elasticsearch_cluster_config_warm_count" {
+    rename = "cluster_warm_count"
+  }
+
+  column "elasticsearch_cluster_config_warm_enabled" {
+    rename = "cluster_warm_enabled"
+  }
+
+  column "elasticsearch_cluster_config_warm_type" {
+    rename = "cluster_warm_type"
+  }
+
+  column "elasticsearch_cluster_config_zone_awareness_config_availability_zone_count" {
+    rename = "cluster_zone_awareness_config_availability_zone_count"
+  }
+
+  column "elasticsearch_cluster_config_zone_awareness_enabled" {
+    rename = "cluster_zone_awareness_enabled"
+  }
+
+  column "encryption_at_rest_options_enabled" {
+    rename = "encryption_at_rest_enabled"
+  }
+
+  column "encryption_at_rest_options_kms_key_id" {
+    rename = "encryption_at_rest_kms_key_id"
+  }
+
+  column "e_b_s_options_e_b_s_enabled" {
+    rename = "ebs_enabled"
+  }
+
+  column "e_b_s_options_iops" {
+    rename = "ebs_iops"
+  }
+
+  column "e_b_s_options_volume_size" {
+    rename = "ebs_volume_size"
+  }
+
+  column "e_b_s_options_volume_type" {
+    rename = "ebs_volume_type"
+  }
+
+  column "node_to_node_encryption_options_enabled" {
+    rename = "node_to_node_encryption_enabled"
+  }
+
+  column "service_software_options_automated_update_date" {
+    rename = "service_software_automated_update_date"
+  }
+
+  column "service_software_options_cancellable" {
+    rename = "service_software_cancellable"
+  }
+
+  column "service_software_options_current_version" {
+    rename = "service_software_current_version"
+  }
+
+  column "service_software_options_description" {
+    rename = "service_software_description"
+  }
+
+  column "service_software_options_new_version" {
+    rename = "service_software_new_version"
+  }
+
+  column "service_software_options_optional_deployment" {
+    rename = "service_software_optional_deployment"
+  }
+
+  column "service_software_options_update_available" {
+    rename = "service_software_update_available"
+  }
+
+  column "service_software_options_update_status" {
+    rename = "service_software_update_status"
+  }
+
+  column "snapshot_options_automated_snapshot_start_hour" {
+    rename = "snapshot_options_automated_snapshot_start_hour"
+  }
+
+  column "vpc_options_availability_zones" {
+    rename = "vpc_availability_zones"
+  }
+
+  column "vpc_options_security_group_ids" {
+    rename = "vpc_security_group_ids"
+  }
+
+  column "vpc_options_subnet_ids" {
+    rename = "vpc_subnet_ids"
+  }
+
+  column "vpc_options_vpc_id" {
+    rename = "vpc_vpc_id"
+  }
+}
