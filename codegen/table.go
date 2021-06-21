@@ -24,9 +24,13 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 		return nil, err
 	}
 
-	fullName := inflection.Plural(resource.Name)
+	resourceName := inflection.Plural(resource.Name)
+	if resource.NoPluralize {
+		resourceName = resource.Name
+	}
+	fullName := resourceName
 	if parentTable != nil && !strings.HasPrefix(strings.ToLower(resource.Name), strings.ToLower(inflection.Singular(parentTable.Name))) {
-		fullName = fmt.Sprintf("%s%s", inflection.Singular(parentTable.Name), strings.Title(inflection.Plural(resource.Name)))
+		fullName = fmt.Sprintf("%s%s", inflection.Singular(parentTable.Name), strings.Title(resourceName))
 	}
 
 	table := &TableDefinition{
@@ -252,7 +256,8 @@ func (b builder) buildColumns(table *TableDefinition, named *types.Named, resour
 	rw, _ := rewrite.NewFromImportPath(pkg)
 	docs := rw.GetStructDocs(named.Obj().Name())
 	if docs != nil && table.Description == "" {
-		table.Description = strings.ReplaceAll(strings.SplitN(docs.Text(), ". ", 2)[0], "\n", " ")
+		parser := getDescriptionParser(b.cfg.DescriptionParser)
+		table.Description = parser.Parse(docs.Text())
 	}
 	spec := rw.GetStructSpec(named.Obj().Name())
 	for i := 0; i < st.NumFields(); i++ {

@@ -57,6 +57,8 @@ type ResourceConfig struct {
 	EmbedSkipPrefix bool `hcl:"embed_skip_prefix,optional"`
 	// Disables reading the struct for description comments for each column
 	DisableReadDescriptions bool `hcl:"disable_auto_descriptions,optional"`
+	// Disable pluralize of the name of the resource
+	NoPluralize bool `hcl:"disable_pluralize,optional"`
 }
 
 type FunctionConfig struct {

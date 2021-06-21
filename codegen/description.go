@@ -2,8 +2,11 @@ package codegen
 
 import (
 	"go/ast"
+	"regexp"
 	"strings"
 )
+
+var azureDescriptionRegex = regexp.MustCompile(`^(?is)(?P<Column>.*? - )?(?P<Attr>.*?;)?(?P<Description>.*?)$`)
 
 type DescriptionParser interface {
 	Parse(description string) string
@@ -17,27 +20,52 @@ func (p *DefaultDescriptionParser) Parse(description string) string {
 	return strings.TrimSpace(strings.ReplaceAll(data, "\n", " "))
 }
 
-type AzureDescriptionParser struct {
-}
+type AzureDescriptionParser struct{}
 
 func (p *AzureDescriptionParser) Parse(description string) string {
-	parts := strings.SplitN(description, "; ", 2)
+
+	matches := azureDescriptionRegex.FindStringSubmatch(description)
 	var data string
-	switch len(parts) {
-	case 0:
+
+	if len(matches) == 0 {
 		data = ""
-	case 1:
-		data = parts[0]
-	default:
-		data = parts[1]
+	} else {
+		data = matches[len(matches) -1]
 	}
+
 	return strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(data, ".", ""), "\n", " "))
+}
+
+type GcpDescriptionParser struct{}
+
+var gcpRegex = regexp.MustCompile("(?is)(?P<Attr>.?:.)(?P<Output>\\[?Output only\\]?\\..)?(?P<Description>.*\\.)")
+
+func (p *GcpDescriptionParser) Parse(description string) string {
+	matches := gcpRegex.FindStringSubmatch(description)
+	if len(matches) == 0 {
+		return ""
+	}
+	description = matches[3]
+	// remove possible values
+	if strings.HasPrefix(description, "Optional") {
+		description = strings.SplitN(description, "Optional", 2)[1]
+	}
+	if strings.HasPrefix(description, "[Output Only]") {
+		description = strings.SplitN(description, "[Output Only]", 2)[1]
+	}
+	if strings.HasPrefix(description, "(Optional)") {
+		description = strings.SplitN(description, "(Optional)", 2)[1]
+	}
+
+	return strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(description, ".", ""), "\n", " "))
 }
 
 func getDescriptionParser(parser string) DescriptionParser {
 	switch parser {
 	case "azure":
 		return &AzureDescriptionParser{}
+	case "gcp":
+		return &GcpDescriptionParser{}
 	default:
 		return &DefaultDescriptionParser{}
 	}
