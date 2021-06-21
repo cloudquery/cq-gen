@@ -4,8 +4,9 @@ go 1.15
 
 require (
 	github.com/cloudquery/cq-provider-aws v0.4.6
-	github.com/cloudquery/cq-provider-gcp v0.3.1
-	github.com/cloudquery/cq-provider-sdk v0.2.5
+	github.com/cloudquery/cq-provider-azure v0.2.2
+	github.com/cloudquery/cq-provider-gcp v0.3.2
+	github.com/cloudquery/cq-provider-sdk v0.2.7
 	github.com/creasty/defaults v1.5.1
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
@@ -16,13 +17,9 @@ require (
 	github.com/modern-go/reflect2 v1.0.1
 	github.com/pkg/errors v0.9.1
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
-	golang.org/x/sys v0.0.0-20210525143221-35b2ab0089ea // indirect
-	golang.org/x/tools v0.1.2
-	google.golang.org/api v0.44.0 // indirect
-	google.golang.org/grpc v1.37.1 // indirect
+	golang.org/x/tools v0.1.3
 )
 
 // Note: add replace for your local provider so cq-gen rewriter will work properlly
-// replace github.com/cloudquery/cq-provider-aws v0.4.6 => ../forks/cq-provider-aws
-
-replace github.com/cloudquery/cq-provider-gcp => ../forks/cq-provider-gcp
+//replace github.com/cloudquery/cq-provider-azure v0.2.2 => ../cq-provider-azure
+//replace github.com/cloudquery/cq-provider-gcp v0.3.2 => ../cq-provider-gcp

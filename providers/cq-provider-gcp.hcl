@@ -1,21 +1,31 @@
 service = "gcp"
-output_directory = "../forks/cq-provider-gcp/resources"
+output_directory = "../cq-provider-gcp/resources"
+description_parser = "gcp"
 
 
 resource "gcp" "kms" "keyrings" {
   path = "google.golang.org/api/cloudkms/v1.KeyRing"
-
+  description = "A KeyRing is a toplevel logical grouping of CryptoKeys."
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
   }
-  deleteFilter "DeleteFilter" {
+
+  deleteFilter "ProjectDeleteFilter" {
     path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
   }
   ignoreError "IgnoreError" {
     path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
   }
-  postResourceResolver "PostResourceResolver" {
+
+  postResourceResolver "AddGcpMetadata" {
     path = "github.com/cloudquery/cq-provider-gcp/client.AddGcpMetadata"
+  }
+  userDefinedColumn "project_id" {
+    type = "string"
+    description = "GCP Project Id of the resource"
+    resolver "resolveResourceProject" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
+    }
   }
 
   column "create_time" {
@@ -23,18 +33,14 @@ resource "gcp" "kms" "keyrings" {
     generate_resolver = true
   }
 
-  userDefinedColumn "project_id" {
-    type = "string"
-    resolver "resolveResourceProject" {
-      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
-    }
-  }
   userDefinedColumn "location" {
     type = "string"
+    description = "Location of the resource"
   }
 
   relation "gcp" "kms" "cryptoKey" {
     path = "google.golang.org/api/cloudkms/v1.CryptoKey"
+    description = " A CryptoKey represents a logical key that can be used for cryptographic operations."
 
     postResourceResolver "PostResourceResolver" {
       path = "github.com/cloudquery/cq-provider-gcp/client.AddGcpMetadata"
@@ -75,9 +81,13 @@ resource "gcp" "kms" "keyrings" {
 
     userDefinedColumn "project_id" {
       type = "string"
+      description = "GCP Project Id of the resource"
       resolver "resolveResourceProject" {
         path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
       }
+    }
+    postResourceResolver "AddGcpMetadata" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.AddGcpMetadata"
     }
 
     userDefinedColumn "location" {
@@ -93,23 +103,32 @@ resource "gcp" "kms" "keyrings" {
 
 resource "gcp" "storage" "bucket" {
   path = "google.golang.org/api/storage/v1.Bucket"
+  description = "The Buckets resource represents a bucket in Cloud Storage"
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
   }
-  deleteFilter "DeleteFilter" {
+  deleteFilter "ProjectDeleteFilter" {
     path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
   }
   ignoreError "IgnoreError" {
     path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
   }
 
-
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
+  }
+
+  column "default_event_based_hold" {
+    description = "The default value for event-based hold on newly created objects in this bucket Event-based hold is a way to retain objects indefinitely until an event occurs, signified by the hold's release After being released, such objects will be subject to bucket-level retention"
+  }
+
+  column "storage_class" {
+    description = "The bucket's default storage class, used whenever no storageClass is specified for a newly-created object This defines how objects in the bucket are stored and determines the SLA and the cost of storage Values include MULTI_REGIONAL, REGIONAL, STANDARD, NEARLINE, COLDLINE, ARCHIVE, and DURABLE_REDUCED_AVAILABILITY"
   }
 
   column "satisfies_p_z_s" {
@@ -118,37 +137,39 @@ resource "gcp" "storage" "bucket" {
   column "id" {
     type = "string"
     rename = "resource_id"
+    resolver "resolveResource" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveResource"
+    }
   }
 
-  //  relation "gcp" "storage" "object_acls" {
-  //    path = "google.golang.org/api/storage/v1.ObjectAccessControl"
-  //    column "id" {
-  //      type = "string"
-  //      rename = "resource_id"
-  //    }
-  //  }
-
+  relation "gcp" "storage" "acls" {
+    path = "google.golang.org/api/storage/v1.BucketAccessControl"
+    description = "Access controls on the bucket."
+    column "id" {
+      type = "string"
+      rename = "resource_id"
+      resolver "resolveResource" {
+        path = "github.com/cloudquery/cq-provider-gcp/client.ResolveResource"
+      }
+    }
+  }
+  relation "gcp" "storage" "lifecycle_rules" {
+    path = "google.golang.org/api/storage/v1.BucketLifecycleRule"
+    description = "A lifecycle management rule, which is made of an action to take and the condition(s) under which the action will be taken."
+  }
+  relation "gcp" "storage" "cors" {
+    path = "google.golang.org/api/storage/v1.BucketCors"
+    description = "The bucket's Cross-Origin Resource Sharing (CORS) configuration."
+  }
   relation "gcp" "storage" "default_object_acls" {
     path = "google.golang.org/api/storage/v1.ObjectAccessControl"
+    description = "Default access controls to apply to new objects when no ACL is provided."
     column "id" {
       type = "string"
       rename = "resource_id"
-    }
-  }
-
-  relation "gcp" "storage" "bucket_policy" {
-    path = "google.golang.org/api/storage/v1.Policy"
-    column "id" {
-      type = "string"
-      rename = "resource_id"
-    }
-  }
-
-  relation "gcp" "storage" "bucket_acl" {
-    path = "google.golang.org/api/storage/v1.BucketAccessControl"
-    column "id" {
-      type = "string"
-      rename = "resource_id"
+      resolver "resolveResource" {
+        path = "github.com/cloudquery/cq-provider-gcp/client.ResolveResource"
+      }
     }
   }
 }
@@ -162,6 +183,7 @@ resource "gcp" "sql" "instances" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
@@ -173,6 +195,16 @@ resource "gcp" "sql" "instances" {
     type = "json"
     generate_resolver = true
   }
+  column "current_disk_size" {
+    description = "The current disk usage of the instance in bytes This property has been deprecated by google API and might be null"
+  }
+  column "settings_replication_type" {
+    description = "The type of replication this instance uses This can be either *ASYNCHRONOUS* or *SYNCHRONOUS*"
+  }
+  column "settings_backup_configuration_backup_retention_settings_retention_unit" {
+    rename = "settings_backup_retention_settings_retention_unit"
+  }
+
   column "id" {
     type = "string"
     rename = "resource_id"
@@ -188,9 +220,28 @@ resource "gcp" "cloudfunctions" "function" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
+  }
+  column "source_repository_url" {
+    description = "The URL pointing to the hosted repository where the function is defined"
+  }
+  column "network" {
+    description = "The VPC Network that this cloud function can connect to It can be either the fully-qualified URI, or the short name of the network resource"
+  }
+  column "max_instances" {
+    description = "The limit on the maximum number of function instances that may coexist at a given time"
+  }
+  column "event_trigger_resource" {
+    description = "The resource(s) from which to observe events"
+  }
+  column "event_trigger_event_type" {
+    description = "The type of event to observe"
+  }
+  column "build_worker_pool" {
+    description = "Name of the Cloud Build Custom Worker Pool that should be used to build the function"
   }
   column "id" {
     type = "string"
@@ -200,10 +251,15 @@ resource "gcp" "cloudfunctions" "function" {
 
 resource "gcp" "crm" "projects" {
   path = "google.golang.org/api/cloudresourcemanager/v3.Project"
+  description = "A project is a high-level Google Cloud entity"
 
   column "id" {
     type = "string"
     rename = "resource_id"
+  }
+
+  column "labels" {
+    description = "The labels associated with this project"
   }
 }
 
@@ -213,21 +269,6 @@ resource "gcp" "iam" "service_accounts" {
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
   }
-  deleteFilter "DeleteFilter" {
-    path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
-  }
-  ignoreError "IgnoreError" {
-    path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
-  }
-
-
-  //  userDefinedColumn "project_id" {
-  //    type = "string"
-  //    resolver "resolveResourceProject" {
-  //      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
-  //    }
-  //  }
-
   relation "gcp" "iam" "service_account_keys" {
     path = "google.golang.org/api/iam/v1.ServiceAccountKey"
 
@@ -265,6 +306,7 @@ resource "gcp" "iam" "roles" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
@@ -280,6 +322,7 @@ resource "gcp" "domains" "registration" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
@@ -304,32 +347,122 @@ resource "gcp" "domains" "registration" {
     type = "json"
     generate_resolver = true
   }
+
+  column "admin_contact_postal_address_address_lines" {
+    description = "Unstructured address lines describing the lower levels of an address"
+  }
+  column "admin_contact_postal_address_postal_code" {
+    description = "Postal code of the address Not all countries use or require postal codes to be present"
+  }
+
+  column "admin_contact_postal_address_administrative_area" {
+    description = "Optional Highest administrative subdivision which is used for postal addresses of a country or region"
+  }
+  column "admin_contact_postal_address_language_code" {
+    description = "Optional BCP-47 language code of the contents of this address (if known)"
+  }
+  column "admin_contact_postal_address_locality" {
+    description = "Optional Generally refers to the city/town portion of the address"
+  }
+  column "admin_contact_postal_address_sorting_code" {
+    description = "Optional Additional, country-specific, sorting code"
+  }
+
+  column "technical_contact_postal_address_address_lines" {
+    description = "Unstructured address lines describing the lower levels of an address"
+  }
+  column "technical_contact_postal_address_administrative_area" {
+    description = "Optional Highest administrative subdivision which is used for postal addresses of a country or region"
+  }
+
+  column "technical_contact_postal_address_language_code" {
+    description = "Optional BCP-47 language code of the contents of this address (if known)"
+  }
+  column "technical_contact_postal_address_sorting_code" {
+    description = "Optional Additional, country-specific, sorting code"
+  }
+  column "technical_contact_postal_address_postal_code" {
+    description = "Postal code of the address Not all countries use or require postal codes to be present"
+  }
+  column "registrant_contact_postal_address_address_lines" {
+    description = "Unstructured address lines describing the lower levels of an address"
+  }
+  column "registrant_contact_postal_address_administrative_area" {
+    description = "Optional Highest administrative subdivision which is used for postal addresses of a country or region"
+
+  }
+  column "registrant_contact_postal_address_language_code" {
+    description = "Optional BCP-47 language code of the contents of this address (if known)"
+  }
+  column "registrant_contact_postal_address_locality" {
+    description = "Optional Generally refers to the city/town portion of the address"
+  }
+  column "registrant_contact_postal_address_sorting_code" {
+    description = "Optional Additional, country-specific, sorting code"
+  }
+  column "registrant_contact_postal_address_postal_code" {
+    description = "Postal code of the address Not all countries use or require postal codes to be present"
+  }
 }
 
 
 resource "gcp" "compute" "instances" {
   path = "google.golang.org/api/compute/v1.Instance"
-
+  description = "Represents an Instance resource  An instance is a virtual machine that is hosted on Google Cloud Platform For more information, read Virtual Machine Instances"
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
   }
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
   }
-  userDefinedColumn "location" {
-    type = "string"
-    resolver "resolveResourceLocation" {
-      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveLocation"
-    }
-  }
+
   column "id" {
     type = "string"
     rename = "resource_id"
   }
+  column "name" {
+    description = "Name of the resource Provided by the client when the resource is created"
+  }
+  column "labels" {
+    description = "Labels for this resource"
+  }
+  column "fingerprint" {
+    description = "Specifies a fingerprint for this resource"
+  }
+  column "label_fingerprint" {
+    description = "A fingerprint for the labels being applied to this image"
+  }
+
+  column "machine_type" {
+    description = "Full or partial URL of the machine type resource to use for this instance, in the format: zones/zone/machineTypes/machine-type"
+  }
+  column "metadata_fingerprint" {
+    description = "Specifies a fingerprint for this request"
+  }
+  column "tags_fingerprint" {
+    description = "Specifies a fingerprint for this request, which is essentially a hash of the tags' contents and used for optimistic locking The fingerprint is initially generated by Compute Engine and changes after every request"
+  }
+
+  column "reservation_affinity_consume_reservation_type" {
+    description = "Specifies the type of reservation from which this instance can consume resources: ANY_RESERVATION (default), SPECIFIC_RESERVATION, or NO_RESERVATION"
+  }
+  column "dxs" {
+    type="json"
+    skip = true
+  }
+  column "dbs" {
+    type="json"
+    skip = true
+  }
+  column "keks" {
+    skip = true
+  }
+
   relation "gcp" "compute" "disks" {
     path = "google.golang.org/api/compute/v1.AttachedDisk"
     column "initialize_params" {
@@ -339,17 +472,29 @@ resource "gcp" "compute" "instances" {
       type = "stringarray"
       generate_resolver = true
     }
+    column "source_image" {
+      description = "The source image to create this disk"
+    }
+    column "source_snapshot" {
+      description = "The source snapshot to create this disk"
+    }
+    column "source" {
+      description = "The source snapshot to create this disk"
+    }
+    column "disk_type" {
+      description = "Specifies the disk type to use to create the instance"
+    }
     column "shielded_instance_initial_state_dbxs" {
-      type = "json"
-      generate_resolver = true
+      type="json"
+      skip = true
     }
     column "shielded_instance_initial_state_dbs" {
-      type = "json"
-      generate_resolver = true
+      type="json"
+      skip = true
     }
     column "shielded_instance_initial_state_keks" {
-      type = "json"
-      generate_resolver = true
+      type="json"
+      skip = true
     }
   }
 
@@ -365,8 +510,10 @@ resource "gcp" "compute" "instances" {
 }
 
 
+
 resource "gcp" "compute" "images" {
   path = "google.golang.org/api/compute/v1.Image"
+  description = "Represents an Image resource  You can use images to create boot disks for your VM instances"
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
@@ -374,46 +521,52 @@ resource "gcp" "compute" "images" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
-  }
-  userDefinedColumn "location" {
-    type = "string"
-    resolver "resolveResourceLocation" {
-      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveLocation"
-    }
-  }
-
-  column "license_codes" {
-    skip = true
   }
 
   column "id" {
     type = "string"
     rename = "resource_id"
   }
+  column "name" {
+    description = "Name of the resource"
+  }
+
+  column "label_fingerprint" {
+    description = "A fingerprint for the labels being applied to this image"
+  }
+  column "labels" {
+    description = "Labels for this resource"
+  }
+  column "raw_disk_sha1_checksum" {
+    skip = true
+  }
+  column "license_codes" {
+    skip = true
+  }
+
   column "guest_os_features" {
     type = "stringarray"
     generate_resolver = true
   }
   column "shielded_instance_initial_state_dbxs" {
-    type = "json"
-    generate_resolver = true
+    skip = true
   }
   column "shielded_instance_initial_state_dbs" {
-    type = "json"
-    generate_resolver = true
+    skip = true
   }
   column "shielded_instance_initial_state_keks" {
-    type = "json"
-    generate_resolver = true
+    skip = true
   }
 
 }
 
 resource "gcp" "compute" "interconnects" {
   path = "google.golang.org/api/compute/v1.Interconnect"
+  description = "Represents an Interconnect resource  An Interconnect resource is a dedicated connection between the GCP network and your on-premises network"
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
@@ -421,19 +574,18 @@ resource "gcp" "compute" "interconnects" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
   }
-  userDefinedColumn "location" {
-    type = "string"
-    resolver "resolveResourceLocation" {
-      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveLocation"
-    }
-  }
+
   column "id" {
     type = "string"
     rename = "resource_id"
+  }
+  column "name" {
+    description = "Name of the resource Provided by the client when the resource is created"
   }
 
 
@@ -441,56 +593,55 @@ resource "gcp" "compute" "interconnects" {
 
 resource "gcp" "compute" "networks" {
   path = "google.golang.org/api/compute/v1.Network"
-
+  description = "Represents a VPC Network resource  Networks connect resources to each other and to the internet"
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
   }
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
   }
-  userDefinedColumn "location" {
-    type = "string"
-    resolver "resolveResourceLocation" {
-      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveLocation"
-    }
-  }
+
   column "id" {
     type = "string"
     rename = "resource_id"
+  }
+  column "name" {
+    description = "Name of the resource Provided by the client when the resource is created"
   }
 }
 
 resource "gcp" "compute" "ssl_certificates" {
   path = "google.golang.org/api/compute/v1.SslCertificate"
-
+  description = "Represents an SSL Certificate resource."
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
   }
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
   }
-  userDefinedColumn "location" {
-    type = "string"
-    resolver "resolveResourceLocation" {
-      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveLocation"
-    }
-  }
+
   column "id" {
     type = "string"
     rename = "resource_id"
+  }
+  column "name" {
+    description = "Name of the resource Provided by the client when the resource is created"
   }
 }
 
 resource "gcp" "compute" "subnetworks" {
   path = "google.golang.org/api/compute/v1.Subnetwork"
+  description = "Represents a Subnetwork resource  A subnetwork (also known as a subnet) is a logical partition of a Virtual Private Cloud network with one primary IP range and zero or more secondary IP ranges"
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
@@ -498,24 +649,27 @@ resource "gcp" "compute" "subnetworks" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
   }
-  userDefinedColumn "location" {
-    type = "string"
-    resolver "resolveResourceLocation" {
-      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveLocation"
-    }
-  }
+
   column "id" {
     type = "string"
     rename = "resource_id"
+  }
+  column "name" {
+    description = "Name of the resource Provided by the client when the resource is created"
+  }
+  column "purpose" {
+    description = "The purpose of the resource. This field can be either PRIVATE_RFC_1918 or INTERNAL_HTTPS_LOAD_BALANCER A subnetwork with purpose set to INTERNAL_HTTPS_LOAD_BALANCER is a user-created subnetwork that is reserved for Internal HTTP(S) Load Balancing If unspecified, the purpose defaults to PRIVATE_RFC_1918 The enableFlowLogs field isn't supported with the purpose field set to INTERNAL_HTTPS_LOAD_BALANCE"
   }
 }
 
 resource "gcp" "compute" "vpn_gateways" {
   path = "google.golang.org/api/compute/v1.VpnGateway"
+  description = "Represents a HA VPN gateway  HA VPN is a high-availability (HA) Cloud VPN solution that lets you securely connect your on-premises network to your Google Cloud Virtual Private Cloud network through an IPsec VPN connection in a single region."
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
@@ -523,15 +677,16 @@ resource "gcp" "compute" "vpn_gateways" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
   }
-  userDefinedColumn "location" {
-    type = "string"
-    resolver "resolveResourceLocation" {
-      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveLocation"
-    }
+  column "name" {
+    description = "Name of the resource Provided by the client when the resource is created"
+  }
+  column "labels" {
+    description = "Labels for this resource"
   }
   column "id" {
     type = "string"
@@ -551,6 +706,7 @@ resource "gcp" "compute" "vpn_gateways" {
 
 resource "gcp" "compute" "forwarding_rules" {
   path = "google.golang.org/api/compute/v1.ForwardingRule"
+  description = "Represents a Forwarding Rule resource  Forwarding rule resources in GCP can be either regional or global."
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
@@ -558,22 +714,46 @@ resource "gcp" "compute" "forwarding_rules" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
   }
-  userDefinedColumn "location" {
-    type = "string"
-    resolver "resolveResourceLocation" {
-      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveLocation"
-    }
-  }
+
 
   column "metadata_filters" {
     type = "json"
-    generate_resolver = true
+    skip = true
   }
 
+  column "service_directory_registrations" {
+    skip = true
+  }
+
+  column "ip_address" {
+    description = "IP address that this forwarding rule serves When a client sends traffic to this IP address, the forwarding rule directs the traffic to the target that you specify in the forwarding rule"
+  }
+  column "service_label" {
+    description = "An optional prefix to the service name for this Forwarding Rule"
+  }
+  column "subnetwork" {
+    description = "This field is only used for internal load balancing"
+  }
+  column "region" {
+    description = "URL of the region where the regional forwarding rule resides"
+  }
+  column "label_fingerprint" {
+    description = "A fingerprint for the labels being applied to this resource"
+  }
+  column "fingerprint" {
+    description = "Fingerprint of this resource A hash of the contents stored in this object"
+  }
+  column "labels" {
+    description = "Labels for this resource"
+  }
+  column "name" {
+    description = "Name of the resource"
+  }
   column "id" {
     type = "string"
     rename = "resource_id"
@@ -589,24 +769,34 @@ resource "gcp" "compute" "firewalls" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
   }
-  userDefinedColumn "location" {
-    type = "string"
-    resolver "resolveResourceLocation" {
-      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveLocation"
-    }
-  }
+
   column "id" {
     type = "string"
     rename = "resource_id"
+  }
+
+  column "name" {
+    description = "Name of the resource"
+  }
+
+  relation "gcp" "compute" "denied" {
+    path = "google.golang.org/api/compute/v1.FirewallDenied"
+    disable_pluralize = true
+  }
+  relation "gcp" "compute" "allowed" {
+    path = "google.golang.org/api/compute/v1.FirewallAllowed"
+    disable_pluralize = true
   }
 }
 
 resource "gcp" "compute" "disk_types" {
   path = "google.golang.org/api/compute/v1.DiskType"
+  description = "Represents a Disk Type resource."
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
@@ -614,10 +804,12 @@ resource "gcp" "compute" "disk_types" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
   }
+
   column "id" {
     type = "string"
     rename = "resource_id"
@@ -627,6 +819,7 @@ resource "gcp" "compute" "disk_types" {
 
 resource "gcp" "compute" "disks" {
   path = "google.golang.org/api/compute/v1.Disk"
+  description = "Represents a Persistent Disk resource."
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
@@ -634,6 +827,7 @@ resource "gcp" "compute" "disks" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
@@ -643,6 +837,18 @@ resource "gcp" "compute" "disks" {
     rename = "resource_id"
   }
 
+  column "name" {
+    description = "Name of the resource Provided by the client when the resource is created"
+  }
+  column "source_image" {
+    description = "The source image used to create this disk"
+  }
+  column "size_gb" {
+    description = "Size, in GB"
+  }
+  column "source_disk" {
+    description = "The source disk used to create this disk"
+  }
   column "license_codes" {
     skip = true
   }
@@ -656,6 +862,7 @@ resource "gcp" "compute" "disks" {
 
 resource "gcp" "compute" "backend_services" {
   path = "google.golang.org/api/compute/v1.BackendService"
+  description = "Represents a Backend Service resource  A backend service defines how Google Cloud load balancers distribute traffic The backend service configuration contains a set of values, such as the protocol used to connect to backends, various distribution and session settings, health checks, and timeouts These settings provide fine-grained control over how your load balancer behaves."
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
@@ -663,6 +870,7 @@ resource "gcp" "compute" "backend_services" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
@@ -671,13 +879,25 @@ resource "gcp" "compute" "backend_services" {
   column "enable_c_d_n" {
     rename = "enable_cdn"
   }
-
+  column "cdn_policy_cache_mode" {
+    description = "Specifies the cache setting for all responses from this backend"
+  }
+  column "cdn_policy_client_ttl" {
+    description = "Specifies a separate client (eg browser client) maximum TTL"
+  }
+  column "cdn_policy_default_ttl" {
+    description = "Specifies the default TTL for cached content served by this origin for responses that do not have an existing valid TTL"
+  }
+  column "cdn_negative_caching_policies" {
+    type = "json"
+    generate_resolver = true
+  }
   column "cdn_policy_bypass_cache_on_request_headers" {
     type = "stringarray"
     generate_resolver = true
   }
 
-  column "cdn_policy_negative_caching_policies" {
+  column "cdn_policy_negative_caching_policy" {
     type = "json"
     generate_resolver = true
   }
@@ -686,10 +906,18 @@ resource "gcp" "compute" "backend_services" {
     type = "string"
     rename = "resource_id"
   }
+
+  relation "gcp" "compute" "backends" {
+    path = "google.golang.org/api/compute/v1.Backend"
+    column "group" {
+      description = "The fully-qualified URL of an instance group or network endpoint group (NEG) resource The type of backend that a backend service supports depends on"
+    }
+  }
 }
 
 resource "gcp" "compute" "autoscalers" {
   path = "google.golang.org/api/compute/v1.Autoscaler"
+  description = "Represents an Autoscaler resource."
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
@@ -697,6 +925,7 @@ resource "gcp" "compute" "autoscalers" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
@@ -715,10 +944,25 @@ resource "gcp" "compute" "autoscalers" {
     type = "string"
     rename = "resource_id"
   }
+  column "scale_in_control_max_scaled_in_replicas_calculated" {
+    description = "Absolute value of VM instances calculated based on the specific mode "
+  }
+
+  relation "gcp" "compute" "custom_metric_utilizations" {
+    path = "google.golang.org/api/compute/v1.AutoscalingPolicyCustomMetricUtilization"
+
+    column "filter" {
+      description = "A filter string, compatible with a Stackdriver Monitoring filter string"
+    }
+    column "single_instance_assignment" {
+      description = "per-group metric value that represents the total amount of work to be done or resource usage"
+    }
+  }
 }
 
 resource "gcp" "compute" "addresses" {
   path = "google.golang.org/api/compute/v1.Address"
+  description = "Addresses for GFE-based external HTTP(S) load balancers."
 
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
@@ -726,11 +970,17 @@ resource "gcp" "compute" "addresses" {
 
   userDefinedColumn "project_id" {
     type = "string"
+    description = "GCP Project Id of the resource"
     resolver "resolveResourceProject" {
       path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
     }
   }
-
+  column "name" {
+    description = "Name of the resource Provided by the client when the resource is created"
+  }
+  column "network_tier" {
+    description = "This signifies the networking tier used for configuring this address"
+  }
   column "id" {
     type = "string"
     rename = "resource_id"

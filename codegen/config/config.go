@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	Service         string           `hcl:"service"`
-	OutputDirectory string           `hcl:"output_directory"`
-	Resources       []ResourceConfig `hcl:"resource,block"`
+	Service           string           `hcl:"service"`
+	OutputDirectory   string           `hcl:"output_directory"`
+	DescriptionParser string           `hcl:"description_parser,optional"`
+	Resources         []ResourceConfig `hcl:"resource,block"`
 }
 
 func (c Config) GetResource(resource string) (ResourceConfig, error) {
@@ -56,6 +57,8 @@ type ResourceConfig struct {
 	EmbedSkipPrefix bool `hcl:"embed_skip_prefix,optional"`
 	// Disables reading the struct for description comments for each column
 	DisableReadDescriptions bool `hcl:"disable_auto_descriptions,optional"`
+	// Disable pluralize of the name of the resource
+	NoPluralize bool `hcl:"disable_pluralize,optional"`
 }
 
 type FunctionConfig struct {
@@ -112,6 +115,8 @@ type ColumnConfig struct {
 	Type string `hcl:"type,optional"`
 	// Rename column name, if no resolver is passed schema.PathResolver will be used
 	Rename string `hcl:"rename,optional"`
+	// ExtractDescriptionFromParentField, take column description from parent spec
+	ExtractDescriptionFromParentField bool `hcl:"extract_description_from_parent_field,optional" defaults:"false"`
 }
 
 func Parse(configPath string) (*Config, error) {

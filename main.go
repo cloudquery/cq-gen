@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"github.com/cloudquery/cq-gen/codegen"
 	_ "github.com/cloudquery/cq-provider-aws/resources"
-	_ "github.com/cloudquery/cq-provider-gcp/resources"
+	_ "github.com/cloudquery/cq-provider-azure/resources"
+	_ "github.com/cloudquery/cq-provider-gcp/client"
 )
 
 func main() {

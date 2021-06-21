@@ -21,10 +21,16 @@ func buildResources(cfg *config.Config, domain string, resource string) ([]*Reso
 	if err != nil {
 		return nil, err
 	}
-	b := builder{code.NewFinder(), rw, logging.New(&hclog.LoggerOptions{
-		Name:  "builder",
-		Level: hclog.Debug,
-	}), 0}
+	b := builder{
+		code.NewFinder(),
+		rw,
+		logging.New(&hclog.LoggerOptions{
+			Name:  "builder",
+			Level: hclog.Debug,
+		}),
+		0,
+		cfg,
+	}
 	return b.build(cfg, domain, resource)
 }
 
@@ -34,6 +40,8 @@ type builder struct {
 	rewriter *rewrite.Rewriter
 	logger   hclog.Logger
 	depth    int
+
+	cfg *config.Config
 }
 
 func (b builder) build(cfg *config.Config, domain string, resourceName string) ([]*ResourceDefinition, error) {

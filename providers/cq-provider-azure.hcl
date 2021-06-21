@@ -1,12 +1,14 @@
 service = "azure"
 output_directory = "../cq-provider-azure/resources"
-
+description_parser = "azure"
 
 resource "azure" "compute" "disks" {
   path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-01/compute.Disk"
+  description = "Azure compute disk"
 
   userDefinedColumn "subscription_id" {
     type = "string"
+    description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
     }
@@ -20,13 +22,13 @@ resource "azure" "compute" "disks" {
     path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
   }
 
-
   column "id" {
     rename = "resource_id"
   }
 
   column "time_created_time" {
     rename = "time_created"
+    extract_description_from_parent_field = true
   }
   column "hyper_v_generation" {
     rename = "hyperv_generation"
@@ -47,20 +49,29 @@ resource "azure" "compute" "disks" {
     generate_resolver = true
   }
 
-
   relation "azure" "compute" "disk_encryption_settings" {
+    description = "Azure compute disk encryption setting"
     path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-01/compute.EncryptionSettingsElement"
   }
 }
 
-
 resource "azure" "storage" "containers" {
   path = "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2019-06-01/storage.ListContainerItem"
+  description = "Azure storage container"
 
   userDefinedColumn "subscription_id" {
     type = "string"
+    description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  userDefinedColumn "account_id" {
+    type = "uuid"
+    description = "Azure storage account id"
+    resolver "parentIdResolver" {
+      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentIdResolver"
     }
   }
 
@@ -87,6 +98,30 @@ resource "azure" "storage" "containers" {
     rename = "immutability_policy_allow_protected_append_writes"
   }
 
+  column "legal_hold" {
+    type =  "json"
+    generate_resolver = true
+  }
+
+  column "immutability_policy" {
+    type =  "json"
+    generate_resolver = true
+  }
+
+  column "deleted_time" {
+    extract_description_from_parent_field = true
+  }
+
+  column "last_modified_time" {
+    extract_description_from_parent_field = true
+  }
+
+  column "azure_storage_container_immutability_policy_update_histories_timestamp_time" {
+    extract_description_from_parent_field = true
+  }
+  column "azure_storage_container_legal_hold_tags_timestamp_time" {
+    extract_description_from_parent_field = true
+  }
 
   column "id" {
     rename = "resource_id"
@@ -96,9 +131,11 @@ resource "azure" "storage" "containers" {
 
 resource "azure" "storage" "accounts" {
   path = "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2019-06-01/storage.Account"
+  description = "Azure storage account"
 
   userDefinedColumn "subscription_id" {
     type = "string"
+    description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
     }
@@ -120,8 +157,83 @@ resource "azure" "storage" "accounts" {
     rename = "resource_id"
   }
 
+  column "encryption_key_vault_properties_current_versioned_key_identifier" {
+    rename = "encryption_key_current_versioned_key_identifier"
+  }
+
+  column "azure_files_identity_based_authentication_directory_service_options" {
+    rename = "files_identity_auth_directory_service_options"
+  }
+
+  column "azure_files_identity_based_authentication_active_directory_properties_domain_name" {
+    rename = "files_identity_auth_ad_properties_domain_name"
+  }
+
+  column "azure_files_identity_based_authentication_active_directory_properties_net_bios_domain_name" {
+    rename = "files_identity_auth_ad_properties_net_bios_domain_name"
+  }
+
+  column "azure_files_identity_based_authentication_active_directory_properties_forest_name" {
+    rename = "files_identity_auth_ad_properties_forest_name"
+  }
+
+  column "azure_files_identity_based_authentication_active_directory_properties_domain_guid" {
+    rename = "files_identity_auth_ad_properties_domain_guid"
+  }
+
+  column "azure_files_identity_based_authentication_active_directory_properties_domain_sid" {
+    rename = "files_identity_auth_ad_properties_net_bios_domain_sid"
+  }
+
+  column "azure_files_identity_based_authentication_active_directory_properties_azure_storage_sid" {
+    rename = "files_identity_auth_ad_properties_azure_storage_sid"
+  }
+
+  column "last_geo_failover_time" {
+    extract_description_from_parent_field = true
+  }
+
+  column "creation_time" {
+    extract_description_from_parent_field = true
+  }
+
+  column "encryption_services_blob_last_enabled_time" {
+    extract_description_from_parent_field = true
+  }
+
+  column "encryption_services_file_last_enabled_time" {
+    extract_description_from_parent_field = true
+  }
+
+  column "encryption_services_table_last_enabled_time" {
+    extract_description_from_parent_field = true
+  }
+
+  column "encryption_services_queue_last_enabled_time" {
+    extract_description_from_parent_field = true
+  }
+
+  column "encryption_key_vault_properties_last_key_rotation_timestamp_time" {
+    extract_description_from_parent_field = true
+    rename = "encryption_key_last_key_rotation_timestamp_time"
+  }
+
+  column "blob_restore_status_parameters_time_to_restore_time" {
+    extract_description_from_parent_field = true
+  }
+
+  column "geo_replication_stats_last_sync_time" {
+    extract_description_from_parent_field = true
+  }
+
+  column "blob_restore_status_parameters_blob_ranges" {
+    type = "json"
+    generate_resolver = true
+  }
+
   relation "azure" "storage" "private_endpoint_connections" {
     path = "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2019-06-01/storage.PrivateEndpointConnection"
+    description = "Azure storage account private endpoint connection"
     column "id" {
       rename = "resource_id"
     }
@@ -131,12 +243,13 @@ resource "azure" "storage" "accounts" {
   }
 }
 
-
 resource "azure" "sql" "servers" {
+  description = "Azure sql server"
   path = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.Server"
 
   userDefinedColumn "subscription_id" {
     type = "string"
+    description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
     }
@@ -147,7 +260,6 @@ resource "azure" "sql" "servers" {
   multiplex "AzureSubscription" {
     path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
   }
-
 
   column "server_properties" {
     skip_prefix = true
@@ -160,9 +272,11 @@ resource "azure" "sql" "servers" {
 }
 
 resource "azure" "sql" "databases" {
+  description = "Azure sql database"
   path = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.Database"
 
   userDefinedColumn "subscription_id" {
+    description = "Azure subscription id"
     type = "string"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -183,6 +297,19 @@ resource "azure" "sql" "databases" {
     rename = "resource_id"
   }
 
+  column "creation_date_time" {
+    extract_description_from_parent_field = true
+  }
+  column "earliest_restore_date_time" {
+    extract_description_from_parent_field = true
+  }
+  column "source_database_deletion_date_time" {
+    extract_description_from_parent_field = true
+  }
+  column "restore_point_in_time" {
+    extract_description_from_parent_field = true
+  }
+
   column "recommended_index" {
     skip = true
   }
@@ -194,6 +321,7 @@ resource "azure" "sql" "databases" {
   }
 
   relation "azure" "sql" "transparent_data_encryptions" {
+    description = "Azure sql database encryption"
     path="github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.TransparentDataEncryption"
     column "transparent_data_encryption_properties" {
       skip_prefix = true
@@ -206,9 +334,11 @@ resource "azure" "sql" "databases" {
 
 resource "azure" "resources" "groups" {
   path = "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2020-06-01/resources.Group"
+  description = "Azure resource group"
 
   userDefinedColumn "subscription_id" {
     type = "string"
+    description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
     }
@@ -231,11 +361,13 @@ resource "azure" "resources" "groups" {
 }
 
 resource "azure" "network" "virtual_networks" {
+  description = "Azure virtual network"
   path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.VirtualNetwork"
   limit_depth = 1
 
   userDefinedColumn "subscription_id" {
     type = "string"
+    description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
     }
@@ -257,6 +389,7 @@ resource "azure" "network" "virtual_networks" {
 
   relation "azure" "networks" "subnets" {
     path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.Subnet"
+    description = "Azure virtual network subnet"
     column "subnet_properties_format" {
       skip_prefix = true
     }
@@ -266,11 +399,31 @@ resource "azure" "network" "virtual_networks" {
     column "id" {
       rename = "resource_id"
     }
+
+    column "network_security_group_security_group_properties_format_resource_guid" {
+      rename = "security_group_properties_format_resource_guid"
+    }
+
+    column "network_security_group_security_group_properties_format_provisioning_state" {
+      rename = "security_group_properties_format_provisioning_state"
+    }
   }
 
   relation "azure" "networks" "peerings" {
     path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.VirtualNetworkPeering"
+    description = "Azure virtual network peering"
     column "virtual_network_peering_properties_format" {
+      skip_prefix = true
+    }
+    column "id" {
+      rename = "resource_id"
+    }
+  }
+
+  relation "azure" "networks" "ip_allocations" {
+    path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.SubResource"
+    description = "Azure virtual network ip allocation"
+    column "virtual_network_ip_allocations_properties_format" {
       skip_prefix = true
     }
     column "id" {
@@ -283,12 +436,13 @@ resource "azure" "graphrbac" "users" {
   path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.User"
 }
 
-
 resource "azure" "keyvault" "vaults" {
   path = "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2019-09-01/keyvault.Vault"
+  description = "Azure ketvault vault"
 
   userDefinedColumn "subscription_id" {
     type = "string"
+    description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
     }
@@ -313,6 +467,7 @@ resource "azure" "keyvault" "vaults" {
     generate_resolver = true
   }
   relation "azure" "keyvault" "keys" {
+    description = "Azure ketvault vault key"
     path = "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2019-09-01/keyvault.Key"
 
     column "key_properties" {
@@ -321,10 +476,15 @@ resource "azure" "keyvault" "vaults" {
     column "id" {
       rename = "resource_id"
     }
+
+    column "key_ops" {
+      description = "Enumerates the values for json web key operation"
+    }
   }
 
   relation "azure" "keyvault" "private_endpoint_connections" {
     path = "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2019-09-01/keyvault.PrivateEndpointConnectionItem"
+    description = "Azure ketvault vault endpoint connection"
     column "private_endpoint_connection_properties" {
       skip_prefix = true
     }
@@ -333,15 +493,16 @@ resource "azure" "keyvault" "vaults" {
   column "network_acls_virtual_network_rules" {
     type="stringArray"
     generate_resolver = true
-
   }
 }
 
 resource "azure" "postgresql" "servers" {
   path = "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2020-01-01/postgresql.Server"
+  description = "Azure postgresql server"
 
   userDefinedColumn "subscription_id" {
     type = "string"
+    description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
     }
@@ -351,7 +512,6 @@ resource "azure" "postgresql" "servers" {
     path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
   }
 
-
   column "server_properties" {
     skip_prefix = true
   }
@@ -360,8 +520,13 @@ resource "azure" "postgresql" "servers" {
     rename = "resource_id"
   }
 
+  column "earliest_restore_date_time" {
+    extract_description_from_parent_field = true
+  }
+
   relation "azure" "postgresql" "private_endpoint_connection" {
     path = "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2020-01-01/postgresql.ServerPrivateEndpointConnection"
+    description = "Azure postgresql server private endpoint connection"
     column "properties" {
       skip_prefix = true
     }
@@ -373,6 +538,7 @@ resource "azure" "postgresql" "servers" {
 
   relation "azure" "postgresql" "configurations" {
     path = "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2020-01-01/postgresql.Configuration"
+    description = "Azure postgresql server configuration"
     column "configuration_properties" {
       skip_prefix = true
     }
@@ -383,12 +549,13 @@ resource "azure" "postgresql" "servers" {
 
 }
 
-
 resource "azure" "mySQL" "servers" {
   path = "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2020-01-01/mysql.Server"
+  description = "Azure mysql server"
 
   userDefinedColumn "subscription_id" {
     type = "string"
+    description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
     }
@@ -398,7 +565,6 @@ resource "azure" "mySQL" "servers" {
     path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
   }
 
-
   column "server_properties" {
     skip_prefix = true
   }
@@ -407,8 +573,13 @@ resource "azure" "mySQL" "servers" {
     rename = "resource_id"
   }
 
+  column "earliest_restore_date_time" {
+    extract_description_from_parent_field = true
+  }
+
   relation "azure" "mySQL" "private_endpoint_connections" {
     path = "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2020-01-01/mysql.ServerPrivateEndpointConnection"
+    description = "Azure mysql server private endpoint connection"
     column "properties" {
       skip_prefix = true
     }
@@ -419,6 +590,7 @@ resource "azure" "mySQL" "servers" {
 
   relation "azure" "mySQL" "configurations" {
     path = "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2020-01-01/mysql.Configuration"
+    description = "Azure mysql server configuration"
     column "configuration_properties" {
       skip_prefix = true
     }
