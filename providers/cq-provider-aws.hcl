@@ -1,10 +1,11 @@
 service = "aws"
-output_directory = "../cq-provider-aws/resources"
+output_directory = "../forks/cq-provider-aws/resources"
 
 resource "aws" "autoscaling" "launch_configurations" {
   path = "github.com/aws/aws-sdk-go-v2/service/autoscaling/types.LaunchConfiguration"
 
   userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
@@ -12,11 +13,14 @@ resource "aws" "autoscaling" "launch_configurations" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
-
+  column "metadata_options_http_tokens" {
+    description = "The state of token usage for your instance metadata requests."
+  }
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -26,10 +30,35 @@ resource "aws" "autoscaling" "launch_configurations" {
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
+
+  relation "aws" "autoscaling" "block_device_mappings" {
+    path = "github.com/aws/aws-sdk-go-v2/service/autoscaling/types.BlockDeviceMapping"
+    column "ebs_encrypted" {
+      description = "Specifies whether the volume should be encrypted."
+    }
+
+    column "ebs_iops" {
+      description = "The number of I/O operations per second (IOPS) to provision for the volume."
+    }
+
+    column "ebs_volume_size" {
+      description = "The volume size, in Gibibytes (GiB)."
+    }
+    column "no_device" {
+      description = "Setting this value to true suppresses the specified device included in the block device mapping of the AMI."
+    }
+  }
 }
 
 resource "aws" "cloudfront" "cache_policies" {
   path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.CachePolicySummary"
+
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
 
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
@@ -37,6 +66,7 @@ resource "aws" "cloudfront" "cache_policies" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -46,7 +76,9 @@ resource "aws" "cloudfront" "cache_policies" {
     type = "string"
     rename = "resource_id"
   }
+  column "cookies_behavior" {
 
+  }
   column "cache_policy" {
     skip_prefix = true
   }
@@ -78,87 +110,78 @@ resource "aws" "cloudtrail" "trails" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
+
   userDefinedColumn "cloudwatch_logs_log_group_name" {
     type = "string"
     generate_resolver = true
   }
 
   userDefinedColumn "is_logging" {
+    description = " Whether the CloudTrail is currently logging AWS API calls."
     type = "bool"
   }
 
-  userDefinedColumn "latest_cloudwatch_logs_delivery_error" {
+  userDefinedColumn "latest_cloud_watch_logs_delivery_error" {
+    description = "Displays any CloudWatch Logs error that CloudTrail encountered when attempting to deliver logs to CloudWatch Logs."
     type = "string"
   }
 
-  userDefinedColumn "latest_cloudwatch_logs_delivery_time" {
+  userDefinedColumn "latest_cloud_watch_logs_delivery_time" {
+    description = "Displays the most recent date and time when CloudTrail delivered logs to CloudWatch Logs."
     type = "timestamp"
   }
 
-  userDefinedColumn "latest_delivery_attempt_succeeded" {
-    type = "string"
-  }
-
-  userDefinedColumn "latest_delivery_attempt_time" {
-    type = "string"
-  }
 
   userDefinedColumn "latest_delivery_error" {
+    description = "Displays any Amazon S3 error that CloudTrail encountered when attempting to deliver log files to the designated bucket."
     type = "string"
   }
 
   userDefinedColumn "latest_delivery_time" {
+    description = "Specifies the date and time that CloudTrail last delivered log files to an account's Amazon S3 bucket."
     type = "timestamp"
   }
 
   userDefinedColumn "latest_digest_delivery_error" {
+    description = "Displays any Amazon S3 error that CloudTrail encountered when attempting to deliver a digest file to the designated bucket."
     type = "string"
   }
 
   userDefinedColumn "latest_digest_delivery_time" {
+    description = "Specifies the date and time that CloudTrail last delivered a digest file to an account's Amazon S3 bucket."
     type = "timestamp"
   }
 
-  userDefinedColumn "latest_notification_attempt_succeeded" {
-    type = "string"
-  }
-
-  userDefinedColumn "latest_notification_attempt_time" {
-    type = "string"
-  }
-
   userDefinedColumn "latest_notification_error" {
+    description = " Displays any Amazon SNS error that CloudTrail encountered when attempting to send a notification."
     type = "string"
   }
 
   userDefinedColumn "latest_notification_time" {
+    description = "Specifies the date and time of the most recent Amazon SNS notification that CloudTrail has written a new log file to an account's Amazon S3 bucket."
     type = "timestamp"
   }
 
   userDefinedColumn "start_logging_time" {
+    description = "Specifies the most recent date and time when CloudTrail started recording API calls for an AWS account."
     type = "timestamp"
   }
 
   userDefinedColumn "stop_logging_time" {
+    description = "Specifies the most recent date and time when CloudTrail stopped recording API calls for an AWS account."
     type = "timestamp"
-  }
-
-  userDefinedColumn "time_logging_started" {
-    type = "string"
-  }
-
-  userDefinedColumn "time_logging_stopped" {
-    type = "string"
   }
 
   relation "aws" "cloudtrail" "trail_event_selectors" {
@@ -185,15 +208,21 @@ resource "aws" "cloudwatch" "alarms" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
+  }
+
+  column "o_k_actions" {
+    rename = "ok_actions"
   }
   column "dimensions" {
     type = "json"
@@ -241,12 +270,14 @@ resource "aws" "cloudwatchlogs" "filters" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -266,12 +297,79 @@ resource "aws" "directconnect" "gateways" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+}
+
+resource "aws" "directconnect" "virtual_interfaces" {
+  path = "github.com/aws/aws-sdk-go-v2/service/directconnect/types.VirtualInterface"
+  description = "Information about a virtual interface. A virtual interface (VLAN) transmits the traffic between the AWS Direct Connect location and the customer network"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    description = "The AWS Account ID of the resource."
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  column "tags" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "route_filter_prefixes" {
+    type = "StringArray"
+    generate_resolver = true
+  }
+}
+
+resource "aws" "directconnect" "virtual_gateways" {
+  path = "github.com/aws/aws-sdk-go-v2/service/directconnect/types.VirtualGateway"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    description = "The AWS Account ID of the resource."
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -292,6 +390,7 @@ resource "aws" "ec2" "images" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -299,6 +398,7 @@ resource "aws" "ec2" "images" {
 
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -330,6 +430,7 @@ resource "aws" "ec2" "byoip_cidrs" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -337,6 +438,7 @@ resource "aws" "ec2" "byoip_cidrs" {
 
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -368,12 +470,14 @@ resource "aws" "ec2" "instances" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -412,12 +516,14 @@ resource "aws" "ec2" "customer_gateways" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -442,12 +548,14 @@ resource "aws" "ec2" "flow_logs" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -473,6 +581,7 @@ resource "aws" "ec2" "internet_gateways" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -480,6 +589,7 @@ resource "aws" "ec2" "internet_gateways" {
 
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -510,6 +620,7 @@ resource "aws" "ec2" "nat_gateways" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -517,6 +628,7 @@ resource "aws" "ec2" "nat_gateways" {
 
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -528,9 +640,6 @@ resource "aws" "ec2" "nat_gateways" {
     generate_resolver = true
   }
 
-  relation "aws" "ec2" "nat_gateway_address" {
-    path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.InternetGatewayAttachment"
-  }
 }
 
 resource "aws" "ec2" "network_acls" {
@@ -547,6 +656,7 @@ resource "aws" "ec2" "network_acls" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -554,6 +664,7 @@ resource "aws" "ec2" "network_acls" {
 
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -588,6 +699,7 @@ resource "aws" "ec2" "route_tables" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -595,6 +707,7 @@ resource "aws" "ec2" "route_tables" {
 
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -635,12 +748,14 @@ resource "aws" "ec2" "security_groups" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -667,6 +782,7 @@ resource "aws" "ec2" "subnets" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -674,6 +790,7 @@ resource "aws" "ec2" "subnets" {
 
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -699,6 +816,7 @@ resource "aws" "ec2" "vpc_peering_connections" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -706,6 +824,7 @@ resource "aws" "ec2" "vpc_peering_connections" {
 
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -824,6 +943,7 @@ resource "aws" "ec2" "vpc_endpoints" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -831,6 +951,7 @@ resource "aws" "ec2" "vpc_endpoints" {
 
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -858,6 +979,7 @@ resource "aws" "ec2" "vpcs" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -865,6 +987,7 @@ resource "aws" "ec2" "vpcs" {
 
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -889,12 +1012,14 @@ resource "aws" "ecr" "repositories" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -916,6 +1041,7 @@ resource "aws" "ecr" "repositories" {
     path = "github.com/aws/aws-sdk-go-v2/service/ecr/types.ImageDetail"
     userDefinedColumn "account_id" {
       type = "string"
+      description = "The AWS Account ID of the resource."
       resolver "resolveAWSAccount" {
         path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
       }
@@ -947,12 +1073,14 @@ resource "aws" "ecs" "clusters" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -991,12 +1119,14 @@ resource "aws" "efs" "filesystems" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -1021,22 +1151,25 @@ resource "aws" "eks" "clusters" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
-  //  column "tags" {
-  //    // TypeJson
-  //    type = "json"
-  //    generate_resolver=true
-  //  }
+  relation "aws" "eks" "logging" {
+    path = "github.com/aws/aws-sdk-go-v2/service/eks/types.LogSetup"
+    column "types" {
+      generate_resolver = true
+    }
+  }
 
 }
 
@@ -1053,12 +1186,14 @@ resource "aws" "elasticbeanstalk" "environments" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -1078,6 +1213,12 @@ resource "aws" "elasticbeanstalk" "environments" {
     type = "string"
     rename = "load_balancer_name"
   }
+
+  column "resources_load_balancer_listeners" {
+    type = "json"
+    rename = "listeners"
+    generate_resolver = true
+  }
 }
 
 resource "aws" "elbv2" "target_groups" {
@@ -1093,12 +1234,14 @@ resource "aws" "elbv2" "target_groups" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -1118,14 +1261,29 @@ resource "aws" "elbv2" "load_balancers" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+  relation "aws" "elbv2" "availability_zones" {
+    path = "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types.AvailabilityZone"
+    relation "aws" "elbv2" "addresses" {
+      path = "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types.LoadBalancerAddress"
+
+      column "ip_v6_address" {
+        rename = "ipv6_address"
+      }
+      column "private_ip_v4_address" {
+        rename = "private_ipv4_address"
+      }
     }
   }
 }
@@ -1144,12 +1302,14 @@ resource "aws" "elbv1" "load_balancers" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -1158,43 +1318,52 @@ resource "aws" "elbv1" "load_balancers" {
   //github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing/types.LoadBalancerAttributes
   //AccessLog
   userDefinedColumn "attributes_access_log_enabled" {
+    description = "Specifies whether access logs are enabled for the load balancer."
     type = "bool"
     generate_resolver = true
   }
   userDefinedColumn "attributes_access_log_s3_bucket_name" {
+    description = "The name of the Amazon S3 bucket where the access logs are stored."
     type = "string"
     generate_resolver = true
   }
   userDefinedColumn "attributes_access_log_s3_bucket_prefix" {
     type = "string"
+    description = "The logical hierarchy you created for your Amazon S3 bucket, for example my-bucket-prefix/prod. If the prefix is not provided, the log is placed at the root level of the bucket."
     generate_resolver = true
   }
   userDefinedColumn "attributes_access_log_emit_interval" {
+    description = "The interval for publishing the access logs."
     type = "int"
     generate_resolver = true
   }
   //ConnectionSettings
   userDefinedColumn "attributes_connection_settings_idle_timeout" {
+    description = "The time, in seconds, that the connection is allowed to be idle (no data has been sent over the connection) before it is closed by the load balancer."
     type = "int"
     generate_resolver = true
   }
   //CrossZoneLoadBalancing
   userDefinedColumn "attributes_cross_zone_load_balancing_enabled" {
+    description = "Specifies whether cross-zone load balancing is enabled for the load balancer."
     type = "bool"
     generate_resolver = true
   }
   //ConnectionDraining
   userDefinedColumn "attributes_connection_draining_enabled" {
+    description = "Specifies whether connection draining is enabled for the load balancer."
     type = "bool"
     generate_resolver = true
   }
   userDefinedColumn "attributes_connection_draining_timeout" {
+    description = "The maximum time, in seconds, to keep the existing connections open before de-registering the instances."
     type = "int"
     generate_resolver = true
   }
   //AdditionalAttributes
   userDefinedColumn "attributes_additional_attributes" {
     type = "Json"
+    description = "Information about additional load balancer attributes"
     generate_resolver = true
   }
 
@@ -1247,12 +1416,14 @@ resource "aws" "emr" "clusters" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -1277,12 +1448,14 @@ resource "aws" "fsx" "backups" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -1310,12 +1483,14 @@ resource "aws" "iam" "groups" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -1324,6 +1499,7 @@ resource "aws" "iam" "groups" {
   userDefinedColumn "attached_policies" {
     type = "json"
     generate_resolver = true
+    description = "List of policies attached to group."
   }
 
 //relation "inline_policies"
@@ -1332,6 +1508,7 @@ resource "aws" "iam" "groups" {
 
 resource "aws" "iam" "openid_connect_identity_providers" {
   path = "github.com/aws/aws-sdk-go-v2/service/iam.GetOpenIDConnectProviderOutput"
+  description = "IAM OIDC identity providers are entities in IAM that describe an external identity provider (IdP) service that supports the OpenID Connect (OIDC) standard, such as Google or Salesforce."
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -1343,6 +1520,7 @@ resource "aws" "iam" "openid_connect_identity_providers" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -1357,6 +1535,7 @@ resource "aws" "iam" "openid_connect_identity_providers" {
 
 resource "aws" "iam" "saml_identity_providers" {
   path = "github.com/aws/aws-sdk-go-v2/service/iam.GetSAMLProviderOutput"
+  description = "SAML provider resource objects defined in IAM for the AWS account."
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -1368,6 +1547,7 @@ resource "aws" "iam" "saml_identity_providers" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -1382,10 +1562,11 @@ resource "aws" "iam" "saml_identity_providers" {
 
 resource "aws" "iam" "group_policies" {
   path = "github.com/aws/aws-sdk-go-v2/service/iam.GetGroupPolicyOutput"
+  description = "Inline policies that are embedded in the specified IAM group"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
-  multiplex "AwsAccountRegion" {
+  multiplex "AwsAccount" {
     path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
@@ -1393,6 +1574,7 @@ resource "aws" "iam" "group_policies" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -1406,6 +1588,7 @@ resource "aws" "iam" "group_policies" {
 
 resource "aws" "iam" "role_policies" {
   path = "github.com/aws/aws-sdk-go-v2/service/iam.GetRolePolicyOutput"
+  description = "Inline policies that are embedded in the specified IAM role"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -1415,8 +1598,16 @@ resource "aws" "iam" "role_policies" {
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
   }
+  userDefinedColumn "role_id" {
+    type = "uuid"
+    description = "Role ID the policy belongs too."
+    resolver "parentIdResolver" {
+      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentIdResolver"
+    }
+  }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -1430,6 +1621,7 @@ resource "aws" "iam" "role_policies" {
 
 resource "aws" "iam" "user_policies" {
   path = "github.com/aws/aws-sdk-go-v2/service/iam.GetUserPolicyOutput"
+  description = "Inline policies that are embedded in the specified IAM user"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -1439,8 +1631,16 @@ resource "aws" "iam" "user_policies" {
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
   }
+  userDefinedColumn "user_id" {
+    type = "uuid"
+    description = "User ID the policy belongs too."
+    resolver "parentIdResolver" {
+      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentIdResolver"
+    }
+  }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -1464,15 +1664,10 @@ resource "aws" "iam" "password_policies" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 }
@@ -1482,22 +1677,17 @@ resource "aws" "iam" "policies" {
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  multiplex "AwsAccount" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
   }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  deleteFilter "AccountDeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1513,31 +1703,28 @@ resource "aws" "iam" "policies" {
 
 resource "aws" "iam" "roles" {
   path = "github.com/aws/aws-sdk-go-v2/service/iam/types.Role"
+  description = "An IAM role is an IAM identity that you can create in your account that has specific permissions."
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  multiplex "AwsAccount" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
   }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  deleteFilter "AccountDeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
   userDefinedColumn "policies" {
     type = "json"
     generate_resolver = true
+    description = "List of policies attached to group."
   }
 
   column "assume_role_policy_document" {
@@ -1561,10 +1748,11 @@ resource "aws" "iam" "server_certificates" {
     path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -1581,18 +1769,13 @@ resource "aws" "iam" "virtual_mfa_devices" {
     path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
@@ -1625,63 +1808,81 @@ resource "aws" "kms" "keys" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
   userDefinedColumn "rotation_enabled" {
+    description = "specifies whether key rotation is enabled."
     type = "bool"
   }
   userDefinedColumn "cloud_hsm_cluster_id" {
+    description = "The cluster ID of the AWS CloudHSM cluster that contains the key material for the CMK"
     type = "string"
   }
   userDefinedColumn "creation_date" {
+    description = "The date and time when the CMK was created."
     type = "timestamp"
   }
   userDefinedColumn "custom_key_store_id" {
+    description = "A unique identifier for the custom key store."
     type = "string"
   }
   userDefinedColumn "customer_master_key_spec" {
+    description = "Describes the type of key material in the CMK."
     type = "string"
   }
   userDefinedColumn "deletion_date" {
+    description = "he date and time after which AWS KMS deletes the CMK. This value is present only when KeyState is PendingDeletion."
     type = "timestamp"
   }
   userDefinedColumn "description" {
+    description = "The description of the CMK."
     type = "string"
   }
   userDefinedColumn "enabled" {
+    description = "Specifies whether the CMK is enabled."
     type = "bool"
   }
   userDefinedColumn "encryption_algorithms" {
+    description = "The encryption algorithms that the CMK supports."
     type = "stringarray"
   }
   userDefinedColumn "expiration_model" {
+    description = "Specifies whether the CMK's key material expires."
     type = "string"
   }
   userDefinedColumn "manager" {
+    description = "The manager of the CMK."
     type = "string"
   }
   userDefinedColumn "key_state" {
+    description = "The current status of the CMK."
     type = "string"
   }
   userDefinedColumn "key_usage" {
+    description = "The cryptographic operations for which you can use the CMK."
     type = "string"
   }
   userDefinedColumn "origin" {
+    description = "The source of the CMK's key material."
     type = "string"
   }
   userDefinedColumn "signing_algorithms" {
+    description = "The signing algorithms that the CMK supports."
     type = "stringarray"
   }
   userDefinedColumn "valid_to" {
+    description = "The time at which the imported key material expires."
     type = "timestamp"
   }
 }
@@ -1705,6 +1906,7 @@ resource "aws" "organizations" "accounts" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -1729,12 +1931,14 @@ resource "aws" "rds" "clusters" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -1787,6 +1991,7 @@ resource "aws" "rds" "certificates" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -1806,12 +2011,14 @@ resource "aws" "rds" "db_subnet_groups" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -1831,12 +2038,14 @@ resource "aws" "rds" "instances" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -1856,6 +2065,18 @@ resource "aws" "rds" "instances" {
   column "pending_modified_values_pending_cloudwatch_logs_exports_log_types_to_disable" {
     rename = "pending_cloudwatch_logs_types_to_disable"
   }
+
+  column "pending_modified_values_processor_features" {
+    // TypeJson
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "processor_features" {
+    // TypeJson
+    type = "json"
+    generate_resolver = true
+  }
 }
 
 
@@ -1874,6 +2095,7 @@ resource "aws" "route53" "hosted_zones" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -1890,10 +2112,12 @@ resource "aws" "route53" "hosted_zones" {
 
   userDefinedColumn "tags" {
     type = "json"
+    description = "The tags associated with the hosted zone."
   }
 
   userDefinedColumn "delegation_set_id" {
     type = "string"
+    description = "A complex type that lists the Amazon Route 53 name servers for the specified hosted zone."
   }
 
 
@@ -1951,30 +2175,31 @@ resource "aws" "route53" "hosted_zones" {
 }
 
 
-resource "aws" "route53" "reusable_delegation_sets" {
-  path = "github.com/aws/aws-sdk-go-v2/service/route53/types.DelegationSet"
-
-  column "id" {
-    rename = "resource_id"
-  }
-
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
-  }
-
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-}
+//resource "aws" "route53" "reusable_delegation_sets" {
+//  path = "github.com/aws/aws-sdk-go-v2/service/route53/types.DelegationSet"
+//
+//  column "id" {
+//    rename = "resource_id"
+//  }
+//
+//  ignoreError "IgnoreAccessDenied" {
+//    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+//  }
+//  multiplex "AwsAccountRegion" {
+//    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
+//  }
+//  deleteFilter "AccountRegionFilter" {
+//    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
+//  }
+//
+//  userDefinedColumn "account_id" {
+//    type = "string"
+//    description = "The AWS Account ID of the resource."
+//    resolver "resolveAWSAccount" {
+//      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+//    }
+//  }
+//}
 
 resource "aws" "route53" "health_checks" {
   path = "github.com/aws/aws-sdk-go-v2/service/route53/types.HealthCheck"
@@ -2023,6 +2248,7 @@ resource "aws" "route53" "health_checks" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -2040,14 +2266,21 @@ resource "aws" "route53" "health_checks" {
     skip = true
   }
 
+  column "insufficient_data_health_status" {
+    description = "When CloudWatch has insufficient data about the metric to determine the alarm state, the status that you want Amazon Route 53 to assign to the health check."
+  }
+
   userDefinedColumn "cloud_watch_alarm_configuration_dimensions" {
     type = "json"
+    description = "the metric that the CloudWatch alarm is associated with, a complex type that contains information about the dimensions for the metric."
     generate_resolver = true
   }
 
   userDefinedColumn "tags" {
     type = "json"
+    description = "The tags associated with the health check."
   }
+
 }
 
 
@@ -2071,6 +2304,7 @@ resource "aws" "route53" "traffic_policies" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -2110,53 +2344,67 @@ resource "aws" "sns" "topics" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
+
   // Topic attributes are returned as a string we define this to handle type conversion
   userDefinedColumn "owner" {
     type = "string"
+    description = "The AWS account ID of the topic's owner."
   }
   userDefinedColumn "policy" {
     type = "Json"
+    description = "The JSON serialization of the topic's access control policy."
   }
   userDefinedColumn "delivery_policy" {
     type = "Json"
+    description = "The JSON serialization of the topic's delivery policy."
   }
   userDefinedColumn "display_name" {
     type = "string"
+    description = "The human-readable name used in the From field for notifications to email and email-json endpoints."
   }
-  userDefinedColumn "subscriptions_confirmed" {
+  userDefinedColumn "subscription_confirmed" {
     type = "int"
+    description = "The number of confirmed subscriptions for the topic."
   }
-  userDefinedColumn "subscriptions_deleted" {
+  userDefinedColumn "subscription_deleted" {
     type = "int"
+    description = "The number of deleted subscriptions for the topic."
   }
-  userDefinedColumn "subscriptions_pending" {
+  userDefinedColumn "subscription_pending" {
     type = "int"
+    description = "The number of subscriptions pending confirmation for the topic."
   }
   userDefinedColumn "effective_delivery_policy" {
     type = "Json"
+    description = "The JSON serialization of the effective delivery policy, taking system defaults into account."
   }
   userDefinedColumn "fifo_topic" {
     type = "bool"
+    description = "When this is set to true, a FIFO topic is created."
   }
 
   userDefinedColumn "content_based_deduplication" {
     type = "bool"
+    description = "Enables content-based deduplication for FIFO topics."
   }
 }
 
 resource "aws" "s3" "buckets" {
   path = "github.com/aws/aws-sdk-go-v2/service/s3/types.Bucket"
+  description = "An Amazon S3 bucket is a public cloud storage resource available in Amazon Web Services' (AWS) Simple Storage Service (S3)"
 
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
@@ -2175,6 +2423,7 @@ resource "aws" "s3" "buckets" {
 
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "ResolveAwsAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
@@ -2182,6 +2431,7 @@ resource "aws" "s3" "buckets" {
 
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
   }
 
   userDefinedColumn "logging_target_prefix" {
@@ -2298,71 +2548,6 @@ resource "aws" "s3" "buckets" {
 }
 
 
-resource "aws" "sns" "topics" {
-  path = "github.com/aws/aws-sdk-go-v2/service/sns/types.Topic"
-
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-
-  postResourceResolver "resolveTopicAttributes" {
-    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
-    generate = true
-  }
-
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-
-  // Topic attributes are returned as a string we define this to handle type conversion
-  userDefinedColumn "owner" {
-    type = "string"
-  }
-  userDefinedColumn "policy" {
-    type = "Json"
-  }
-  userDefinedColumn "delivery_policy" {
-    type = "Json"
-  }
-  userDefinedColumn "display_name" {
-    type = "string"
-  }
-  userDefinedColumn "subscription_confirmed" {
-    type = "bigint"
-  }
-  userDefinedColumn "subscription_deleted" {
-    type = "bigint"
-  }
-  userDefinedColumn "subscription_pending" {
-    type = "bigint"
-  }
-  userDefinedColumn "effective_delivery_policy" {
-    type = "Json"
-  }
-  userDefinedColumn "fifo_topic" {
-    type = "bool"
-  }
-
-  userDefinedColumn "content_based_deduplication" {
-    type = "bool"
-  }
-}
-
 resource "aws" "sns" "subscriptions" {
   path = "github.com/aws/aws-sdk-go-v2/service/sns/types.Subscription"
 
@@ -2377,12 +2562,14 @@ resource "aws" "sns" "subscriptions" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -2403,21 +2590,31 @@ resource "aws" "redshift" "clusters" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
   column "tags" {
-    // TypeJson
     type = "json"
     generate_resolver = true
+  }
+
+  relation "aws" "redshift" "parameter_groups" {
+    path = "github.com/aws/aws-sdk-go-v2/service/redshift/types.ClusterParameterGroupStatus"
+
+    relation "aws" "redshift" "status_lists" {
+      path = "github.com/aws/aws-sdk-go-v2/service/redshift/types.ClusterParameterStatus"
+
+    }
   }
 }
 
@@ -2435,12 +2632,14 @@ resource "aws" "redshift" "subnet_groups" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -2452,8 +2651,10 @@ resource "aws" "redshift" "subnet_groups" {
       // TypeStringArray
       type = "stringArray"
       generate_resolver = true
+      description = "A list of supported platforms for orderable clusters."
     }
   }
+
 
   column "tags" {
     // TypeJson
@@ -2469,17 +2670,26 @@ resource "aws" "access_analyzer" "analyzer" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccount" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
+  userDefinedColumn "region" {
+    type = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
   column "tags" {
     // TypeJson
     type = "json"
@@ -2508,12 +2718,14 @@ resource "aws" "config" "configuration_recorders" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -2533,12 +2745,14 @@ resource "aws" "config" "conformance_pack" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -2549,581 +2763,6 @@ resource "aws" "config" "conformance_pack" {
   }
 }
 
-
-resource "aws" "lambda" "functions" {
-  path = "github.com/aws/aws-sdk-go-v2/service/lambda.GetFunctionOutput"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-
-  postResourceResolver "resolvePolicyCodeSigningConfig" {
-    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
-    generate = true
-  }
-
-  userDefinedColumn "policy_document" {
-    type = "json"
-  }
-  userDefinedColumn "policy_revision_id" {
-    type = "string"
-  }
-
-  userDefinedColumn "code_signing_allowed_publishers_version_arns" {
-    type = "stringarray"
-  }
-  userDefinedColumn "code_signing_config_arn" {
-    type = "string"
-  }
-  userDefinedColumn "code_signing_config_id" {
-    type = "string"
-  }
-  userDefinedColumn "code_signing_policies_untrusted_artifact_on_deployment" {
-    type = "string"
-  }
-  userDefinedColumn "code_signing_description" {
-    type = "string"
-  }
-  userDefinedColumn "code_signing_last_modified" {
-    type = "timestamp"
-  }
-  column "configuration" {
-    skip_prefix = true
-  }
-
-  column "image_config_response" {
-    skip_prefix = true
-  }
-//  column "tags" {
-//    type = "json"
-//  }
-
-  column "environment_error_error_code" {
-    rename = "environment_error_code"
-  }
-
-
-  relation "aws" "lambda" "function_aliases" {
-    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.AliasConfiguration"
-  }
-
-  relation "aws" "lambda" "function_event_invoke_configs" {
-    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.FunctionEventInvokeConfig"
-
-    column "destination_config" {
-      skip_prefix = true
-    }
-  }
-
-  relation "aws" "lambda" "function_versions" {
-    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.FunctionConfiguration"
-    column "image_config_response" {
-      skip_prefix = true
-    }
-  }
-
-  relation "aws" "lambda" "function_concurrency_configs" {
-    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.ProvisionedConcurrencyConfigListItem"
-    column "image_config_response" {
-      skip_prefix = true
-    }
-  }
-
-  relation "aws" "lambda" "function_event_source_mappings" {
-    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.EventSourceMappingConfiguration"
-    column "image_config_response" {
-      skip_prefix = true
-    }
-
-    column "source_access_configurations" {
-      rename = "access_configurations"
-    }
-
-    column "destination_config" {
-      skip_prefix = true
-    }
-  }
-
-}
-
-
-resource "aws" "lambda" "layers" {
-  path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.LayersListItem"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-
-
-  relation "aws" "lambda" "layer_versions" {
-    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.LayerVersionsListItem"
-    relation "aws" "lambda" "layer_version_policies" {
-      path = "github.com/aws/aws-sdk-go-v2/service/lambda.GetLayerVersionPolicyOutput"
-    }
-  }
-
-
-  column "tags" {
-    type = "json"
-    generate_resolver = true
-  }
-}
-
-
-resource "aws" "lambda" "layers" {
-  path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.LayersListItem"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-
-
-  relation "aws" "lambda" "layer_versions" {
-    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.LayerVersionsListItem"
-    relation "aws" "lambda" "layer_version_policies" {
-      path = "github.com/aws/aws-sdk-go-v2/service/lambda.GetLayerVersionPolicyOutput"
-    }
-  }
-
-  column "tags" {
-    type = "json"
-    generate_resolver = true
-  }
-}
-
-
-resource "aws" "apigatewayv2" "apis" {
-  path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Api"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-
-  relation "aws" "apigatewayv2" "rest_api_authorizers" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Authorizer"
-  }
-
-  relation "aws" "apigatewayv2" "rest_api_deployments" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Deployment"
-  }
-
-  relation "aws" "apigatewayv2" "rest_api_integrations" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Integration"
-
-    relation "aws" "apigatewayv2" "rest_api_integration_responses" {
-      path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.IntegrationResponse"
-    }
-  }
-
-  relation "aws" "apigatewayv2" "rest_api_models" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Model"
-    userDefinedColumn "model_template" {
-      type = "string"
-      generate_resolver = true
-    }
-  }
-
-  relation "aws" "apigatewayv2" "rest_api_routes" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Route"
-    relation "aws" "apigatewayv2" "rest_api_route_responses" {
-      path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.RouteResponse"
-    }
-  }
-
-  relation "aws" "apigatewayv2" "rest_api_stages" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Stage"
-    column "default_route_settings_data_trace_enabled" {
-      rename = "route_settings_data_trace_enabled"
-    }
-    column "default_route_settings_detailed_metrics_enabled" {
-      rename = "route_settings_detailed_metrics_enabled"
-    }
-    column "default_route_settings_logging_level" {
-      rename = "route_settings_logging_level"
-    }
-    column "default_route_settings_throttling_burst_limit" {
-      rename = "route_settings_throttling_burst_limit"
-    }
-    column "default_route_settings_throttling_rate_limit" {
-      rename = "route_settings_throttling_rate_limit"
-    }
-
-  }
-}
-
-
-resource "aws" "apigatewayv2" "domain_names" {
-  path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.DomainName"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-
-  relation "aws" "apigatewayv2" "rest_api_mappings" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.ApiMapping"
-
-    //    column "rest_api_id" {
-    //      skip = true
-    //    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-}
-
-resource "aws" "apigatewayv2" "vpc_links" {
-  path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.VpcLink"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-}
-
-
-resource "aws" "apigateway" "rest_apis" {
-  path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.RestApi"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-
-  column "id" {
-    rename = "resource_id"
-  }
-
-  relation "aws" "apigateway" "rest_api_authorizers" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.Authorizer"
-
-    column "id" {
-      rename = "resource_id"
-    }
-
-    column "provider_arn_s" {
-      rename = "provider_arns"
-    }
-  }
-
-  relation "aws" "apigateway" "rest_api_deployments" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.Deployment"
-    column "id" {
-      rename = "resource_id"
-    }
-  }
-
-  relation "aws" "apigateway" "rest_api_documentation_parts" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.DocumentationPart"
-    column "id" {
-      rename = "documentation_part_id"
-    }
-  }
-
-  relation "aws" "apigateway" "rest_api_documentation_versions" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.DocumentationVersion"
-  }
-
-  relation "aws" "apigateway" "rest_api_gateway_responses" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.GatewayResponse"
-  }
-
-  relation "aws" "apigateway" "rest_api_models" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.Model"
-
-    column "id" {
-      rename = "resource_id"
-    }
-
-    userDefinedColumn "model_template" {
-      type = "string"
-      generate_resolver = true
-    }
-  }
-  relation "aws" "apigateway" "rest_api_request_validators" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.RequestValidator"
-    column "id" {
-      rename = "resource_id"
-    }
-  }
-
-  relation "aws" "apigateway" "rest_api_resources" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.Resource"
-    column "id" {
-      rename = "resource_id"
-    }
-  }
-
-  relation "aws" "apigateway" "rest_api_stages" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.Stage"
-  }
-}
-
-resource "aws" "apigateway" "usage_plans" {
-  path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.UsagePlan"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-
-  column "id" {
-    rename = "resource_id"
-  }
-
-  relation "aws" "apigateway" "usage_plan_keys" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.UsagePlanKey"
-
-    column "id" {
-      rename = "resource_id"
-    }
-  }
-}
-
-resource "aws" "apigateway" "domain_names" {
-  path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.DomainName"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-
-  relation "aws" "apigateway" "domain_name_base_path_mappings" {
-    path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.BasePathMapping"
-  }
-}
-
-
-resource "aws" "apigateway" "client_certificates" {
-  path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.ClientCertificate"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-}
-
-
-resource "aws" "apigateway" "api_keys" {
-  path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.ApiKey"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-  column "id" {
-    rename = "resource_id"
-  }
-}
-
-
-resource "aws" "apigateway" "vpc_links" {
-  path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.VpcLink"
-  ignoreError "IgnoreAccessDenied" {
-    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
-  }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
-  }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-  userDefinedColumn "account_id" {
-    type = "string"
-    resolver "resolveAWSAccount" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
-    }
-  }
-  userDefinedColumn "region" {
-    type = "string"
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
-  }
-
-  column "id" {
-    rename = "resource_id"
-  }
-
-
-}
 resource "aws" "waf" "webacls" {
   path = "github.com/aws/aws-sdk-go-v2/service/waf/types.WebACL"
   ignoreError "IgnoreAccessDenied" {
@@ -3137,12 +2776,19 @@ resource "aws" "waf" "webacls" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
+
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -3157,8 +2803,8 @@ resource "aws" "waf" "webacls" {
   }
 }
 
-resource "aws" "waf" "rulegroups" {
-  path = "github.com/aws/aws-sdk-go-v2/service/waf/types.RuleGroupSummary"
+resource "aws" "waf" "rule_groups" {
+  path = "github.com/aws/aws-sdk-go-v2/service/waf/types.RuleGroup"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -3170,19 +2816,33 @@ resource "aws" "waf" "rulegroups" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
+  userDefinedColumn "arn" {
+    type = "string"
+    generate_resolver = true
+  }
+  userDefinedColumn "rule_ids" {
+    type = "stringArray"
+    generate_resolver = true
+  }
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
 }
 
-resource "aws" "waf" "subscribed_rulegroups" {
+resource "aws" "waf" "subscribed_rule_groups" {
   path = "github.com/aws/aws-sdk-go-v2/service/waf/types.SubscribedRuleGroupSummary"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
@@ -3195,12 +2855,14 @@ resource "aws" "waf" "subscribed_rulegroups" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -3208,7 +2870,7 @@ resource "aws" "waf" "subscribed_rulegroups" {
 }
 
 resource "aws" "waf" "rules" {
-  path = "github.com/aws/aws-sdk-go-v2/service/waf/types.RuleSummary"
+  path = "github.com/aws/aws-sdk-go-v2/service/waf/types.Rule"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -3230,15 +2892,27 @@ resource "aws" "waf" "rules" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
+  userDefinedColumn "arn" {
+    type = "string"
+    generate_resolver = true
+  }
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  relation "aws" "waf" "predicates" {
+    path = "github.com/aws/aws-sdk-go-v2/service/waf/types.Predicate"
+  }
 }
 
-
-resource "aws" "lambda" "functions" {
-  path = "github.com/aws/aws-sdk-go-v2/service/lambda.GetFunctionOutput"
+resource "aws" "wafv2" "web_acls" {
+  path = "github.com/aws/aws-sdk-go-v2/service/wafv2/types.WebACL"
+  limit_depth = 1
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
-  multiplex "AwsAccountRegion" {
+  multiplex "AwsAccount" {
     path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
@@ -3256,6 +2930,204 @@ resource "aws" "lambda" "functions" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
+  userDefinedColumn "resources_for_web_acl" {
+    type = "stringArray"
+    generate_resolver = true
+  }
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "id" {
+    type = "string"
+    rename = "resource_id"
+  }
+  column "default_action" {
+    type = "json"
+    generate_resolver = true
+  }
+  column "pre_process_firewall_manager_rule_groups" {
+    skip = true
+  }
+  column "post_process_firewall_manager_rule_groups" {
+    skip = true
+  }
+  relation "aws" "wafv2" "rules" {
+    path = "github.com/aws/aws-sdk-go-v2/service/wafv2/types.Rule"
+    column "statement" {
+      type = "json"
+      generate_resolver = true
+    }
+    column "action" {
+      type = "json"
+      generate_resolver = true
+    }
+    column "override_action" {
+      type = "json"
+      generate_resolver = true
+    }
+    column "rule_labels" {
+      type = "stringArray"
+      generate_resolver = true
+      rename = "labels"
+    }
+  }
+  relation "aws" "wafv2" "post_process_firewall_manager_rule_groups" {
+    path = "github.com/aws/aws-sdk-go-v2/service/wafv2/types.FirewallManagerRuleGroup"
+    column "firewall_manager_statement" {
+      type = "json"
+      generate_resolver = true
+      rename = "statement"
+    }
+    column "override_action" {
+      type = "json"
+      generate_resolver = true
+    }
+  }
+  relation "aws" "wafv2" "pre_process_firewall_manager_rule_groups" {
+    path = "github.com/aws/aws-sdk-go-v2/service/wafv2/types.FirewallManagerRuleGroup"
+    column "firewall_manager_statement" {
+      type = "json"
+      generate_resolver = true
+      rename = "statement"
+    }
+    column "override_action" {
+      type = "json"
+      generate_resolver = true
+    }
+  }
+}
+
+resource "aws" "wafv2" "rule_groups" {
+  path = "github.com/aws/aws-sdk-go-v2/service/wafv2/types.RuleGroup"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccount" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    description = "The AWS Account ID of the resource."
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
+  userDefinedColumn "policy" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "id" {
+    type = "string"
+    rename = "resource_id"
+  }
+  column "rules" {
+    type = "json"
+    generate_resolver = true
+  }
+}
+
+resource "aws" "wafv2" "managed_rule_groups" {
+  path = "github.com/aws/aws-sdk-go-v2/service/wafv2/types.ManagedRuleGroupSummary"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccount" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    description = "The AWS Account ID of the resource."
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  postResourceResolver "resolveDescribeManagedRuleGroup" {
+    path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
+    generate = true
+  }
+  userDefinedColumn "available_labels" {
+    type = "stringArray"
+  }
+  userDefinedColumn "consumed_labels" {
+    type = "stringArray"
+  }
+  userDefinedColumn "capacity" {
+    type = "bigint"
+  }
+  userDefinedColumn "label_namespace" {
+    type = "string"
+  }
+  userDefinedColumn "rules" {
+    type = "json"
+  }
+  userDefinedColumn "arn" {
+    type = "string"
+    generate_resolver = true
+  }
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  relation "aws" "waf" "predicates" {
+    path = "github.com/aws/aws-sdk-go-v2/service/waf/types.Predicate"
+  }
+}
+
+resource "aws" "lambda" "functions" {
+  path = "github.com/aws/aws-sdk-go-v2/service/lambda.GetFunctionOutput"
+  description = "AWS Lambda is a serverless compute service that lets you run code without provisioning or managing servers, creating workload-aware cluster scaling logic, maintaining event integrations, or managing runtimes"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type = "string"
+    description = "The AWS Account ID of the resource."
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
 
   postResourceResolver "resolvePolicyCodeSigningConfig" {
     path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
@@ -3264,27 +3136,36 @@ resource "aws" "lambda" "functions" {
 
   userDefinedColumn "policy_document" {
     type = "json"
+    description = "The resource-based policy."
   }
   userDefinedColumn "policy_revision_id" {
     type = "string"
+    description = "A unique identifier for the current revision of the policy."
   }
 
   userDefinedColumn "code_signing_allowed_publishers_version_arns" {
     type = "stringarray"
+    description = "The Amazon Resource Name (ARN) for each of the signing profiles. A signing profile defines a trusted user who can sign a code package."
   }
   userDefinedColumn "code_signing_config_arn" {
+    description = "The Amazon Resource Name (ARN) of the Code signing configuration."
     type = "string"
   }
   userDefinedColumn "code_signing_config_id" {
+    description = "Unique identifier for the Code signing configuration."
     type = "string"
   }
   userDefinedColumn "code_signing_policies_untrusted_artifact_on_deployment" {
+    description = "Code signing configuration policy for deployment validation failure."
     type = "string"
   }
   userDefinedColumn "code_signing_description" {
+    description = "Code signing configuration description."
     type = "string"
   }
   userDefinedColumn "code_signing_last_modified" {
+    description = "The date and time that the Code signing configuration was last modified, in ISO-8601 format (YYYY-MM-DDThh:mm:ss.sTZD)."
+
     type = "timestamp"
   }
   column "configuration" {
@@ -3294,9 +3175,6 @@ resource "aws" "lambda" "functions" {
   column "image_config_response" {
     skip_prefix = true
   }
-//  column "tags" {
-//    type = "json"
-//  }
 
   column "environment_error_error_code" {
     rename = "environment_error_code"
@@ -3360,12 +3238,14 @@ resource "aws" "lambda" "layers" {
   }
   userDefinedColumn "account_id" {
     type = "string"
+    description = "The AWS Account ID of the resource."
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -3399,6 +3279,7 @@ resource "aws" "lambda" "layers" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
@@ -3406,6 +3287,7 @@ resource "aws" "lambda" "layers" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -3438,6 +3320,7 @@ resource "aws" "apigatewayv2" "apis" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
@@ -3445,28 +3328,29 @@ resource "aws" "apigatewayv2" "apis" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
-  relation "aws" "apigatewayv2" "rest_api_authorizers" {
+  relation "aws" "apigatewayv2" "authorizers" {
     path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Authorizer"
   }
 
-  relation "aws" "apigatewayv2" "rest_api_deployments" {
+  relation "aws" "apigatewayv2" "deployments" {
     path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Deployment"
   }
 
-  relation "aws" "apigatewayv2" "rest_api_integrations" {
+  relation "aws" "apigatewayv2" "integrations" {
     path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Integration"
 
-    relation "aws" "apigatewayv2" "rest_api_integration_responses" {
+    relation "aws" "apigatewayv2" "responses" {
       path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.IntegrationResponse"
     }
   }
 
-  relation "aws" "apigatewayv2" "rest_api_models" {
+  relation "aws" "apigatewayv2" "models" {
     path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Model"
     userDefinedColumn "model_template" {
       type = "string"
@@ -3474,14 +3358,14 @@ resource "aws" "apigatewayv2" "apis" {
     }
   }
 
-  relation "aws" "apigatewayv2" "rest_api_routes" {
+  relation "aws" "apigatewayv2" "routes" {
     path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Route"
-    relation "aws" "apigatewayv2" "rest_api_route_responses" {
+    relation "aws" "apigatewayv2" "responses" {
       path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.RouteResponse"
     }
   }
 
-  relation "aws" "apigatewayv2" "rest_api_stages" {
+  relation "aws" "apigatewayv2" "stages" {
     path = "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types.Stage"
     column "default_route_settings_data_trace_enabled" {
       rename = "route_settings_data_trace_enabled"
@@ -3515,6 +3399,7 @@ resource "aws" "apigatewayv2" "domain_names" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
@@ -3530,6 +3415,7 @@ resource "aws" "apigatewayv2" "domain_names" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -3548,6 +3434,7 @@ resource "aws" "apigatewayv2" "vpc_links" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
@@ -3555,6 +3442,7 @@ resource "aws" "apigatewayv2" "vpc_links" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -3574,6 +3462,7 @@ resource "aws" "apigateway" "rest_apis" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
@@ -3581,6 +3470,7 @@ resource "aws" "apigateway" "rest_apis" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -3667,6 +3557,7 @@ resource "aws" "apigateway" "usage_plans" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
@@ -3674,6 +3565,7 @@ resource "aws" "apigateway" "usage_plans" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -3704,6 +3596,7 @@ resource "aws" "apigateway" "domain_names" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
@@ -3711,6 +3604,7 @@ resource "aws" "apigateway" "domain_names" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -3734,6 +3628,7 @@ resource "aws" "apigateway" "client_certificates" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
@@ -3741,6 +3636,7 @@ resource "aws" "apigateway" "client_certificates" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -3760,6 +3656,7 @@ resource "aws" "apigateway" "api_keys" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
@@ -3767,6 +3664,7 @@ resource "aws" "apigateway" "api_keys" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -3775,7 +3673,6 @@ resource "aws" "apigateway" "api_keys" {
     rename = "resource_id"
   }
 }
-
 
 resource "aws" "apigateway" "vpc_links" {
   path = "github.com/aws/aws-sdk-go-v2/service/apigateway/types.VpcLink"
@@ -3789,6 +3686,7 @@ resource "aws" "apigateway" "vpc_links" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
   userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
     type = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
@@ -3796,6 +3694,7 @@ resource "aws" "apigateway" "vpc_links" {
   }
   userDefinedColumn "region" {
     type = "string"
+    description = "The AWS Region of the resource."
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -3804,6 +3703,5 @@ resource "aws" "apigateway" "vpc_links" {
   column "id" {
     rename = "resource_id"
   }
-
-
 }
+

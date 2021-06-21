@@ -2,11 +2,14 @@ package codegen
 
 import (
 	"fmt"
+	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/naming"
+	"github.com/cloudquery/cq-gen/rewrite"
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
+	"go/ast"
 	"go/types"
 	"path"
 	"strings"
@@ -32,6 +35,11 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 		TableName:   strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, naming.CamelToSnake(fullName))),
 		parentTable: parentTable,
 	}
+
+	if resource.Description != "" {
+		table.Description = resource.Description
+	}
+
 	// will only mark table function as copied
 	b.rewriter.GetFunctionBody(ToGo(table.DomainName), "")
 
@@ -187,9 +195,10 @@ func (b builder) buildTableRelation(parentTable *TableDefinition, cfg config.Res
 		return nil, err
 	}
 	rel.Columns = append([]ColumnDefinition{{
-		Name:     strings.ToLower(fmt.Sprintf("%s_id", naming.CamelToSnake(inflection.Singular(parentTable.Name)))),
-		Type:     schema.TypeUUID,
-		Resolver: &FunctionDefinition{Signature: "schema.ParentIdResolver"}},
+		Name:        strings.ToLower(fmt.Sprintf("%s_id", naming.CamelToSnake(inflection.Singular(parentTable.Name)))),
+		Type:        schema.TypeUUID,
+		Description: fmt.Sprintf("Unique ID of %s table (FK)", parentTable.TableName),
+		Resolver:    &FunctionDefinition{Signature: "schema.ParentIdResolver"}},
 	}, rel.Columns...)
 
 	return rel, nil
@@ -199,8 +208,9 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 	for _, uc := range resource.UserDefinedColumn {
 		b.logger.Debug("adding user defined column", "table", table.TableName, "column", uc.Name)
 		colDef := ColumnDefinition{
-			Name: uc.Name,
-			Type: schema.ValueTypeFromString(uc.Type),
+			Name:        uc.Name,
+			Description: uc.Description,
+			Type:        schema.ValueTypeFromString(uc.Type),
 		}
 		if uc.GenerateResolver {
 			if uc.Resolver != nil {
@@ -229,7 +239,15 @@ func (b builder) addUserDefinedColumns(table *TableDefinition, resource config.R
 }
 
 func (b builder) buildColumns(table *TableDefinition, named *types.Named, resource config.ResourceConfig, fieldPath string, columnPath string) error {
+
 	st := named.Underlying().(*types.Struct)
+	pkg, _ := code.PkgAndType(resource.Path)
+	rw, _ := rewrite.NewFromImportPath(pkg)
+	docs := rw.GetStructDocs(named.Obj().Name())
+	if docs != nil && table.Description == "" {
+		table.Description = strings.ReplaceAll(strings.SplitN(docs.Text(), ". ", 2)[0], "\n", " ")
+	}
+	spec := rw.GetStructSpec(named.Obj().Name())
 	for i := 0; i < st.NumFields(); i++ {
 		field, tag := st.Field(i), st.Tag(i)
 		// Skip unexported, if the original field has a "-" tag or the field was requested to be skipped via config.
@@ -239,14 +257,14 @@ func (b builder) buildColumns(table *TableDefinition, named *types.Named, resour
 		}
 
 		b.logger.Debug("building column", "table", table.TableName, "column", field.Name())
-		if err := b.buildTableColumn(table, fieldPath, columnPath, field, resource); err != nil {
+		if err := b.buildTableColumn(table, fieldPath, columnPath, field, resource, spec); err != nil {
 			return fmt.Errorf("table %s build column %s failed. %w", table.DomainName, field.Name(), err)
 		}
 	}
 	return nil
 }
 
-func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath string, field *types.Var, resource config.ResourceConfig) error {
+func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath string, field *types.Var, resource config.ResourceConfig, spec *ast.TypeSpec) error {
 	fieldName := field.Name()
 	colDef := ColumnDefinition{
 		Name:     b.getColumnName(fieldName, columnPath),
@@ -262,6 +280,15 @@ func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath 
 	if cfg.Rename != "" {
 		colDef.Name = cfg.Rename
 		colDef = b.addPathResolver(fieldName, fieldPath, colDef)
+	}
+
+	if cfg.Description != "" {
+		colDef.Description = cfg.Description
+	} else if spec != nil && !resource.DisableReadDescriptions {
+		desc := getSpecColumnDescription(spec, field.Name())
+		if desc != "" {
+			colDef.Description = desc
+		}
 	}
 
 	if cfg.GenerateResolver {
@@ -397,4 +424,21 @@ func getFunctionParams(sig *types.Signature) string {
 		return fmt.Sprintf("(%s) %s", strings.Join(params, ","), results[0])
 	}
 	return fmt.Sprintf("(%s) (%s)", strings.Join(params, ","), strings.Join(results, ","))
+}
+
+func getSpecColumnDescription(spec *ast.TypeSpec, columnName string) string {
+	s := spec.Type.(*ast.StructType)
+	for _, f := range s.Fields.List {
+		if f.Names[0].Name != columnName {
+			continue
+		}
+		if f.Comment != nil {
+			return f.Comment.Text()
+		}
+		if f.Doc != nil {
+			data := strings.SplitN(f.Doc.Text(), ". ", 2)[0]
+			return strings.TrimSpace(strings.ReplaceAll(data, "\n", " "))
+		}
+	}
+	return ""
 }

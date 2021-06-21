@@ -73,8 +73,6 @@ resource "gcp" "kms" "keyrings" {
     }
 
 
-
-
     userDefinedColumn "project_id" {
       type = "string"
       resolver "resolveResourceProject" {
@@ -85,9 +83,11 @@ resource "gcp" "kms" "keyrings" {
     userDefinedColumn "location" {
       type = "string"
     }
-    //    relation "gcp" "kms" "policy" {
-    //      path = "google.golang.org/api/cloudkms/v1.Policy"
-    //    }
+
+    userDefinedColumn "policy" {
+      type = "json"
+      generate_resolver = true
+    }
   }
 }
 
@@ -998,10 +998,6 @@ resource "gcp" "compute" "projects" {
     type = "json"
     generate_resolver = true
   }
-
-  relation "gcp" "compute" "project_policy" {
-    path = "google.golang.org/api/compute/v1.Policy"
-  }
 }
 
 
@@ -1320,6 +1316,85 @@ resource "gcp" "logging" "sinks" {
     rename = "resource_id"
   }
 }
+
+
+resource "gcp" "resource_manager" "projects" {
+  path = "google.golang.org/api/cloudresourcemanager/v3.Project"
+
+  multiplex "ProjectMultiplex" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
+  }
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
+  }
+  ignoreError "IgnoreError" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
+  }
+
+  column "create_time" {
+    type = "timestamp"
+    generate_resolver = true
+  }
+
+  column "delete_time" {
+    type = "timestamp"
+    generate_resolver = true
+  }
+
+  column "update_time" {
+    type = "timestamp"
+    generate_resolver = true
+  }
+
+  userDefinedColumn "policy" {
+    type = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "gcp" "resource_manager" "folders" {
+  path = "google.golang.org/api/cloudresourcemanager/v3.Folder"
+
+  multiplex "ProjectMultiplex" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
+  }
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
+  }
+  ignoreError "IgnoreError" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
+  }
+
+  userDefinedColumn "project_id" {
+    type = "string"
+    resolver "resolveResourceProject" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
+    }
+  }
+
+  column "create_time" {
+    type = "timestamp"
+    generate_resolver = true
+  }
+
+  column "delete_time" {
+    type = "timestamp"
+    generate_resolver = true
+  }
+
+  column "update_time" {
+    type = "timestamp"
+    generate_resolver = true
+  }
+
+  userDefinedColumn "policy" {
+    type = "json"
+    generate_resolver = true
+  }
+}
+
+
 
 
 

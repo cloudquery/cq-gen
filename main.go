@@ -3,31 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-
-	_ "github.com/aws/aws-sdk-go-v2/service/apigateway/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/autoscaling/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/cloudtrail/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/configservice/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/directconnect/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/ec2/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/ecr/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/efs/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/eks/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/emr/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/iam/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/lambda/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/route53/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/s3/types"
-	_ "github.com/aws/aws-sdk-go-v2/service/sns/types"
 	"github.com/cloudquery/cq-gen/codegen"
+	_ "github.com/cloudquery/cq-provider-aws/resources"
+	_ "github.com/cloudquery/cq-provider-gcp/resources"
 )
 
 func main() {

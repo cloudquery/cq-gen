@@ -3,32 +3,9 @@ module github.com/cloudquery/cq-gen
 go 1.15
 
 require (
-	github.com/aws/aws-sdk-go-v2/service/apigateway v1.4.0
-	github.com/aws/aws-sdk-go-v2/service/apigatewayv2 v1.3.1
-	github.com/aws/aws-sdk-go-v2/service/autoscaling v1.5.0
-	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.3.0
-	github.com/aws/aws-sdk-go-v2/service/cloudtrail v1.3.1
-	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.4.1
-	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.4.0
-	github.com/aws/aws-sdk-go-v2/service/configservice v1.5.1
-	github.com/aws/aws-sdk-go-v2/service/directconnect v1.4.1
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.2.0
-	github.com/aws/aws-sdk-go-v2/service/ecr v1.3.1
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.4.1
-	github.com/aws/aws-sdk-go-v2/service/efs v1.4.0
-	github.com/aws/aws-sdk-go-v2/service/eks v1.5.0
-	github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.3.1
-	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.3.0
-	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.3.1
-	github.com/aws/aws-sdk-go-v2/service/emr v1.3.1
-	github.com/aws/aws-sdk-go-v2/service/iam v1.5.0
-	github.com/aws/aws-sdk-go-v2/service/lambda v1.3.0
-	github.com/aws/aws-sdk-go-v2/service/route53 v1.4.0
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.9.0
-	github.com/aws/aws-sdk-go-v2/service/sns v1.4.1
-	github.com/cloudquery/cq-provider-aws v0.4.6 // indirect
-	github.com/cloudquery/cq-provider-gcp v0.3.1 // indirect
-	github.com/cloudquery/cq-provider-sdk v0.2.1
+	github.com/cloudquery/cq-provider-aws v0.4.6
+	github.com/cloudquery/cq-provider-gcp v0.3.1
+	github.com/cloudquery/cq-provider-sdk v0.2.5
 	github.com/creasty/defaults v1.5.1
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
@@ -41,12 +18,11 @@ require (
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
 	golang.org/x/sys v0.0.0-20210525143221-35b2ab0089ea // indirect
 	golang.org/x/tools v0.1.2
+	google.golang.org/api v0.44.0 // indirect
+	google.golang.org/grpc v1.37.1 // indirect
 )
 
 // Note: add replace for your local provider so cq-gen rewriter will work properlly
-//replace (
-//	github.com/cloudquery/cq-provider-aws v0.4.3 => ../forks/cq-provider-aws
-//)
+// replace github.com/cloudquery/cq-provider-aws v0.4.6 => ../forks/cq-provider-aws
 
-// Note: add replace for your local provider so cq-gen rewriter will work properlly
 replace github.com/cloudquery/cq-provider-gcp => ../forks/cq-provider-gcp
