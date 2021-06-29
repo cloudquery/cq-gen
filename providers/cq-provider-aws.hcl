@@ -4121,3 +4121,153 @@ resource "aws" "elasticsearch" "domains" {
     rename = "vpc_vpc_id"
   }
 }
+
+resource "aws" "cognito" "user_pools" {
+  path = "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types.UserPoolType"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  column "account_recovery_setting" {
+    type = "json"
+    generate_resolver = "true"
+  }
+
+  column "admin_create_user_config_allow_admin_create_user_only" {
+    rename = "admin_create_user_admin_only"
+  }
+
+  column "admin_create_user_config_invite_message_template_email_message" {
+    rename = "admin_create_user_invite_email_message"
+  }
+
+  column "admin_create_user_config_invite_message_template_email_subject" {
+    rename = "admin_create_user_invite_email_subject"
+  }
+
+  column "admin_create_user_config_invite_message_template_s_m_s_message" {
+    rename = "admin_create_user_invite_sms"
+  }
+
+  column "device_configuration_challenge_required_on_new_device" {
+    rename = "challenge_required_on_new_device"
+  }
+
+  column "device_configuration_device_only_remembered_on_user_prompt" {
+    rename = "device_only_remembered_on_user_prompt"
+  }
+
+  column "email_configuration_configuration_set" {
+    rename = "email_configuration_set"
+  }
+
+  column "email_configuration_email_sending_account" {
+    rename = "email_configuration_sending_account"
+  }
+
+  column "email_configuration_reply_to_email_address" {
+    rename = "email_configuration_reply_to_address"
+  }
+
+  column "id" {
+    rename = "resource_id"
+  }
+
+  column "lambda_config_custom_s_m_s_sender_lambda_arn" {
+    rename = "lambda_config_custom_sms_sender_lambda_arn"
+  }
+
+  column "lambda_config_custom_s_m_s_sender_lambda_version" {
+    rename = "lambda_config_custom_sms_sender_lambda_version"
+  }
+
+  relation "aws" "cognito" "schema_attributes" {
+    path = "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types.SchemaAttributeType"
+  }
+
+  relation "aws" "cognito" "identity_providers" {
+    path = "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types.IdentityProviderType"
+    ignoreError "IgnoreAccessDenied" {
+      path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+    }
+    multiplex "AwsAccountRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+    }
+    deleteFilter "AccountRegionFilter" {
+      path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+    }
+    userDefinedColumn "account_id" {
+      description = "The AWS Account ID of the resource."
+      type = "string"
+      resolver "resolveAWSAccount" {
+        path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+      }
+    }
+    userDefinedColumn "region" {
+      description = "The AWS Region of the resource."
+      type = "string"
+      resolver "resolveAWSRegion" {
+        path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+      }
+    }
+
+    column "user_pool_id" {
+      skip = "true"
+    }
+  }
+}
+
+resource "aws" "cognito" "identity_pools" {
+  path = "github.com/aws/aws-sdk-go-v2/service/cognitoidentity.DescribeIdentityPoolOutput"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  column "open_id_connect_provider_arn_s" {
+    rename = "open_id_connect_provider_arns"
+  }
+
+  column "saml_provider_arn_s" {
+    rename = "saml_provider_arns"
+  }
+}
