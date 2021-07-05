@@ -599,3 +599,212 @@ resource "azure" "mySQL" "servers" {
     }
   }
 }
+
+resource "azure" "ad" "users" {
+  path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.User"
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+  column "sign_in_names" {
+    skip = true
+  }
+
+  relation "azure" "ad" "sign_in_names" {
+    path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.SignInName"
+    column "type" {
+      rename = "signin_type"
+    }
+    column "value" {
+      rename = "signin_value"
+    }
+  }
+}
+
+resource "azure" "ad" "groups" {
+  path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.ADGroup"
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+  column "deletion_timestamp_time" {
+    description = "The time at which the directory object was deleted."
+  }
+}
+
+resource "azure" "ad" "service_principals" {
+  path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.ServicePrincipal"
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+  column "app_owner_tenant_id" {
+    description = "Application owner id"
+  }
+
+  column "deletion_timestamp_time" {
+    description = "The time at which the directory object was deleted."
+  }
+
+  relation "azure" "ad" "app_roles" {
+    path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.AppRole"
+
+    column "id" {
+      rename = "resource_id"
+    }
+
+    column "value" {
+      rename = "role_claim_value"
+    }
+  }
+
+  relation "azure" "ad" "key_credentials" {
+    path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.KeyCredential"
+
+    column "start_date_time" {
+      rename = "start_date"
+      description = "Start date."
+    }
+
+    column "end_date_time" {
+      rename = "end_date"
+      description = "End date."
+    }
+
+    column "type" {
+      rename = "key_type"
+    }
+
+    column "value" {
+      rename = "key_value"
+    }
+  }
+
+
+  relation "azure" "ad" "oauth2_permissions" {
+    path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.OAuth2Permission"
+
+    column "id" {
+      rename = "resource_id"
+    }
+
+    column "type" {
+      rename = "permission_type"
+    }
+
+    column "value" {
+      rename = "scope_claim_value"
+    }
+  }
+
+  relation "azure" "ad" "password_credentials" {
+    path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.PasswordCredential"
+
+    column "value" {
+      rename = "key_value"
+    }
+  }
+}
+
+resource "azure" "ad" "applications" {
+  path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.Application"
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+  column "optional_claims" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  relation "azure" "ad" "app_roles" {
+    path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.AppRole"
+
+    column "id" {
+      rename = "resource_id"
+    }
+
+    column "value" {
+      rename = "role_claim_value"
+    }
+  }
+
+  relation "azure" "ad" "oauth2_permissions" {
+    path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.OAuth2Permission"
+
+    column "id" {
+      rename = "resource_id"
+    }
+
+    column "type" {
+      rename = "permission_type"
+    }
+
+    column "value" {
+      rename = "scope_claim_value"
+    }
+  }
+
+  relation "azure" "ad" "pre_authorized_applications" {
+    path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.PreAuthorizedApplication"
+
+    column "permissions" {
+      generate_resolver = true
+      type = "json"
+    }
+
+    column "extensions" {
+      generate_resolver = true
+      type = "json"
+    }
+  }
+
+  relation "azure" "ad" "required_resource_accesses" {
+    path = "github.com/Azure/azure-sdk-for-go/services/graphrbac/1.6/graphrbac.RequiredResourceAccess"
+
+    column "resource_access" {
+      generate_resolver = true
+      type = "json"
+    }
+  }
+}
