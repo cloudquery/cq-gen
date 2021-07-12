@@ -599,3 +599,32 @@ resource "azure" "mySQL" "servers" {
     }
   }
 }
+
+
+resource "azure" "network" "watchers" {
+  path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.Watcher"
+  description = "Azure network watcher"
+
+
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+
+  column "watcher_properties_format_provisioning_state" {
+    rename = "provisioning_state"
+  }
+
+  relation "azure" "network_watcher" "flow_log" {
+    path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.FlowLogProperties"
+    embed = true
+  }
+}
