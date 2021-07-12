@@ -599,3 +599,47 @@ resource "azure" "mySQL" "servers" {
     }
   }
 }
+
+
+resource "azure" "monitor" "activity_log_alerts" {
+  path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.ActivityLogAlertResource"
+  //  description = "Azure network security group"
+  limit_depth = 1
+
+
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+
+  column "activity_log_alert" {
+    skip_prefix = true
+  }
+
+  column "scopes" {
+    generate_resolver = true
+  }
+
+  relation "azure" "monitor" "activity_log_alert_action_groups" {
+    path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.ActivityLogAlertActionGroup"
+    column "action_group_id" {
+      generate_resolver = true
+    }
+  }
+
+  relation "azure" "monitor" "activity_log_alert_conditions" {
+    path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.ActivityLogAlertLeafCondition"
+    column "field" {
+      generate_resolver = true
+    }
+  }
+}
+
