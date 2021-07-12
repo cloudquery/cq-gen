@@ -599,3 +599,109 @@ resource "azure" "mySQL" "servers" {
     }
   }
 }
+
+
+resource "azure" "compute" "virtual_machines" {
+  path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.VirtualMachine"
+
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+  limit_depth = 0
+
+  column "virtual_machine_properties" {
+    skip_prefix = true
+  }
+
+  column "virtual_machine_properties_instance_view_patch_status" {
+    skip = true
+  }
+
+  column "storage_profile" {
+    skip = true
+  }
+
+  column "os_profile" {
+    skip_prefix = true
+  }
+
+  column "instance_view" {
+    skip = true
+  }
+
+  column "maintenance_redeploy_status" {
+    skip_prefix = true
+  }
+
+  column "patch_status" {
+    skip_prefix = true
+  }
+
+  column "windows_configuration_additional_unattend_content" {
+    skip = true
+    // todo or make it json
+  }
+
+  column "network_profile_network_interfaces" {
+    skip = true
+  }
+
+  column "windows_configuration_win_r_m_listeners" {
+    rename = "win_config_rm_listeners"
+  }
+
+
+  column "linux_configuration_ssh_public_keys" {
+    type = "json"
+    generate_resolver = true
+  }
+
+
+  column "last_patch_installation_summary_error_details" {
+    skip = true
+  }
+
+  column "available_patch_summary_error_details" {
+    skip = true
+  }
+
+
+  relation "azure" "compute" "virtual_machine_network_interfaces" {
+    path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.NetworkInterfaceReference"
+  }
+
+
+  relation "azure" "compute" "virtual_machine_resources" {
+    path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.VirtualMachineExtension"
+
+    column "virtual_machine_extension_properties" {
+      skip = true
+    }
+    column "settings" {
+      type = "json"
+      generate_resolver = true
+    }
+
+    column "instance_view_substatuses" {
+      rename = "substatuses"
+    }
+
+    column "instance_view_statuses" {
+      rename = "statuses"
+    }
+
+    column "protected_settings" {
+      type = "json"
+      generate_resolver = true
+    }
+
+  }
+}
