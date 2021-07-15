@@ -99,12 +99,12 @@ resource "azure" "storage" "containers" {
   }
 
   column "legal_hold" {
-    type =  "json"
+    type = "json"
     generate_resolver = true
   }
 
   column "immutability_policy" {
-    type =  "json"
+    type = "json"
     generate_resolver = true
   }
 
@@ -317,12 +317,12 @@ resource "azure" "sql" "databases" {
     skip = true
   }
   column "recommended_index_recommended_index_properties_estimated_impacts" {
-    skip =true
+    skip = true
   }
 
   relation "azure" "sql" "transparent_data_encryptions" {
     description = "Azure sql database encryption"
-    path="github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.TransparentDataEncryption"
+    path = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.TransparentDataEncryption"
     column "transparent_data_encryption_properties" {
       skip_prefix = true
     }
@@ -491,7 +491,7 @@ resource "azure" "keyvault" "vaults" {
   }
 
   column "network_acls_virtual_network_rules" {
-    type="stringArray"
+    type = "stringArray"
     generate_resolver = true
   }
 }
@@ -626,5 +626,19 @@ resource "azure" "network" "watchers" {
   relation "azure" "network_watcher" "flow_log" {
     path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.FlowLogProperties"
     embed = true
+  }
+}
+
+resource "azure" "monitor" "activity_logs" {
+  path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.EventData"
+  description = "Azure network watcher"
+
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
   }
 }
