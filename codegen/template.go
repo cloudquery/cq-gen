@@ -13,6 +13,7 @@ import (
 	"path"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"text/template"
 )
 
@@ -111,6 +112,13 @@ func Funcs() template.FuncMap {
 		"lcFirst":       LcFirst,
 		"isNil": func(i interface{}) bool {
 			return reflect2.IsNil(i)
+		},
+		"joinQuotes": func(ss []string) string {
+			ns := make([]string, len(ss))
+			for i, s := range ss {
+				ns[i] = strconv.Quote(s)
+			}
+			return strings.Join(ns, ",")
 		},
 		"go":   ToGo,
 		"ref":  ref,
