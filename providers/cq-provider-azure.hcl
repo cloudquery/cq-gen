@@ -699,13 +699,6 @@ resource "azure" "network" "security_groups" {
     }
   }
 
-  relation "azure" "network" "security_group_default_security_rules" {
-    path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.SecurityRule"
-
-    column "security_rule_properties_format" {
-      skip_prefix = true
-    }
-  }
 
   relation "azure" "network" "security_group_flow_logs" {
     path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.FlowLog"
