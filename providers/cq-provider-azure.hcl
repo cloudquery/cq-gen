@@ -99,12 +99,12 @@ resource "azure" "storage" "containers" {
   }
 
   column "legal_hold" {
-    type =  "json"
+    type = "json"
     generate_resolver = true
   }
 
   column "immutability_policy" {
-    type =  "json"
+    type = "json"
     generate_resolver = true
   }
 
@@ -317,12 +317,12 @@ resource "azure" "sql" "databases" {
     skip = true
   }
   column "recommended_index_recommended_index_properties_estimated_impacts" {
-    skip =true
+    skip = true
   }
 
   relation "azure" "sql" "transparent_data_encryptions" {
     description = "Azure sql database encryption"
-    path="github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.TransparentDataEncryption"
+    path = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.TransparentDataEncryption"
     column "transparent_data_encryption_properties" {
       skip_prefix = true
     }
@@ -491,7 +491,7 @@ resource "azure" "keyvault" "vaults" {
   }
 
   column "network_acls_virtual_network_rules" {
-    type="stringArray"
+    type = "stringArray"
     generate_resolver = true
   }
 }
@@ -627,4 +627,71 @@ resource "azure" "network" "watchers" {
     path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.FlowLogProperties"
     embed = true
   }
+}
+
+resource "azure" "network" "public_ip_addresses" {
+  path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.PublicIPAddress"
+  limit_depth = 1
+
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+  column "public_ip_address_properties_format" {
+    skip_prefix = true
+  }
+
+  column "ip_configuration" {
+    skip_prefix = true
+  }
+
+  column "ip_configuration_properties_format" {
+    skip_prefix = true
+  }
+
+  column "public_ip_address" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "subnet" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  //  column "public_ip_address_properties_format_ip_configuration_ip_configuration_properties_format_subnet_subnet_properties_format_security_group" {
+  //    type = "json"
+  //  }
+  //
+  //  column "public_ip_address_properties_format_ip_configuration_ip_configuration_properties_format_subnet_subnet_properties_format_route_table" {
+  //    type = "json"
+  //  }
+  //
+  //  column "public_ip_address_properties_format_ip_configuration_ip_configuration_properties_format_subnet_subnet_properties_format_service_endpoint_policies" {
+  //    type = "json"
+  //  }
+  //
+  //  column "public_ip_address_properties_format_ip_configuration_ip_configuration_properties_format_subnet_subnet_properties_format_private_endpoints" {
+  //    type = "json"
+  //  }
+  //
+  //  column "public_ip_address_properties_format_ip_configuration_ip_configuration_properties_format_subnet_subnet_properties_format_ip_configurations" {
+  //    type = "json"
+  //  }
+  //
+  //  column "public_ip_address_properties_format_ip_configuration_ip_configuration_properties_format_subnet_subnet_properties_format_ip_configuration_profiles" {
+  //    type = "json"
+  //  }
 }
