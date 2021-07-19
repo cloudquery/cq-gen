@@ -160,6 +160,9 @@ var commonInitialisms = map[string]bool{
 	"SAML":  true,
 	"IPV6":  true,
 	"IPV4":  true,
+	"IDs":   true,
+	"URN":   true,
+	"CORS":  true,
 }
 
 // add exceptions here for things that are not automatically convertable
