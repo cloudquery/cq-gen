@@ -654,6 +654,12 @@ resource "azure" "network" "public_ip_addresses" {
   path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.PublicIPAddress"
   limit_depth = 1
 
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"]
+  }
+
   userDefinedColumn "subscription_id" {
     type = "string"
     description = "Azure subscription id"
@@ -691,28 +697,4 @@ resource "azure" "network" "public_ip_addresses" {
     type = "json"
     generate_resolver = true
   }
-
-  //  column "public_ip_address_properties_format_ip_configuration_ip_configuration_properties_format_subnet_subnet_properties_format_security_group" {
-  //    type = "json"
-  //  }
-  //
-  //  column "public_ip_address_properties_format_ip_configuration_ip_configuration_properties_format_subnet_subnet_properties_format_route_table" {
-  //    type = "json"
-  //  }
-  //
-  //  column "public_ip_address_properties_format_ip_configuration_ip_configuration_properties_format_subnet_subnet_properties_format_service_endpoint_policies" {
-  //    type = "json"
-  //  }
-  //
-  //  column "public_ip_address_properties_format_ip_configuration_ip_configuration_properties_format_subnet_subnet_properties_format_private_endpoints" {
-  //    type = "json"
-  //  }
-  //
-  //  column "public_ip_address_properties_format_ip_configuration_ip_configuration_properties_format_subnet_subnet_properties_format_ip_configurations" {
-  //    type = "json"
-  //  }
-  //
-  //  column "public_ip_address_properties_format_ip_configuration_ip_configuration_properties_format_subnet_subnet_properties_format_ip_configuration_profiles" {
-  //    type = "json"
-  //  }
 }
