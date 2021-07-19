@@ -23,6 +23,10 @@ func (c Config) GetResource(resource string) (ResourceConfig, error) {
 	return ResourceConfig{}, fmt.Errorf("didn't find resource %s in config", resource)
 }
 
+type TableOptionsConfig struct {
+	PrimaryKeys []string `hcl:"primary_keys,optional"`
+}
+
 type ResourceConfig struct {
 	// Name of service i.e AWS,Azure etc'
 	Service string `hcl:"service,label"`
@@ -34,6 +38,8 @@ type ResourceConfig struct {
 	Description string `hcl:"description,optional"`
 	// Path to the struct we are generating from
 	Path string `hcl:"path,optional"`
+	// Table options in the config
+	TableOptions *TableOptionsConfig `hcl:"options,block"`
 
 	// Column configurations we want to modify
 	Columns []ColumnConfig `hcl:"column,block"`

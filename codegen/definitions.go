@@ -1,6 +1,7 @@
 package codegen
 
 import (
+	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 	"go/types"
 	"strings"
@@ -20,6 +21,9 @@ type TableDefinition struct {
 	MultiplexFunc        *FunctionDefinition
 	DeleteFilterFunc     *FunctionDefinition
 	PostResourceResolver *FunctionDefinition
+
+	// Table Creation Options
+	Options *config.TableOptionsConfig
 
 	// Functions that were created by configuration request
 	Functions []*FunctionDefinition

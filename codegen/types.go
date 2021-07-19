@@ -31,6 +31,8 @@ func getValueType(typ types.Type) schema.ValueType {
 			return schema.TypeIntArray
 		case schema.TypeString:
 			return schema.TypeStringArray
+		case schema.TypeBigInt:
+			return schema.TypeIntArray
 		case TypeEmbedded:
 			return TypeRelation
 		case schema.TypeSmallInt:
