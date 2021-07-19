@@ -663,6 +663,17 @@ resource "azure" "network" "security_groups" {
     }
   }
 
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"]
+  }
+
   multiplex "AzureSubscription" {
     path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
   }
