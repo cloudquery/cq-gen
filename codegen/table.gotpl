@@ -34,6 +34,9 @@
     {{- if .PostResourceResolver }}
         PostResourceResolver: {{.PostResourceResolver|call}},
     {{- end }}
+    {{- if .Options }}
+    Options: schema.TableCreationOptions{PrimaryKeys: []string{ {{ .Options.PrimaryKeys|joinQuotes}} }},
+    {{- end }}
     Columns: []schema.Column{
     {{- template "BuildColumns" .Columns }}
     },
