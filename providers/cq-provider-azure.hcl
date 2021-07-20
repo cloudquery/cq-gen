@@ -681,8 +681,16 @@ resource "azure" "compute" "virtual_machines" {
     skip_prefix = true
   }
 
+  column "additional_capabilities_ultra_s_s_d_enabled" {
+    rename = "additional_capabilities_ultra_ssd_enabled"
+  }
+
   column "virtual_machine_properties_instance_view_patch_status" {
     type = "json"
+  }
+
+  column "platform_fault_domain" {
+    description = "Specifies the scale set logical fault domain into which the Virtual Machine will be created."
   }
 
   column "storage_profile" {
