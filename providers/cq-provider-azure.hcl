@@ -629,6 +629,357 @@ resource "azure" "network" "watchers" {
   }
 }
 
+
+resource "azure" "monitor" "diagnostic_settings" {
+  path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.DiagnosticSettingsResource"
+
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+  column "diagnostic_settings" {
+    skip_prefix = true
+  }
+}
+
+
+resource "azure" "compute" "virtual_machines" {
+  path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.VirtualMachine"
+
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"]
+  }
+
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+  limit_depth = 0
+
+  column "virtual_machine_properties" {
+    skip_prefix = true
+  }
+
+  column "additional_capabilities_ultra_s_s_d_enabled" {
+    rename = "additional_capabilities_ultra_ssd_enabled"
+  }
+
+  column "virtual_machine_properties_instance_view_patch_status" {
+    type = "json"
+  }
+
+  column "platform_fault_domain" {
+    description = "Specifies the scale set logical fault domain into which the Virtual Machine will be created."
+  }
+
+  column "storage_profile" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "os_profile" {
+    skip_prefix = true
+    generate_resolver = true
+  }
+
+  column "instance_view" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "maintenance_redeploy_status" {
+    skip_prefix = true
+  }
+
+  column "patch_status" {
+    skip_prefix = true
+  }
+
+  column "windows_configuration_additional_unattend_content" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "network_profile_network_interfaces" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "windows_configuration_win_r_m_listeners" {
+    rename = "win_config_rm_listeners"
+  }
+
+
+  column "linux_configuration_ssh_public_keys" {
+    type = "json"
+    generate_resolver = true
+  }
+
+
+  column "last_patch_installation_summary_error_details" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "available_patch_summary_error_details" {
+    type = "json"
+    generate_resolver = true
+  }
+
+
+  relation "azure" "compute" "virtual_machine_network_interfaces" {
+    path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.NetworkInterfaceReference"
+  }
+
+
+  relation "azure" "compute" "virtual_machine_resources" {
+    path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.VirtualMachineExtension"
+
+    column "virtual_machine_extension_properties" {
+      type = "json"
+      generate_resolver = true
+    }
+    column "settings" {
+      type = "json"
+      generate_resolver = true
+    }
+
+    column "instance_view_substatuses" {
+      rename = "substatuses"
+    }
+
+    column "instance_view_statuses" {
+      rename = "statuses"
+    }
+
+    column "protected_settings" {
+      type = "json"
+      generate_resolver = true
+    }
+
+  }
+}
+
+
+
+resource "azure" "monitor" "activity_log_alerts" {
+  path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.ActivityLogAlertResource"
+  //  description = "Azure network security group"
+  limit_depth = 1
+
+
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+
+  column "activity_log_alert" {
+    skip_prefix = true
+  }
+
+  column "scopes" {
+    generate_resolver = true
+  }
+
+  relation "azure" "monitor" "activity_log_alert_action_groups" {
+    path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.ActivityLogAlertActionGroup"
+    column "action_group_id" {
+      generate_resolver = true
+    }
+  }
+
+  relation "azure" "monitor" "activity_log_alert_conditions" {
+    path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.ActivityLogAlertLeafCondition"
+    column "field" {
+      generate_resolver = true
+    }
+  }
+}
+
+
+
+resource "azure" "network" "security_groups" {
+  path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.SecurityGroup"
+  description = "Azure network security group"
+  limit_depth = 1
+
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"]
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+
+  column "security_group_properties_format" {
+    skip_prefix = true
+  }
+
+  column "network_interfaces" {
+    skip = true
+  }
+
+  column "subnets" {
+    skip = true
+  }
+
+  relation "azure" "network" "security_group_security_rules" {
+    path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.SecurityRule"
+
+    column "security_rule_properties_format" {
+      skip_prefix = true
+    }
+  }
+
+
+  relation "azure" "network" "security_group_flow_logs" {
+    path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.FlowLog"
+
+    column "flow_log_properties_format" {
+      skip_prefix = true
+    }
+
+    column "flow_analytics_configuration_network_watcher_flow_analytics_configuration_enabled" {
+      description = "Flag to enable/disable traffic analytics for network watcher"
+      rename = "flow_analytics_configuration_enabled"
+    }
+
+    column "flow_analytics_configuration_network_watcher_flow_analytics_configuration_workspace_id" {
+      description = "The resource guid of the attached workspace for network watcher"
+      rename = "flow_analytics_configuration_workspace_id"
+    }
+
+    column "flow_analytics_configuration_network_watcher_flow_analytics_configuration_workspace_region" {
+      description = "The location of the attached workspace for network watcher"
+      rename = "flow_analytics_configuration_workspace_region"
+    }
+    column "flow_analytics_configuration_network_watcher_flow_analytics_configuration_workspace_resource_id" {
+      description = "Resource Id of the attached workspace for network watcher"
+      rename = "flow_analytics_configuration_workspace_resource_id"
+    }
+    column "flow_analytics_configuration_network_watcher_flow_analytics_configuration_traffic_analytics_interval" {
+      description = "The interval in minutes which would decide how frequently TA service should do flow analytics for network watcher"
+      rename = "flow_analytics_configuration_traffic_analytics_interval"
+    }
+  }
+}
+
+
+resource "azure" "network" "public_ip_addresses" {
+  path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.PublicIPAddress"
+  limit_depth = 1
+
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"]
+  }
+
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+  column "public_ip_address_properties_format" {
+    skip_prefix = true
+  }
+
+  column "ip_configuration" {
+    skip_prefix = true
+  }
+
+  column "ip_configuration_properties_format" {
+    skip_prefix = true
+  }
+
+  column "public_ip_address" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "subnet" {
+    type = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "azure" "monitor" "diagnostic_settings" {
+  path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.DiagnosticSettingsResource"
+
+  userDefinedColumn "subscription_id" {
+    type = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+  column "diagnostic_settings" {
+    skip_prefix = true
+  }
+}
+
 resource "azure" "monitor" "activity_logs" {
   path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.EventData"
   description = "Azure network watcher"
