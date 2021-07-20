@@ -19,10 +19,6 @@ const defaultImplementation = `panic("not implemented")`
 const sdkPath = "github.com/cloudquery/cq-provider-sdk"
 
 func (b builder) buildTable(parentTable *TableDefinition, resource config.ResourceConfig) (*TableDefinition, error) {
-	ro, err := b.finder.FindTypeFromName(resource.Path)
-	if err != nil {
-		return nil, err
-	}
 
 	resourceName := inflection.Plural(resource.Name)
 	if resource.NoPluralize {
@@ -33,11 +29,16 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 		fullName = fmt.Sprintf("%s%s", inflection.Singular(parentTable.Name), strings.Title(resourceName))
 	}
 
+	domainName := resource.Domain + strcase.ToCamel(resource.Name)
+	if resource.Domain == "" {
+		domainName = strcase.ToCamel(resource.Name)
+	}
 	table := &TableDefinition{
 		Name:        fullName,
-		DomainName:  resource.Domain + strcase.ToCamel(resource.Name),
-		TableName:   strings.ToLower(fmt.Sprintf("%s_%s_%s", resource.Service, resource.Domain, naming.CamelToSnake(fullName))),
+		DomainName:  domainName,
+		TableName:   getTableName(resource.Service, resource.Domain, fullName),
 		parentTable: parentTable,
+		Options:     resource.TableOptions,
 	}
 
 	if resource.Description != "" {
@@ -56,6 +57,14 @@ func (b builder) buildTable(parentTable *TableDefinition, resource config.Resour
 		return nil, err
 	}
 
+	if resource.Path == "" {
+		return table, nil
+	}
+
+	ro, err := b.finder.FindTypeFromName(resource.Path)
+	if err != nil {
+		return nil, err
+	}
 	named := ro.(*types.Named)
 	if err := b.buildColumns(table, named, resource, "", "", "", nil); err != nil {
 		return nil, err
@@ -206,9 +215,9 @@ func (b builder) buildTableRelation(parentTable *TableDefinition, cfg config.Res
 		return nil, err
 	}
 	rel.Columns = append([]ColumnDefinition{{
-		Name:        strings.ToLower(fmt.Sprintf("%s_id", naming.CamelToSnake(inflection.Singular(parentTable.Name)))),
+		Name:        strings.ToLower(fmt.Sprintf("%s_cq_id", naming.CamelToSnake(inflection.Singular(parentTable.Name)))),
 		Type:        schema.TypeUUID,
-		Description: fmt.Sprintf("Unique ID of %s table (FK)", parentTable.TableName),
+		Description: fmt.Sprintf("Unique CloudQuery ID of %s table (FK)", parentTable.TableName),
 		Resolver:    &FunctionDefinition{Signature: "schema.ParentIdResolver"}},
 	}, rel.Columns...)
 
@@ -318,7 +327,7 @@ func (b builder) buildTableColumn(table *TableDefinition, fieldPath, columnPath 
 			colDef = b.addPathResolver(fieldName, fieldPath, colDef, ro)
 		} else {
 			colDef.Resolver = &FunctionDefinition{
-				Type:      ro,
+				Type: ro,
 			}
 		}
 	}
@@ -468,4 +477,11 @@ func getFunctionParams(sig *types.Signature) string {
 		return fmt.Sprintf("(%s) %s", strings.Join(params, ","), results[0])
 	}
 	return fmt.Sprintf("(%s) (%s)", strings.Join(params, ","), strings.Join(results, ","))
+}
+
+func getTableName(service, domain, resource string) string {
+	if domain == "" {
+		return strings.ToLower(strings.Join([]string{service, naming.CamelToSnake(resource)}, "_"))
+	}
+	return strings.ToLower(strings.Join([]string{service, domain, naming.CamelToSnake(resource)}, "_"))
 }
