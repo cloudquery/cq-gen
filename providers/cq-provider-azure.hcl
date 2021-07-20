@@ -654,6 +654,16 @@ resource "azure" "monitor" "diagnostic_settings" {
 resource "azure" "compute" "virtual_machines" {
   path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.VirtualMachine"
 
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"]
+  }
+
   userDefinedColumn "subscription_id" {
     type = "string"
     description = "Azure subscription id"
@@ -672,19 +682,22 @@ resource "azure" "compute" "virtual_machines" {
   }
 
   column "virtual_machine_properties_instance_view_patch_status" {
-    skip = true
+    type = "json"
   }
 
   column "storage_profile" {
-    skip = true
+    type = "json"
+    generate_resolver = true
   }
 
   column "os_profile" {
     skip_prefix = true
+    generate_resolver = true
   }
 
   column "instance_view" {
-    skip = true
+    type = "json"
+    generate_resolver = true
   }
 
   column "maintenance_redeploy_status" {
@@ -696,12 +709,13 @@ resource "azure" "compute" "virtual_machines" {
   }
 
   column "windows_configuration_additional_unattend_content" {
-    skip = true
-    // todo or make it json
+    type = "json"
+    generate_resolver = true
   }
 
   column "network_profile_network_interfaces" {
-    skip = true
+    type = "json"
+    generate_resolver = true
   }
 
   column "windows_configuration_win_r_m_listeners" {
@@ -716,11 +730,13 @@ resource "azure" "compute" "virtual_machines" {
 
 
   column "last_patch_installation_summary_error_details" {
-    skip = true
+    type = "json"
+    generate_resolver = true
   }
 
   column "available_patch_summary_error_details" {
-    skip = true
+    type = "json"
+    generate_resolver = true
   }
 
 
@@ -733,7 +749,8 @@ resource "azure" "compute" "virtual_machines" {
     path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.VirtualMachineExtension"
 
     column "virtual_machine_extension_properties" {
-      skip = true
+      type = "json"
+      generate_resolver = true
     }
     column "settings" {
       type = "json"
