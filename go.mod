@@ -21,4 +21,8 @@ require (
 )
 
 // Note: add replace for your local provider so cq-gen rewriter will work properlly
-replace github.com/cloudquery/cq-provider-azure => ../cq-provider-azure
+replace  (
+	github.com/cloudquery/cq-provider-azure => ../cq-provider-azure
+	//github.com/cloudquery/cq-provider-gcp => ../cq-provider-gcp
+	//github.com/cloudquery/cq-provider-aws => ../cq-provider-aws
+)
