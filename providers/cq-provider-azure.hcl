@@ -802,6 +802,11 @@ resource "azure" "monitor" "activity_log_alerts" {
   }
 
 
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+
   column "activity_log_alert" {
     skip_prefix = true
   }
@@ -962,6 +967,12 @@ resource "azure" "network" "public_ip_addresses" {
 
 resource "azure" "monitor" "diagnostic_settings" {
   path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.DiagnosticSettingsResource"
+
+
+
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
 
   userDefinedColumn "subscription_id" {
     type = "string"
