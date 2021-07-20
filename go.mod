@@ -6,7 +6,7 @@ require (
 	github.com/cloudquery/cq-provider-aws v0.4.6
 	github.com/cloudquery/cq-provider-azure v0.2.2
 	github.com/cloudquery/cq-provider-gcp v0.3.2
-	github.com/cloudquery/cq-provider-sdk v0.2.7
+	github.com/cloudquery/cq-provider-sdk v0.3.0-rc8
 	github.com/creasty/defaults v1.5.1
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
@@ -21,5 +21,8 @@ require (
 )
 
 // Note: add replace for your local provider so cq-gen rewriter will work properlly
-//replace github.com/cloudquery/cq-provider-azure v0.2.2 => ../cq-provider-azure
-//replace github.com/cloudquery/cq-provider-gcp v0.3.2 => ../cq-provider-gcp
+replace  (
+	github.com/cloudquery/cq-provider-azure => ../cq-provider-azure
+	//github.com/cloudquery/cq-provider-gcp => ../cq-provider-gcp
+	//github.com/cloudquery/cq-provider-aws => ../cq-provider-aws
+)
