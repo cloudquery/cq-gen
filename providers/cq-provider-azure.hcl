@@ -456,29 +456,75 @@ resource "azure" "keyvault" "vaults" {
     path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
   }
 
+
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"]
+  }
+
   column "properties" {
     skip_prefix = true
   }
-  column "id" {
-    rename = "resource_id"
-  }
+
   column "network_acls_ip_rules" {
     type = "stringArray"
     generate_resolver = true
   }
-  relation "azure" "keyvault" "keys" {
-    description = "Azure ketvault vault key"
-    path = "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2019-09-01/keyvault.Key"
 
-    column "key_properties" {
+  relation "azure" "keyvault" "keys" {
+    path = "github.com/Azure/azure-sdk-for-go/services/keyvault/v7.1/keyvault.KeyItem"
+
+    column "attributes" {
       skip_prefix = true
     }
-    column "id" {
-      rename = "resource_id"
+
+    column "expires" {
+      type = "timestamp"
+      generate_resolver = true
     }
 
-    column "key_ops" {
-      description = "Enumerates the values for json web key operation"
+    column "not_before" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+
+    column "created" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+
+    column "updated" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+  }
+
+  relation "azure" "keyvault" "secrets" {
+    path = "github.com/Azure/azure-sdk-for-go/services/keyvault/v7.1/keyvault.SecretItem"
+
+    column "attributes" {
+      skip_prefix = true
+    }
+
+    column "expires" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+
+    column "not_before" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+
+    column "created" {
+      type = "timestamp"
+      generate_resolver = true
+    }
+
+    column "updated" {
+      type = "timestamp"
+      generate_resolver = true
     }
   }
 
@@ -782,7 +828,6 @@ resource "azure" "compute" "virtual_machines" {
 }
 
 
-
 resource "azure" "monitor" "activity_log_alerts" {
   path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.ActivityLogAlertResource"
   //  description = "Azure network security group"
@@ -829,7 +874,6 @@ resource "azure" "monitor" "activity_log_alerts" {
     }
   }
 }
-
 
 
 resource "azure" "network" "security_groups" {
