@@ -668,11 +668,6 @@ resource "azure" "network" "watchers" {
   column "watcher_properties_format_provisioning_state" {
     rename = "provisioning_state"
   }
-
-  relation "azure" "network_watcher" "flow_log" {
-    path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.FlowLogProperties"
-    embed = true
-  }
 }
 
 
