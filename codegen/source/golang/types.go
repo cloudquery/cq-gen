@@ -1,15 +1,12 @@
-package codegen
+package golang
 
 import (
+	"github.com/cloudquery/cq-gen/codegen/source"
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 	"go/types"
 	"path"
 	"strings"
 )
-
-const TypeRelation schema.ValueType = -1
-const TypeEmbedded schema.ValueType = -2
-const TypeUserDefined schema.ValueType = -3
 
 func getValueType(typ types.Type) schema.ValueType {
 	if vt := getUniqueStructs(typ); vt != schema.TypeInvalid {
@@ -23,7 +20,7 @@ func getValueType(typ types.Type) schema.ValueType {
 	case *types.Named:
 		return getValueType(t.Underlying())
 	case *types.Struct:
-		return TypeEmbedded
+		return source.TypeEmbedded
 	case *types.Slice:
 		valueType := getValueType(t.Elem())
 		switch valueType {
@@ -33,8 +30,8 @@ func getValueType(typ types.Type) schema.ValueType {
 			return schema.TypeStringArray
 		case schema.TypeBigInt:
 			return schema.TypeIntArray
-		case TypeEmbedded:
-			return TypeRelation
+		case source.TypeEmbedded:
+			return source.TypeRelation
 		case schema.TypeSmallInt:
 			return schema.TypeByteArray
 		default:
@@ -86,7 +83,7 @@ func getNamedType(typ types.Type) *types.Named {
 	case *types.Slice:
 		return getNamedType(t.Elem())
 	}
-	panic("type ")
+	panic("type")
 }
 
 func typeIdentifier(t types.Type) string {

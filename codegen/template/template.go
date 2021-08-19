@@ -1,4 +1,4 @@
-package codegen
+package template
 
 import (
 	"bytes"
@@ -122,7 +122,6 @@ func Funcs() template.FuncMap {
 		},
 		"go":   ToGo,
 		"ref":  ref,
-		"call": Call,
 	}
 }
 

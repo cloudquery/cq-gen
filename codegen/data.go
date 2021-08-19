@@ -1,13 +1,11 @@
 package codegen
 
 import (
-	"fmt"
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/rewrite"
 	"github.com/cloudquery/cq-provider-sdk/logging"
 	"github.com/hashicorp/go-hclog"
-	"path"
 )
 
 type ResourceDefinition struct {
@@ -53,15 +51,15 @@ func (b builder) build(cfg *config.Config, domain string, resourceName string) (
 		if resourceName != "" && resource.Name != resourceName {
 			continue
 		}
-		t, err := b.buildTable(nil, resource)
-		if err != nil {
-			return nil, err
-		}
-		resources = append(resources, &ResourceDefinition{
-			Config:          resource,
-			Table:           t,
-			RemainingSource: b.rewriter.RemainingSource(path.Join(cfg.OutputDirectory, fmt.Sprintf("%s_%s.go", resource.Domain, resource.Name))),
-		})
+		//t, err := b.buildTable(nil, resource)
+		//if err != nil {
+		//	return nil, err
+		//}
+		//resources = append(resources, &ResourceDefinition{
+		//	Config:          resource,
+		//	Table:           t,
+		//	RemainingSource: b.rewriter.RemainingSource(path.Join(cfg.OutputDirectory, fmt.Sprintf("%s_%s.go", resource.Domain, resource.Name))),
+		//})
 	}
 	return resources, nil
 }
