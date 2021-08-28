@@ -56,6 +56,36 @@ func ToGo(name string) string {
 	return string(runes)
 }
 
+func ToGoPrivate(name string) string {
+	if name == "_" {
+		return "_"
+	}
+	runes := make([]rune, 0, len(name))
+
+	first := true
+	wordWalker(name, func(info *wordInfo) {
+		word := info.Word
+		switch {
+		case first:
+			if strings.ToUpper(word) == word || strings.ToLower(word) == word {
+				// ID → id, CAMEL → camel
+				word = strings.ToLower(info.Word)
+			} else {
+				// ITicket → iTicket
+				word = LcFirst(info.Word)
+			}
+			first = false
+		case info.MatchCommonInitial:
+			word = strings.ToUpper(word)
+		case !info.HasCommonInitial:
+			word = UcFirst(strings.ToLower(word))
+		}
+		runes = append(runes, []rune(word)...)
+	})
+
+	return sanitizeKeywords(string(runes))
+}
+
 type wordInfo struct {
 	Word               string
 	MatchCommonInitial bool

@@ -63,6 +63,8 @@ func getBasicType(typ *types.Basic) schema.ValueType {
 
 func getUniqueStructs(typ types.Type) schema.ValueType {
 	switch typ.String() {
+	case "Timestamp":
+		return schema.TypeTimestamp
 	case "time.Time", "*time.Time":
 		return schema.TypeTimestamp
 	case "uuid.UUID", "*uuid.UUID":
@@ -87,7 +89,6 @@ func getNamedType(typ types.Type) *types.Named {
 }
 
 func typeIdentifier(t types.Type) string {
-
 	typeStr := t.String()
 	// get only the base path, removing package path
 	current := path.Base(typeStr)

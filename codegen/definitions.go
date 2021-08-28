@@ -8,33 +8,34 @@ import (
 )
 
 type TableDefinition struct {
-	Name        string
-	DomainName  string
-	TableName   string
-	Description string
-	Columns     []ColumnDefinition
-	Relations   []*TableDefinition
+	Name          string
+	FileName      string
+	TableFuncName string
+	TableName     string
+	Description   string
+	Columns       []ColumnDefinition
+	Relations     []*TableDefinition
 	// schema.TableResolver definition
-	Resolver *FunctionDefinition
+	Resolver *ResolverDefinition
 	// Table extra functions
-	IgnoreErrorFunc      *FunctionDefinition
-	MultiplexFunc        *FunctionDefinition
-	DeleteFilterFunc     *FunctionDefinition
-	PostResourceResolver *FunctionDefinition
+	IgnoreErrorFunc      *ResolverDefinition
+	MultiplexFunc        *ResolverDefinition
+	DeleteFilterFunc     *ResolverDefinition
+	PostResourceResolver *ResolverDefinition
 
 	// Table Creation Options
 	Options *config.TableOptionsConfig
 
 	// Functions that were created by configuration request
-	Functions []*FunctionDefinition
+	Functions []*ResolverDefinition
 
 	// parent table definition
 	parentTable *TableDefinition
 }
 
-func (t TableDefinition) UniqueResolvers() []*FunctionDefinition {
+func (t TableDefinition) UniqueResolvers() []*ResolverDefinition {
 
-	rd := make([]*FunctionDefinition, 0)
+	rd := make([]*ResolverDefinition, 0)
 	rd = append(rd, t.Resolver)
 	existingResolvers := make(map[string]bool)
 
@@ -63,7 +64,7 @@ func (t TableDefinition) RelationExists(name string) bool {
 		if rel.Name == name {
 			return true
 		}
-		if strings.HasSuffix(rel.DomainName, name) {
+		if strings.HasSuffix(rel.TableFuncName, name) {
 			return true
 		}
 		if strings.HasSuffix(rel.TableName, name) {
@@ -77,10 +78,10 @@ type ColumnDefinition struct {
 	Name        string
 	Type        schema.ValueType
 	Description string
-	Resolver    *FunctionDefinition
+	Resolver    *ResolverDefinition
 }
 
-type FunctionDefinition struct {
+type ResolverDefinition struct {
 	Name      string
 	Signature string
 	Body      string

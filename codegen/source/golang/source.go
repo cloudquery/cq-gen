@@ -1,6 +1,7 @@
 package golang
 
 import (
+	"fmt"
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/codegen/source"
 	"github.com/cloudquery/cq-gen/rewrite"
@@ -78,6 +79,10 @@ func (n NamedObject) Parent() source.Object {
 	return n.parent
 }
 
+func (n NamedObject) Path() string {
+	return fmt.Sprintf("%s.%s", n.named.Obj().Pkg().Path(), n.named.Obj().Name())
+}
+
 type FieldObject struct {
 	originalPath string
 	source       DataSource
@@ -115,6 +120,14 @@ func (f FieldObject) Type() schema.ValueType {
 
 func (f FieldObject) Parent() source.Object {
 	return f.parent
+}
+
+func (f FieldObject) Path() string {
+	named := getNamedType(f.v.Type())
+	if named == nil {
+		return f.v.Name()
+	}
+	return fmt.Sprintf("%s.%s", f.v.Pkg().Path(), named.Obj().Name())
 }
 
 func getSpecColumnDescription(parser source.DescriptionParser, spec *ast.TypeSpec, columnName string) string {

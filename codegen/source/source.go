@@ -25,11 +25,12 @@ type Object interface {
 	Fields() []Object
 	Type() schema.ValueType
 	Parent() Object
+	Path() string
 }
 
 // DescriptionSource allows to find descriptions for given types based on pathing
 type DescriptionSource interface {
-	FindDescription(path string) string
+	FindDescription(paths ...string) (string, error)
 }
 
 // DescriptionParser parse a description string

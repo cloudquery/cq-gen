@@ -5,13 +5,26 @@ import (
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/creasty/defaults"
 	"github.com/hashicorp/hcl/v2/hclsimple"
+	"strings"
 )
 
 type Config struct {
-	Service           string           `hcl:"service"`
-	OutputDirectory   string           `hcl:"output_directory"`
-	DescriptionParser string           `hcl:"description_parser,optional"`
-	Resources         []ResourceConfig `hcl:"resource,block"`
+	Service           string             `hcl:"service"`
+	OutputDirectory   string             `hcl:"output_directory"`
+	DescriptionParser string             `hcl:"description_parser,optional"`
+	DataSource        *DataSource        `hcl:"data_source,block"`
+	DescriptionSource *DescriptionSource `hcl:"description_source,block"`
+	Resources         []ResourceConfig   `hcl:"resource,block"`
+}
+
+type DataSource struct {
+	Type string `hcl:"type,label"`
+	Path string `hcl:"path"`
+}
+
+type DescriptionSource struct {
+	Type string `hcl:"type,label"`
+	Path string `hcl:"path"`
 }
 
 func (c Config) GetResource(resource string) (ResourceConfig, error) {
@@ -60,11 +73,13 @@ type ResourceConfig struct {
 	// EmbedRelation embeds all of the relations columns into the parent struct
 	EmbedRelation bool `hcl:"embed,optional"`
 	// EmbedSkipPrefix skips the embedded relation name prefix for all it's embedded columns
-	EmbedSkipPrefix bool `hcl:"embed_skip_prefix,optional"`
+	EmbedSkipPrefix bool   `hcl:"embed_skip_prefix,optional"`
 	// Disables reading the struct for description comments for each column
 	DisableReadDescriptions bool `hcl:"disable_auto_descriptions,optional"`
 	// Disable pluralize of the name of the resource
 	NoPluralize bool `hcl:"disable_pluralize,optional"`
+
+	DescriptionPathParts []string `hcl:"description_path_parts,optional"`
 }
 
 type FunctionConfig struct {
@@ -82,7 +97,7 @@ type FunctionConfig struct {
 
 func (r ResourceConfig) GetRelationConfig(name string) *ResourceConfig {
 	for _, r := range r.Relations {
-		if r.Name == name {
+		if strings.ToLower(r.Name) == strings.ToLower(name) {
 			return &r
 
 		}

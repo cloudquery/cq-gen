@@ -58,6 +58,10 @@ func (o Object) Parent() source.Object {
 	return o.parent
 }
 
+func (o Object) Path() string {
+	return o.name
+}
+
 func getValueType(s *openapi3.Schema) schema.ValueType {
 	switch s.Type {
 	case "":
