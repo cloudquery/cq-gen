@@ -1928,6 +1928,109 @@ resource "gcp" "resource_manager" "folders" {
   }
 }
 
+resource "gcp" "compute" "url_maps" {
+  path = "google.golang.org/api/compute/v1.UrlMap"
+  description = "Represents a URL Map resource"
+
+  multiplex "ProjectMultiplex" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
+  }
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
+  }
+  ignoreError "IgnoreError" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
+  }
+
+  userDefinedColumn "project_id" {
+    type = "string"
+    resolver "resolveResourceProject" {
+      path = "github.com/cloudquery/cq-provider-gcp/client.ResolveProject"
+    }
+  }
+
+  options {
+    primary_keys = [
+      "project_id",
+      "id"]
+  }
+
+  column "default_route_action" {
+    skip_prefix = true
+  }
+
+  column "header_action_request_headers_to_add" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "header_action_response_headers_to_add" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  relation "gcp" "compute" "url_map_weighted_backend_services" {
+    path = "google.golang.org/api/compute/v1.WeightedBackendService"
+
+    column "header_action" {
+      type = "json"
+      generate_resolver = true
+    }
+  }
+
+  column "retry_policy_retry_conditions" {
+    description = "Specfies one or more conditions when this retry rule applies"
+  }
+
+  column "default_service" {
+    description = "The full or partial URL of the defaultService resource to which traffic is directed"
+  }
+
+  column "default_url_redirect_https_redirect" {
+    description = "If set to true, the URL scheme in the redirected request is set to https If set to false, the URL scheme of the redirected request will remain the same as that of the request"
+  }
+
+  column "default_url_redirect_path_redirect" {
+    description = "The path that will be used in the redirect response instead of the one that was supplied in the request"
+  }
+
+  relation "gcp" "compute" "url_map_path_matchers" {
+    path = "google.golang.org/api/compute/v1.PathMatcher"
+
+    column "path_rules" {
+      type = "json"
+      generate_resolver = true
+    }
+
+    column "header_action" {
+      type = "json"
+      generate_resolver = true
+    }
+
+    column "default_route_action" {
+      type = "json"
+      generate_resolver = true
+    }
+
+    column "route_rules" {
+      type = "json"
+      generate_resolver = true
+    }
+  }
+
+  relation "gcp" "compute" "url_map_tests" {
+    path = "google.golang.org/api/compute/v1.UrlMapTest"
+
+    column "headers" {
+      type = "json"
+      generate_resolver = true
+    }
+  }
+
+
+  limit_depth = 2
+}
+
 
 
 
