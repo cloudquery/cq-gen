@@ -336,9 +336,27 @@ resource "gcp" "iam" "service_accounts" {
   multiplex "ProjectMultiplex" {
     path = "github.com/cloudquery/cq-provider-gcp/client.ProjectMultiplex"
   }
+
+  deleteFilter "DeleteFilter" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.DeleteProjectFilter"
+  }
+  ignoreError "IgnoreError" {
+    path = "github.com/cloudquery/cq-provider-gcp/client.IgnoreErrorHandler"
+  }
+
+  options {
+    primary_keys = [
+      "project_id",
+      "id"]
+  }
+
   // deprecated
   column "etag" {
     skip = true
+  }
+
+  column "unique_id" {
+    rename = "id"
   }
 
   column "name" {
