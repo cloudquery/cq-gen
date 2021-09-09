@@ -77,7 +77,7 @@ func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *con
 		Name:          fullName,
 		FileName:      GetFileName(resourceCfg),
 		TableFuncName: template.ToGo(GetResourceName(parentTable, resourceCfg)),
-		TableName:     GetTableName(resourceCfg.Service, resourceCfg.Domain, resourceCfg.Name),
+		TableName:     GetTableName(parentTable, resourceCfg.Service, resourceCfg.Domain, resourceCfg.Name),
 		parentTable:   parentTable,
 		Options:       resourceCfg.TableOptions,
 		Description:   resourceCfg.Description,
@@ -331,6 +331,10 @@ func (tb TableBuilder) SetColumnResolver(tableDef *TableDefinition, field source
 				Type: ro,
 			}
 		}
+	}
+	if cfg.Rename != "" {
+		colDef.Name = cfg.Rename
+		tb.addPathResolver(field, colDef, nil, meta)
 	}
 	if cfg.GenerateResolver {
 		if colDef.Resolver != nil {

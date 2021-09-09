@@ -7,9 +7,8 @@ require (
 	github.com/cloudquery/cq-provider-azure v0.2.2
 	github.com/cloudquery/cq-provider-digitalocean v0.0.0
 	github.com/cloudquery/cq-provider-gcp v0.3.2
-	github.com/cloudquery/cq-provider-sdk v0.3.4
+	github.com/cloudquery/cq-provider-sdk v0.4.2
 	github.com/creasty/defaults v1.5.1
-	github.com/digitalocean/godo v1.64.2 // indirect
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/getkin/kin-openapi v0.68.0
 	github.com/google/go-cmp v0.5.6 // indirect

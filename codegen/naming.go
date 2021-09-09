@@ -42,7 +42,10 @@ func GetFileName(resourceCfg *config.ResourceConfig) string {
 	return fmt.Sprintf("%s.go", resourceCfg.Name)
 }
 
-func GetTableName(service, domain, resource string) string {
+func GetTableName(parentTable *TableDefinition, service, domain, resource string) string {
+	if parentTable != nil && !strings.HasPrefix(strings.ToLower(resource), strings.ToLower(inflection.Singular(parentTable.Name))) {
+		 return fmt.Sprintf("%s_%s", inflection.Singular(parentTable.TableName), strings.ToLower(resource))
+	}
 	if domain == "" {
 		return strings.ToLower(strings.Join([]string{service, naming.CamelToSnake(resource)}, "_"))
 	}
