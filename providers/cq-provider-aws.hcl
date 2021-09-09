@@ -1,5 +1,5 @@
 service = "aws"
-output_directory = "../forks/cq-provider-aws/resources"
+output_directory = "../cq-provider-aws/resources"
 
 resource "aws" "autoscaling" "launch_configurations" {
   path = "github.com/aws/aws-sdk-go-v2/service/autoscaling/types.LaunchConfiguration"
@@ -92,6 +92,229 @@ resource "aws" "cloudfront" "cache_policies" {
     skip_prefix = true
   }
 }
+
+resource "aws" "cloudfront" "distributions" {
+  path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.DistributionSummary"
+
+  multiplex "AwsAccount" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
+  }
+  deleteFilter "AccountFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
+  }
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+
+  userDefinedColumn "account_id" {
+    type = "string"
+    description = "The AWS Account ID of the resource."
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+
+  options {
+    primary_keys = [
+      "arn"]
+  }
+
+  column "distribution_config" {
+    skip_prefix = true
+  }
+
+  column "default_cache_behavior_lambda_function_associations_items" {
+    rename = "default_cache_behavior_lambda_functions"
+  }
+
+  relation "aws" "cloudfront" "distribution_origins" {
+    path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.Origin"
+    column "custom_headers_items" {
+      rename = "custom_headers"
+    }
+  }
+
+  relation "aws" "cloudfront" "distribution_cache_behaviors" {
+    path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.CacheBehavior"
+    column "lambda_function_associations_items" {
+      rename = "lambda_functions"
+    }
+  }
+
+  relation "aws" "cloudfront" "distribution_origin_groups" {
+    path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.OriginGroup"
+    column "members_items" {
+      rename = "members"
+    }
+
+    column "failover_criteria_status_codes_items" {
+      rename = "failover_criteria_status_codes"
+      generate_resolver = true
+    }
+  }
+
+  relation "aws" "cloudfront" "distribution_alias_icp_recordals" {
+    path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.AliasICPRecordal"
+    column "c_n_a_m_e" {
+      rename = "cname"
+    }
+
+    column "i_c_p_recordal_status" {
+      rename = "icp_recordal_status"
+    }
+  }
+
+
+  column "aliases_items" {
+    rename = "aliases"
+  }
+
+  column "custom_error_responses_items" {
+    rename = "custom_error_responses"
+  }
+
+
+  column "active_trusted_key_groups_items" {
+    rename = "active_trusted_key_groups"
+  }
+
+  column "active_trusted_signers_items" {
+    rename = "active_trusted_signers"
+  }
+
+
+  column "default_cache_behavior_target_origin_id" {
+    rename = "cache_behavior_target_origin_id"
+  }
+
+  column "default_cache_behavior_viewer_protocol_policy" {
+    rename = "cache_behavior_viewer_protocol_policy"
+  }
+
+  column "default_cache_behavior_allowed_methods_items" {
+    rename = "cache_behavior_allowed_methods_items"
+  }
+
+
+  column "default_cache_behavior_allowed_methods_quantity" {
+    rename = "cache_behavior_allowed_methods_quantity"
+  }
+
+  column "default_cache_behavior_allowed_methods_cached_methods_items" {
+    rename = "cache_behavior_allowed_methods_cached_methods_items"
+  }
+
+  column "default_cache_behavior_allowed_methods_cached_methods_quantity" {
+    rename = "cache_behavior_allowed_methods_cached_methods_quantity"
+  }
+
+  column "default_cache_behavior_allowed_methods_cached_methods_quantity" {
+    rename = "cache_behavior_allowed_methods_cached_methods_quantity"
+  }
+
+  column "default_cache_behavior_cache_policy_id" {
+    rename = "behavior_target_origin_id"
+  }
+
+  column "default_cache_behavior_compress" {
+    rename = "cache_behavior_compress"
+  }
+
+  column "default_cache_behavior_default_ttl" {
+    rename = "cache_behavior_default_ttl"
+  }
+
+  column "default_cache_behavior_field_level_encryption_id" {
+    rename = "cache_behavior_field_level_encryption_id"
+  }
+
+  column "default_cache_behavior_forwarded_values_cookies_forward" {
+    rename = "cache_behavior_forwarded_values_cookies_forward"
+  }
+
+  column "default_cache_behavior_forwarded_values_cookies_whitelisted_names_quantity" {
+    rename = "cache_behavior_forwarded_values_cookies_whitelisted_names_quantity"
+  }
+
+  column "default_cache_behavior_forwarded_values_cookies_whitelisted_names_items" {
+    rename = "cache_behavior_forwarded_values_cookies_whitelisted_names_items"
+  }
+
+  column "default_cache_behavior_forwarded_values_query_string" {
+    rename = "cache_behavior_forwarded_values_query_string"
+  }
+
+  column "default_cache_behavior_forwarded_values_headers_quantity" {
+    rename = "cache_behavior_forwarded_values_headers_quantity"
+  }
+
+  column "default_cache_behavior_forwarded_values_headers_items" {
+    rename = "cache_behavior_forwarded_values_headers_items"
+  }
+
+  column "default_cache_behavior_forwarded_values_query_string_cache_keys_quantity" {
+    rename = "cache_behavior_forwarded_values_query_string_cache_keys_quantity"
+  }
+
+  column "default_cache_behavior_forwarded_values_query_string_cache_keys_items" {
+    rename = "cache_behavior_forwarded_values_query_string_cache_keys_items"
+  }
+
+  column "default_cache_behavior_lambda_function_associations_quantity" {
+    rename = "cache_behavior_lambda_function_associations_quantity"
+  }
+
+  column "default_cache_behavior_max_ttl" {
+    rename = "cache_behavior_max_ttl"
+  }
+
+  column "default_cache_behavior_min_ttl" {
+    rename = "cache_behavior_min_ttl"
+  }
+
+  column "default_cache_behavior_origin_request_policy_id" {
+    rename = "cache_behavior_origin_request_policy_id"
+  }
+
+  column "default_cache_behavior_realtime_log_config_arn" {
+    rename = "cache_behavior_realtime_log_config_arn"
+  }
+
+  column "default_cache_behavior_smooth_streaming" {
+    rename = "cache_behavior_smooth_streaming"
+  }
+
+  column "default_cache_behavior_trusted_key_groups_enabled" {
+    rename = "cache_behavior_trusted_key_groups_enabled"
+  }
+
+  column "default_cache_behavior_trusted_key_groups_quantity" {
+    rename = "cache_behavior_trusted_key_groups_quantity"
+  }
+
+  column "default_cache_behavior_trusted_key_groups_items" {
+    rename = "cache_behavior_trusted_key_groups_items"
+  }
+
+  column "default_cache_behavior_trusted_signers_enabled" {
+    rename = "cache_behavior_trusted_signers_enabled"
+  }
+
+  column "default_cache_behavior_trusted_signers_quantity" {
+    rename = "cache_behavior_trusted_signers_quantity"
+  }
+
+  column "default_cache_behavior_trusted_signers_items" {
+    rename = "cache_behavior_trusted_signers_items"
+  }
+
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
+}
+
 
 resource "aws" "cloudtrail" "trails" {
   path = "github.com/aws/aws-sdk-go-v2/service/cloudtrail/types.Trail"
@@ -1275,6 +1498,24 @@ resource "aws" "elbv2" "target_groups" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
+
+  column "target_group_arn" {
+    rename = "arn"
+  }
+
+  column "target_group_name" {
+    rename = "name"
+  }
+
+  options {
+    primary_keys = [
+      "arn"]
+  }
+
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
 }
 
 resource "aws" "elbv2" "load_balancers" {
@@ -1314,6 +1555,24 @@ resource "aws" "elbv2" "load_balancers" {
         rename = "private_ipv4_address"
       }
     }
+  }
+
+  column "load_balancer_arn" {
+    rename = "arn"
+  }
+
+  column "load_balancer_name" {
+    rename = "name"
+  }
+
+  options {
+    primary_keys = [
+      "arn"]
+  }
+
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
   }
 }
 
@@ -1531,7 +1790,7 @@ resource "aws" "iam" "groups" {
     description = "List of policies attached to group."
   }
 
-//relation "inline_policies"
+  //relation "inline_policies"
 }
 
 
