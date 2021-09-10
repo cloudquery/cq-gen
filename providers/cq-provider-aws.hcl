@@ -321,11 +321,11 @@ resource "aws" "cloudtrail" "trails" {
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
-  multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  multiplex "AwsAccount" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
   }
-  deleteFilter "AccountRegionFilter" {
-    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  deleteFilter "AccountFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
   }
   postResourceResolver "postCloudtrailTrailResolver" {
     path = "github.com/cloudquery/cq-provider-sdk/provider/schema.RowResolver"
@@ -338,13 +338,27 @@ resource "aws" "cloudtrail" "trails" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
-  userDefinedColumn "region" {
-    type = "string"
-    description = "The AWS Region of the resource."
-    resolver "resolveAWSRegion" {
-      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
-    }
+
+  column "home_region" {
+    rename = "region"
   }
+
+  column "trail_arn" {
+    rename = "arn"
+  }
+
+
+  options {
+    primary_keys = [
+      "account_id",
+      "arn"]
+  }
+
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
+  }
+
 
   userDefinedColumn "cloudwatch_logs_log_group_name" {
     type = "string"
@@ -412,6 +426,17 @@ resource "aws" "cloudtrail" "trails" {
 
     column "data_resources" {
       skip = true
+    }
+
+    userDefinedColumn "trail_arn" {
+      type = "string"
+      description = "Specifies the ARN of the trail"
+      resolver "ParentPathResolver" {
+        //argument is ("TrailARN")
+        path = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentPathResolver"
+        generate = true
+        path_resolver = true
+      }
     }
   }
 }
@@ -2100,6 +2125,24 @@ resource "aws" "kms" "keys" {
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
+  }
+
+  options {
+    primary_keys = [
+      "arn"]
+  }
+
+  column "key_arn" {
+    rename = "arn"
+  }
+
+  column "key_id" {
+    rename = "id"
+  }
+
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
   }
   userDefinedColumn "region" {
     type = "string"
@@ -4211,6 +4254,27 @@ resource "aws" "elasticsearch" "domains" {
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
+  }
+
+
+  options {
+    primary_keys = [
+      "account_id",
+      "id"]
+  }
+
+  column "domain_id" {
+    rename = "id"
+  }
+
+
+  column "domain_name" {
+    rename = "name"
+  }
+
+  userDefinedColumn "tags" {
+    type = "json"
+    generate_resolver = true
   }
 
   column "advanced_security_options_enabled" {
