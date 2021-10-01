@@ -8,7 +8,8 @@ import (
 	//_ "github.com/cloudquery/cq-provider-aws/resources"
 	_ "github.com/cloudquery/cq-provider-azure/resources"
 	//_ "github.com/cloudquery/cq-provider-digitalocean/resources"
-	_ "github.com/cloudquery/cq-provider-gcp/resources"
+	//_ "github.com/cloudquery/cq-provider-gcp/resources"
+	_ "github.com/cloudquery/cq-provider-okta/resources"
 )
 
 func main() {
