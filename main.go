@@ -9,10 +9,10 @@ import (
 	_ "github.com/cloudquery/cq-provider-azure/resources"
 	//_ "github.com/cloudquery/cq-provider-digitalocean/resources"
 	//_ "github.com/cloudquery/cq-provider-gcp/resources"
+	_ "github.com/cloudquery/cq-provider-okta/resources"
 )
 
 func main() {
-
 	resource := flag.String("resource", "", "resource name to generate")
 	domain := flag.String("domain", "", "domain of resource to generate")
 	config := flag.String("config", "config.hcl", "resource name to generate")

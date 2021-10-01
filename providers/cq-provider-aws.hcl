@@ -1,4 +1,5 @@
 service          = "aws"
+
 output_directory = "../cq-provider-aws/resources"
 
 resource "aws" "autoscaling" "launch_configurations" {
@@ -4859,3 +4860,480 @@ resource "aws" "cognito" "identity_pools" {
     rename = "saml_provider_arns"
   }
 }
+
+
+resource "aws" "iot" "things" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iot/types.ThingAttribute"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  options {
+    primary_keys = [
+      "arn"]
+  }
+
+  column "thing_name" {
+    rename = "name"
+  }
+  column "thing_arn" {
+    rename = "arn"
+  }
+  column "thing_type_name" {
+    rename = "type_name"
+  }
+
+  userDefinedColumn "principals" {
+    generate_resolver = true
+    type = "stringarray"
+  }
+}
+
+resource "aws" "iot" "thing_types" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iot/types.ThingTypeDefinition"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+
+  options {
+    primary_keys = [
+      "arn"]
+  }
+
+  column "thing_type_arn" {
+    rename = "arn"
+  }
+
+  column "thing_type_metadata" {
+    skip_prefix = true
+  }
+
+  column "thing_type_name" {
+    rename = "name"
+  }
+
+  column "thing_type_properties" {
+    skip_prefix = true
+  }
+
+  column "thing_type_description" {
+    rename = "description"
+  }
+
+  userDefinedColumn "tags" {
+    generate_resolver = true
+    type = "json"
+  }
+}
+
+
+resource "aws" "iot" "thing_groups" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iot.DescribeThingGroupOutput"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  options {
+    primary_keys = [
+      "arn"]
+  }
+
+  userDefinedColumn "things_in_group" {
+    type = "stringarray"
+    generate_resolver = true
+    description = "Lists the things in the specified group"
+  }
+
+  column "thing_group_arn" {
+    rename = "arn"
+  }
+
+
+  column "thing_group_id" {
+    rename = "id"
+  }
+
+  column "thing_group_name" {
+    rename = "name"
+  }
+
+  column "thing_group_properties" {
+    skip_prefix = true
+  }
+
+  column "root_to_parent_thing_groups" {
+    type = "json"
+    generate_resolver = true
+  }
+
+
+  column "thing_group_metadata" {
+    skip_prefix = true
+  }
+
+  userDefinedColumn "policies" {
+    type = "stringarray"
+    generate_resolver = true
+  }
+
+  userDefinedColumn "tags" {
+    generate_resolver = true
+    type = "json"
+  }
+}
+
+
+resource "aws" "iot" "billing_groups" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iot.DescribeBillingGroupOutput"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+
+  options {
+    primary_keys = [
+      "arn"]
+  }
+
+  column "billing_group_arn" {
+    rename = "arn"
+  }
+
+
+  column "billing_group_id" {
+    rename = "id"
+  }
+
+  column "thing_group_description" {
+    rename = "description"
+  }
+
+  column "billing_group_metadata_creation_date" {
+    rename = "creation_date"
+  }
+
+  column "billing_group_name" {
+    rename = "name"
+  }
+
+  column "billing_group_properties_billing_group_description" {
+    rename = "description"
+  }
+
+  userDefinedColumn "things_in_group" {
+    type = "stringarray"
+    generate_resolver = true
+    description = "Lists the things in the specified group"
+  }
+
+
+  userDefinedColumn "tags" {
+    generate_resolver = true
+    type = "json"
+  }
+
+
+}
+
+
+resource "aws" "iot" "streams" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iot/types.StreamInfo"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  options {
+    primary_keys = [
+      "arn"]
+  }
+
+  column "stream_id" {
+    rename = "id"
+  }
+  column "stream_arn" {
+    rename = "arn"
+  }
+  column "stream_version" {
+    rename = "version"
+  }
+
+}
+
+
+resource "aws" "iot" "security_profiles" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iot.DescribeSecurityProfileOutput"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+
+  options {
+    primary_keys = [
+      "arn"]
+  }
+
+  //  userDefinedColumn "tags" {
+  //    generate_resolver = true
+  //    type = "json"
+  //  }
+
+  column "security_profile_name" {
+    rename = "name"
+  }
+
+  column "security_profile_arn" {
+    rename = "arn"
+  }
+
+  column "security_profile_description" {
+    rename = "description"
+  }
+
+  userDefinedColumn "targets" {
+    type = "stringarray"
+    generate_resolver = true
+  }
+
+  relation "aws" "iot" "security_profile_behaviors" {
+    path = "github.com/aws/aws-sdk-go-v2/service/iot/types.Behavior"
+
+    column "criteria_value" {
+      type = "json"
+      generate_resolver = true
+    }
+  }
+
+  relation "aws" "iot" "security_profile_additional_metrics_to_retain_v2" {
+    path = "github.com/aws/aws-sdk-go-v2/service/iot/types.MetricToRetain"
+
+    column "metric_dimension_dimension_name" {
+      rename = "metric_dimension_name"
+    }
+  }
+}
+
+
+resource "aws" "iot" "ca_certificates" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iot/types.CACertificateDescription"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  options {
+    primary_keys = [
+      "arn"]
+  }
+
+
+  column "certificate_id" {
+    rename = "id"
+  }
+  column "certificate_arn" {
+    rename = "arn"
+  }
+  column "certificate_pem" {
+    rename = "pem"
+  }
+
+
+  userDefinedColumn "certificates" {
+    type = "stringarray"
+    generate_resolver = true
+  }
+}
+
+
+resource "aws" "iot" "certificates" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iot/types.CertificateDescription"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+
+  options {
+    primary_keys = [
+      "arn"]
+  }
+
+  column "certificate_id" {
+    rename = "id"
+  }
+  column "certificate_arn" {
+    rename = "arn"
+  }
+  column "certificate_mode" {
+    rename = "mode"
+  }
+  column "certificate_pem" {
+    rename = "pem"
+  }
+
+  userDefinedColumn "policies" {
+    type = "stringarray"
+    generate_resolver = true
+  }
+}
+
+
+
