@@ -1,4 +1,4 @@
-package codegen
+package template
 
 import (
 	"bytes"
@@ -121,8 +121,8 @@ func Funcs() template.FuncMap {
 			return strings.Join(ns, ",")
 		},
 		"go":   ToGo,
+		"goPrivate": ToGoPrivate,
 		"ref":  ref,
-		"call": Call,
 	}
 }
 
@@ -135,6 +135,8 @@ func write(filename string, b []byte) error {
 	formatted, err := format.Source(b)
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "gofmt failed on %s: %s\n", filepath.Base(filename), err.Error())
+
+		fmt.Println(string(b))
 	}
 
 	err = ioutil.WriteFile(filename, formatted, 0644)

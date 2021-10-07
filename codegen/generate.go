@@ -1,8 +1,8 @@
 package codegen
 
 import (
-	"fmt"
 	"github.com/cloudquery/cq-gen/codegen/config"
+	"github.com/cloudquery/cq-gen/codegen/template"
 	"path"
 )
 
@@ -17,20 +17,37 @@ func Generate(configPath string, domain string, resourceName string) error {
 	}
 
 	for _, resource := range resources {
-		fileName := fmt.Sprintf("%s_%s.go", resource.Config.Domain, resource.Config.Name)
-		if resource.Config.Domain == "" {
-			fileName = fmt.Sprintf("%s.go", resource.Config.Name)
-		}
-		err = Render(Options{
+		err = template.Render(template.Options{
 			Template:    "codegen/table.gotpl",
-			Filename:    path.Join(cfg.OutputDirectory, fileName),
+			Filename:    path.Join(cfg.OutputDirectory, resource.Table.FileName),
 			PackageName: path.Base(cfg.OutputDirectory),
 			Data:        resource,
-			Funcs:       nil,
+			Funcs:       map[string]interface{}{
+				"call": Call,
+			},
 		})
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func Call(p *ResolverDefinition) string {
+	if p == nil {
+		return ""
+	}
+	if p.Type == nil {
+		return p.Signature
+	}
+	pkgPath := p.Type.Pkg().Path()
+	pkg := template.CurrentImports.Lookup(pkgPath)
+
+	if pkg != "" {
+		pkg += "."
+	}
+	if p.Signature != "" {
+		return p.Signature
+	}
+	return pkg + p.Type.Name()
 }

@@ -59,7 +59,7 @@
 {{- end }}
 
 
-func {{.Table.DomainName|go}}() *schema.Table {
+func {{.Table.Name|go}}() *schema.Table {
 return &schema.Table{
 {{- template "BuildTable" .Table }}
 }
@@ -69,7 +69,7 @@ return &schema.Table{
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-{{- template "BuildTableResolvers" .Table }}
+{{ template "BuildTableResolvers" .Table }}
 
 {{- if .RemainingSource }}
 // ====================================================================================================================

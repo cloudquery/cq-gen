@@ -1,4 +1,4 @@
-package codegen
+package template
 
 import (
 	"go/types"
@@ -33,23 +33,27 @@ func ref(p types.Type) string {
 	return CurrentImports.LookupType(p)
 }
 
-func Call(p *FunctionDefinition) string {
-	if p == nil {
-		return ""
+func ToGo(name string) string {
+	if name == "_" {
+		return "_"
 	}
-	if p.Type == nil {
-		return p.Signature
-	}
-	path := p.Type.Pkg().Path()
-	pkg := CurrentImports.Lookup(path)
+	runes := make([]rune, 0, len(name))
 
-	if pkg != "" {
-		pkg += "."
-	}
-	if p.Signature != "" {
-		return p.Signature
-	}
-	return pkg + p.Type.Name()
+	wordWalker(name, func(info *wordInfo) {
+		word := info.Word
+		if info.MatchCommonInitial {
+			word = strings.ToUpper(word)
+		} else if !info.HasCommonInitial {
+			if strings.ToUpper(word) == word || strings.ToLower(word) == word {
+				// FOO or foo → Foo
+				// FOo → FOo
+				word = UcFirst(strings.ToLower(word))
+			}
+		}
+		runes = append(runes, []rune(word)...)
+	})
+
+	return string(runes)
 }
 
 func ToGoPrivate(name string) string {
@@ -80,40 +84,6 @@ func ToGoPrivate(name string) string {
 	})
 
 	return sanitizeKeywords(string(runes))
-}
-
-func ToGo(name string) string {
-	if name == "_" {
-		return "_"
-	}
-	runes := make([]rune, 0, len(name))
-
-	wordWalker(name, func(info *wordInfo) {
-		word := info.Word
-		if info.MatchCommonInitial {
-			word = strings.ToUpper(word)
-		} else if !info.HasCommonInitial {
-			if strings.ToUpper(word) == word || strings.ToLower(word) == word {
-				// FOO or foo → Foo
-				// FOo → FOo
-				word = UcFirst(strings.ToLower(word))
-			}
-		}
-		runes = append(runes, []rune(word)...)
-	})
-
-	return string(runes)
-}
-
-func ToSnake(name string) string {
-	runes := make([]rune, 0)
-	wordWalker(name, func(info *wordInfo) {
-		if len(runes) > 1 {
-			runes = append(runes, '_')
-		}
-		runes = append(runes, []rune(strings.ToLower(info.Word))...)
-	})
-	return string(runes)
 }
 
 type wordInfo struct {
