@@ -344,7 +344,7 @@ func (tb TableBuilder) SetColumnResolver(tableDef *TableDefinition, field source
 			tb.log.Warn("overriding already defined column resolver", "column", colDef.Name, "resolver", colDef.Resolver.Name)
 		}
 		columnResolver, err := tb.buildResolverDefinition(tableDef, &config.FunctionConfig{
-			Name:     fmt.Sprintf("resolve%s%s%s", strings.Title(tableDef.TableFuncName), strings.Title(inflection.Singular(tableDef.Name)), strings.Title(colDef.Name)),
+			Name:     fmt.Sprintf("resolve%s%s", strings.Title(tableDef.TableFuncName), strings.Title(colDef.Name)),
 			Body:     defaultImplementation,
 			Path:     path.Join(sdkPath, "provider/schema.ColumnResolver"),
 			Generate: true,

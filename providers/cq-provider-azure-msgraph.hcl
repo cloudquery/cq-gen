@@ -2,15 +2,14 @@ service          = "azure"
 output_directory = "../cq-provider-azure/resources"
 
 description_source "openapi" {
-    path = "./providers/msgraph-v1.0.json"
+  path = "./providers/msgraph-v1.0.json"
 }
 
 
 resource "azure" "ad" "groups" {
-  path                   = "github.com/yaegashi/msgraph.go/v1.0.Group"
-  #  limit_depth = 0
-  description_path_parts = ["microsoft.graph.group"]
-
+  path                      = "github.com/yaegashi/msgraph.go/v1.0.Group"
+  description_path_parts    = ["microsoft.graph.group"]
+  disable_auto_descriptions = true
 
   userDefinedColumn "subscription_id" {
     type        = "string"
@@ -37,7 +36,6 @@ resource "azure" "ad" "groups" {
   column "conversations" {
     skip = true
   }
-
   column "threads" {
     skip = true
   }
@@ -103,6 +101,7 @@ resource "azure" "ad" "groups" {
       rename = "id"
     }
   }
+
 
   relation "azure" "ad" "member_of" {
     path = "github.com/yaegashi/msgraph.go/v1.0.DirectoryObject"
