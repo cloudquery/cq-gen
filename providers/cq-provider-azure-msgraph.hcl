@@ -1,10 +1,16 @@
 service          = "azure"
 output_directory = "../cq-provider-azure/resources"
 
+description_source "openapi" {
+    path = "./providers/msgraph-v1.0.json"
+}
+
 
 resource "azure" "ad" "groups" {
-  path        = "github.com/yaegashi/msgraph.go/v1.0.Group"
-  limit_depth = 0
+  path                   = "github.com/yaegashi/msgraph.go/v1.0.Group"
+  #  limit_depth = 0
+  description_path_parts = ["microsoft.graph.group"]
+
 
   userDefinedColumn "subscription_id" {
     type        = "string"
@@ -16,7 +22,6 @@ resource "azure" "ad" "groups" {
   deleteFilter "AzureSubscription" {
     path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
   }
-
 
   multiplex "AzureSubscription" {
     path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
@@ -36,7 +41,6 @@ resource "azure" "ad" "groups" {
   column "threads" {
     skip = true
   }
-
 
   column "calendar_view" {
     skip = true
@@ -92,42 +96,51 @@ resource "azure" "ad" "groups" {
     rename = "team_id"
   }
 
-  relation "azure" "ad" "group_members" {
+  relation "azure" "ad" "members" {
+    path = "github.com/yaegashi/msgraph.go/v1.0.DirectoryObject"
+
+    column "entity_id" {
+      rename = "id"
+    }
+  }
+
+  relation "azure" "ad" "member_of" {
     path = "github.com/yaegashi/msgraph.go/v1.0.DirectoryObject"
     column "entity_id" {
       rename = "id"
     }
   }
 
-  relation "azure" "ad" "group_member_ofs" {
+  relation "azure" "ad" "assigned_licenses" {
+    path                   = "github.com/yaegashi/msgraph.go/v1.0.AssignedLicense"
+    description_path_parts = ["assignedLicenses"]
+    column "s_k_uid" {
+      rename = "sku_id"
+    }
+  }
+
+  relation "azure" "ad" "members_with_license_errors" {
     path = "github.com/yaegashi/msgraph.go/v1.0.DirectoryObject"
     column "entity_id" {
       rename = "id"
     }
   }
 
-  relation "azure" "ad" "group_members_with_license_errors" {
+  relation "azure" "ad" "transitive_members" {
     path = "github.com/yaegashi/msgraph.go/v1.0.DirectoryObject"
     column "entity_id" {
       rename = "id"
     }
   }
 
-  relation "azure" "ad" "group_transitive_members" {
+  relation "azure" "ad" "transitive_member_of" {
     path = "github.com/yaegashi/msgraph.go/v1.0.DirectoryObject"
     column "entity_id" {
       rename = "id"
     }
   }
 
-  relation "azure" "ad" "group_transitive_member_ofs" {
-    path = "github.com/yaegashi/msgraph.go/v1.0.DirectoryObject"
-    column "entity_id" {
-      rename = "id"
-    }
-  }
-
-  relation "azure" "ad" "group_owners" {
+  relation "azure" "ad" "owners" {
     path = "github.com/yaegashi/msgraph.go/v1.0.DirectoryObject"
     column "entity_id" {
       rename = "id"
@@ -135,7 +148,7 @@ resource "azure" "ad" "groups" {
   }
 
 
-  relation "azure" "ad" "group_settings" {
+  relation "azure" "ad" "settings" {
     path = "github.com/yaegashi/msgraph.go/v1.0.GroupSetting"
     column "entity_id" {
       rename = "id"
@@ -147,7 +160,7 @@ resource "azure" "ad" "groups" {
     }
   }
 
-  relation "azure" "ad" "group_photos" {
+  relation "azure" "ad" "photos" {
     path = "github.com/yaegashi/msgraph.go/v1.0.ProfilePhoto"
     column "entity_id" {
       rename = "id"
@@ -155,16 +168,14 @@ resource "azure" "ad" "groups" {
   }
 
 
-  relation "azure" "ad" "group_accepted_senders" {
+  relation "azure" "ad" "accepted_senders" {
     path = "github.com/yaegashi/msgraph.go/v1.0.DirectoryObject"
     column "entity_id" {
       rename = "id"
     }
-
-
   }
 
-  relation "azure" "ad" "group_rejected_senders" {
+  relation "azure" "ad" "rejected_senders" {
     path = "github.com/yaegashi/msgraph.go/v1.0.DirectoryObject"
     column "entity_id" {
       rename = "id"
@@ -179,13 +190,13 @@ resource "azure" "ad" "groups" {
     }
   }
 
-  relation "azure" "ad" "group_team_channels" {
+  relation "azure" "ad" "team_channels" {
     path = "github.com/yaegashi/msgraph.go/v1.0.Channel"
     column "entity_id" {
       rename = "id"
     }
 
-    relation "azure" "ad" "group_team_channel_tabs" {
+    relation "azure" "ad" "tabs" {
       path = "github.com/yaegashi/msgraph.go/v1.0.TeamsTab"
 
       column "entity_id" {
@@ -200,7 +211,7 @@ resource "azure" "ad" "groups" {
         rename = "teams_app_id"
       }
 
-      relation "azure" "ad" "group_team_channel_tab_teams_app_app_definitions" {
+      relation "azure" "ad" "teams_app_app_definitions" {
         path = "github.com/yaegashi/msgraph.go/v1.0.TeamsAppDefinition"
         column "entity_id" {
           rename = "id"
@@ -210,7 +221,7 @@ resource "azure" "ad" "groups" {
   }
 
 
-  relation "azure" "ad" "group_team_installed_apps" {
+  relation "azure" "ad" "team_installed_apps" {
     path = "github.com/yaegashi/msgraph.go/v1.0.TeamsAppInstallation"
     column "entity_id" {
       rename = "id"
@@ -224,7 +235,7 @@ resource "azure" "ad" "groups" {
     }
 
 
-    relation "azure" "ad" "group_team_installed_app_teams_app_app_definitions" {
+    relation "azure" "ad" "teams_app_app_definitions" {
       path = "github.com/yaegashi/msgraph.go/v1.0.TeamsAppDefinition"
       column "entity_id" {
         rename = "id"
@@ -233,7 +244,7 @@ resource "azure" "ad" "groups" {
   }
 
 
-  relation "azure" "ad" "group_team_operations" {
+  relation "azure" "ad" "team_operations" {
     path = "github.com/yaegashi/msgraph.go/v1.0.TeamsAsyncOperation"
     column "entity_id" {
       rename = "id"
