@@ -103,9 +103,11 @@ func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *con
 		return nil, err
 	}
 
-	if table.Description == "" {
-		meta.FieldParts = append(meta.FieldParts, resourceCfg.DescriptionPathParts...)
-		table.Description = tb.getDescription(obj, resourceCfg.Description, meta)
+	if !resourceCfg.DisableReadDescriptions {
+		if table.Description == "" {
+			meta.FieldParts = append(meta.FieldParts, resourceCfg.DescriptionPathParts...)
+			table.Description = tb.getDescription(obj, resourceCfg.Description, meta)
+		}
 	}
 
 	if len(meta.FieldParts) == 0 {
@@ -190,7 +192,9 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 	}
 	// Set column description, usually source.Object contains a description, but it can also be overridden by the column
 	// configuration.
-	colDef.Description = tb.getDescription(field, cfg.Description, meta)
+	if !resourceCfg.DisableReadDescriptions {
+		colDef.Description = tb.getDescription(field, cfg.Description, meta)
+	}
 
 	// Set Resolver
 	if err := tb.SetColumnResolver(table, field, &colDef, cfg, meta); err != nil {
@@ -222,6 +226,12 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 		if relationCfg.Path == "" {
 			relationCfg.Path = field.Path()
 		}
+
+		// parent LimitDepth should be transferred to rel
+		if resourceCfg.LimitDepth > 0 {
+			relationCfg.LimitDepth = resourceCfg.LimitDepth
+		}
+
 		// increase build depth
 		meta.Depth += 1
 		meta.FieldParts = append(meta.FieldParts, field.Name())
