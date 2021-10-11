@@ -40,9 +40,13 @@ func BuildColumnMeta(field source.Object, parentMeta BuildMeta, cfg config.Colum
 		FieldPath:  field.Name(),
 		FieldParts: make([]string, len(parentMeta.FieldParts)),
 	}
-	if !cfg.SkipPrefix {
-		meta.ColumnPath = fmt.Sprintf("%s_%s", parentMeta.ColumnPath, meta.ColumnPath)
+
+	meta.ColumnPath = fmt.Sprintf("%s_%s", parentMeta.ColumnPath, meta.ColumnPath)
+
+	if cfg.SkipPrefix {
+		meta.ColumnPath = parentMeta.ColumnPath
 	}
+
 	if parentMeta.FieldPath != "" {
 		meta.FieldPath = fmt.Sprintf("%s.%s", parentMeta.FieldPath, field.Name())
 	}
@@ -71,12 +75,11 @@ func NewTableBuilder(source source.DataSource, descriptionSource source.Descript
 }
 
 func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *config.ResourceConfig, meta BuildMeta) (*TableDefinition, error) {
-
 	fullName := GetResourceName(parentTable, resourceCfg)
 	table := &TableDefinition{
 		Name:          fullName,
 		FileName:      GetFileName(resourceCfg),
-		TableFuncName: template.ToGo(GetResourceName(parentTable, resourceCfg)),
+		TableFuncName: template.ToGo(resourceCfg.Domain + strings.Title(fullName)),
 		TableName:     GetTableName(parentTable, resourceCfg.Service, resourceCfg.Domain, resourceCfg.Name),
 		parentTable:   parentTable,
 		Options:       resourceCfg.TableOptions,
@@ -102,6 +105,7 @@ func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *con
 	}
 
 	if table.Description == "" {
+		meta.FieldParts = append(meta.FieldParts, resourceCfg.DescriptionPathParts...)
 		table.Description = tb.getDescription(obj, resourceCfg.Description, meta)
 	}
 

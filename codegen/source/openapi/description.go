@@ -24,7 +24,7 @@ func (d DescriptionSource) FindDescription(paths ...string) (string, error) {
 	if len(paths) < 1 {
 		return "", nil
 	}
- 	schemaRef, ok := d.doc.Components.Schemas[strcase.ToSnake(paths[0])]
+	schemaRef, ok := d.doc.Components.Schemas[strcase.ToSnake(paths[0])]
 	if !ok {
 		return "", fmt.Errorf("resource not found %s", paths)
 	}
@@ -39,6 +39,10 @@ func (d DescriptionSource) FindColumnDescription(schemaRef *openapi3.SchemaRef, 
 	var childRef *openapi3.SchemaRef
 	for k, p := range getSchemaProperties(schemaRef) {
 		if k == c {
+			childRef = p
+			break
+		}
+		if naming.CamelToSnake(k) == c {
 			childRef = p
 			break
 		}
@@ -59,7 +63,6 @@ func (d DescriptionSource) FindColumnDescription(schemaRef *openapi3.SchemaRef, 
 	}
 	return d.FindColumnDescription(childRef, parts[1:])
 }
-
 
 func getSchemaProperties(schemaRef *openapi3.SchemaRef) openapi3.Schemas {
 	if schemaRef.Value.Type == "array" {
