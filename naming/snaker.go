@@ -163,6 +163,7 @@ var commonInitialisms = map[string]bool{
 	"IDs":       true,
 	"URN":       true,
 	"CORS":      true,
+	"CNAME":     true,
 	"GigaBytes": true,
 }
 

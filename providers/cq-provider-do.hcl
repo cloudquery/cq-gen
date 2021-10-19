@@ -2,7 +2,8 @@ service = "aws"
 output_directory = "../cq-provider-digitalocean/resources"
 
 description_source "openapi" {
-  path = "./providers/DigitalOcean-public.v2.yaml"
+#  https://github.com/digitalocean/openapi/blob/main/specification/DigitalOcean-public.v2.yaml
+  path = "../../DigitalOcean-public.v2.yaml"
 }
 
 

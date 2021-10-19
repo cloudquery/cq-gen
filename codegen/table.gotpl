@@ -59,7 +59,7 @@
 {{- end }}
 
 
-func {{.Table.Name|go}}() *schema.Table {
+func {{.Table.TableFuncName|go}}() *schema.Table {
 return &schema.Table{
 {{- template "BuildTable" .Table }}
 }

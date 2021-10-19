@@ -40,9 +40,12 @@ func BuildColumnMeta(field source.Object, parentMeta BuildMeta, cfg config.Colum
 		FieldPath:  field.Name(),
 		FieldParts: make([]string, len(parentMeta.FieldParts)),
 	}
-	if !cfg.SkipPrefix {
-		meta.ColumnPath = fmt.Sprintf("%s_%s", parentMeta.ColumnPath, meta.ColumnPath)
+
+	meta.ColumnPath = fmt.Sprintf("%s_%s", parentMeta.ColumnPath, meta.ColumnPath)
+	if cfg.SkipPrefix {
+		meta.ColumnPath = parentMeta.ColumnPath
 	}
+
 	if parentMeta.FieldPath != "" {
 		meta.FieldPath = fmt.Sprintf("%s.%s", parentMeta.FieldPath, field.Name())
 	}
@@ -71,12 +74,11 @@ func NewTableBuilder(source source.DataSource, descriptionSource source.Descript
 }
 
 func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *config.ResourceConfig, meta BuildMeta) (*TableDefinition, error) {
-
 	fullName := GetResourceName(parentTable, resourceCfg)
 	table := &TableDefinition{
 		Name:          fullName,
 		FileName:      GetFileName(resourceCfg),
-		TableFuncName: template.ToGo(GetResourceName(parentTable, resourceCfg)),
+		TableFuncName: template.ToGo(resourceCfg.Domain + strings.Title(fullName)),
 		TableName:     GetTableName(parentTable, resourceCfg.Service, resourceCfg.Domain, resourceCfg.Name),
 		parentTable:   parentTable,
 		Options:       resourceCfg.TableOptions,
@@ -101,8 +103,11 @@ func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *con
 		return nil, err
 	}
 
-	if table.Description == "" {
-		table.Description = tb.getDescription(obj, resourceCfg.Description, meta)
+	if !resourceCfg.DisableReadDescriptions {
+		if table.Description == "" {
+			meta.FieldParts = append(meta.FieldParts, resourceCfg.DescriptionPathParts...)
+			table.Description = tb.getDescription(obj, resourceCfg.Description, meta)
+		}
 	}
 
 	if len(meta.FieldParts) == 0 {
@@ -187,7 +192,9 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 	}
 	// Set column description, usually source.Object contains a description, but it can also be overridden by the column
 	// configuration.
-	colDef.Description = tb.getDescription(field, cfg.Description, meta)
+	if !resourceCfg.DisableReadDescriptions {
+		colDef.Description = tb.getDescription(field, cfg.Description, meta)
+	}
 
 	// Set Resolver
 	if err := tb.SetColumnResolver(table, field, &colDef, cfg, meta); err != nil {
@@ -219,6 +226,12 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 		if relationCfg.Path == "" {
 			relationCfg.Path = field.Path()
 		}
+
+		// parent LimitDepth should be transferred to rel
+		if resourceCfg.LimitDepth > 0 {
+			relationCfg.LimitDepth = resourceCfg.LimitDepth
+		}
+
 		// increase build depth
 		meta.Depth += 1
 		meta.FieldParts = append(meta.FieldParts, field.Name())
@@ -341,7 +354,7 @@ func (tb TableBuilder) SetColumnResolver(tableDef *TableDefinition, field source
 			tb.log.Warn("overriding already defined column resolver", "column", colDef.Name, "resolver", colDef.Resolver.Name)
 		}
 		columnResolver, err := tb.buildResolverDefinition(tableDef, &config.FunctionConfig{
-			Name:     fmt.Sprintf("resolve%s%s%s", strings.Title(tableDef.TableFuncName), strings.Title(inflection.Singular(tableDef.Name)), strings.Title(colDef.Name)),
+			Name:     fmt.Sprintf("resolve%s%s", strings.Title(tableDef.TableFuncName), strings.Title(strcase.ToCamel(colDef.Name))),
 			Body:     defaultImplementation,
 			Path:     path.Join(sdkPath, "provider/schema.ColumnResolver"),
 			Generate: true,

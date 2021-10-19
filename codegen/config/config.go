@@ -73,7 +73,7 @@ type ResourceConfig struct {
 	// EmbedRelation embeds all of the relations columns into the parent struct
 	EmbedRelation bool `hcl:"embed,optional"`
 	// EmbedSkipPrefix skips the embedded relation name prefix for all it's embedded columns
-	EmbedSkipPrefix bool   `hcl:"embed_skip_prefix,optional"`
+	EmbedSkipPrefix bool `hcl:"embed_skip_prefix,optional"`
 	// Disables reading the struct for description comments for each column
 	DisableReadDescriptions bool `hcl:"disable_auto_descriptions,optional"`
 	// Disable pluralize of the name of the resource
@@ -99,7 +99,6 @@ func (r ResourceConfig) GetRelationConfig(name string) *ResourceConfig {
 	for _, r := range r.Relations {
 		if strings.ToLower(r.Name) == strings.ToLower(name) {
 			return &r
-
 		}
 		if _, typeName := code.PkgAndType(r.Path); typeName == name {
 			return &r

@@ -29,7 +29,7 @@ func GetResourceName(parentTable *TableDefinition, resourceCfg *config.ResourceC
 	}
 	fullName := resourceName
 	if parentTable != nil && !strings.HasPrefix(strings.ToLower(resourceCfg.Name), strings.ToLower(inflection.Singular(parentTable.Name))) {
-		return fmt.Sprintf("%s%s", inflection.Singular(parentTable.Name), strings.Title(resourceName))
+		return fmt.Sprintf("%s_%s", inflection.Singular(parentTable.Name), resourceName)
 	}
 	return fullName
 }
@@ -44,11 +44,10 @@ func GetFileName(resourceCfg *config.ResourceConfig) string {
 
 func GetTableName(parentTable *TableDefinition, service, domain, resource string) string {
 	if parentTable != nil && !strings.HasPrefix(strings.ToLower(resource), strings.ToLower(inflection.Singular(parentTable.Name))) {
-		 return fmt.Sprintf("%s_%s", inflection.Singular(parentTable.TableName), strings.ToLower(resource))
+		return fmt.Sprintf("%s_%s", inflection.Singular(parentTable.TableName), strings.ToLower(resource))
 	}
 	if domain == "" {
 		return strings.ToLower(strings.Join([]string{service, naming.CamelToSnake(resource)}, "_"))
 	}
 	return strings.ToLower(strings.Join([]string{service, domain, naming.CamelToSnake(resource)}, "_"))
 }
-
