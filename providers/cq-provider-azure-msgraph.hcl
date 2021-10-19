@@ -2,7 +2,8 @@ service          = "azure"
 output_directory = "../cq-provider-azure/resources"
 
 description_source "openapi" {
-  path = "./providers/msgraph-v1.0.json"
+#  https://github.com/microsoftgraph/microsoft-graph-openapi/blob/master/v1.0.json
+  path = "../../providers/msgraph-v1.0.json"
 }
 
 
