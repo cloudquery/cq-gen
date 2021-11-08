@@ -434,6 +434,16 @@ resource "k8s" "apps" "daemon_sets" {
     skip_prefix = true
   }
 
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
+  }
+
 
   column "spec" {
     skip_prefix = true
@@ -848,6 +858,16 @@ resource "k8s" "apps" "replica_sets" {
   }
 
 
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
+  }
+
   column "spec" {
     skip_prefix = true
   }
@@ -1257,6 +1277,17 @@ resource "k8s" "apps" "deployments" {
 
   column "object_meta" {
     skip_prefix = true
+  }
+
+
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
   }
 
 
