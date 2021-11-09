@@ -434,9 +434,27 @@ resource "k8s" "apps" "daemon_sets" {
     skip_prefix = true
   }
 
-  column "owner_references" {
+  userDefinedColumn "owner_references" {
     type              = "json"
     generate_resolver = true
+  }
+
+  relation "k8s" "" "owner_references" {
+    options {
+      primary_keys = ["resource_uid", "uid"]
+    }
+    path = "k8s.io/apimachinery/pkg/apis/meta/v1.OwnerReference"
+
+    resolver "OwnerReferenceResolver" {
+      path = "github.com/cloudquery/cq-provider-k8s/client.OwnerReferenceResolver"
+    }
+    userDefinedColumn "resource_uid" {
+      type        = "string"
+      description = "resources this owner object references"
+    }
+    column "uid" {
+      rename = "owner_uid"
+    }
   }
 
   column "managed_fields" {
