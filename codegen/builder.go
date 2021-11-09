@@ -131,11 +131,20 @@ func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *con
 
 func (tb TableBuilder) buildTableFunctions(table *TableDefinition, resource *config.ResourceConfig) error {
 	var err error
-	table.Resolver, err = tb.buildResolverDefinition(table, &config.FunctionConfig{
-		Name: strcase.ToLowerCamel(fmt.Sprintf("fetch%s%s", strings.Title(resource.Domain), strings.Title(table.Name))),
-		Body: defaultImplementation,
-		Path: path.Join(sdkPath, "provider/schema.TableResolver"),
-	})
+
+	if resource.Resolver != nil {
+		table.Resolver, err = tb.buildResolverDefinition(table, resource.Resolver)
+	} else {
+		table.Resolver, err = tb.buildResolverDefinition(table, &config.FunctionConfig{
+			Name:     strcase.ToLowerCamel(fmt.Sprintf("fetch%s%s", strings.Title(resource.Domain), strings.Title(table.Name))),
+			Body:     defaultImplementation,
+			Path:     path.Join(sdkPath, "provider/schema.TableResolver"),
+			Generate: true, // Table functions are always generated, setting this to true will cause duplicates
+		})
+	}
+	if err != nil {
+		return err
+	}
 
 	if resource.IgnoreError != nil {
 		table.IgnoreErrorFunc, err = tb.buildResolverDefinition(table, resource.IgnoreError)
@@ -200,9 +209,7 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 	if err := tb.SetColumnResolver(table, field, &colDef, cfg, meta); err != nil {
 		return err
 	}
-	if field.Name() == "start" {
-		fmt.Println("hleol")
-	}
+
 	valueType := field.Type()
 	if schema.ValueTypeFromString(cfg.Type) != schema.TypeInvalid {
 		valueType = source.TypeUserDefined
@@ -322,6 +329,7 @@ func (tb TableBuilder) buildResolverDefinition(table *TableDefinition, cfg *conf
 		Body:      funcBody,
 		Type:      ro,
 		Arguments: GetFunctionParams(signature),
+		Generate:  cfg.Generate,
 	}
 	if cfg.Generate {
 		// Set signature of function as the generated resolver name

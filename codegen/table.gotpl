@@ -21,7 +21,11 @@
     {{- if .Description }}
     Description: {{ $.Description|quote }},
     {{- end }}
-    Resolver: {{.Resolver.Name}},
+        {{- if .Resolver.Generate }}
+           Resolver: {{.Resolver.Name}},
+        {{- else }}
+            Resolver: {{.Resolver|call}},
+        {{- end }}
     {{- if .MultiplexFunc }}
         Multiplex: {{.MultiplexFunc|call}},
     {{- end }}

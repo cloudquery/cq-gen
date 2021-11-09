@@ -36,10 +36,11 @@ type TableDefinition struct {
 func (t TableDefinition) UniqueResolvers() []*ResolverDefinition {
 
 	rd := make([]*ResolverDefinition, 0)
-	rd = append(rd, t.Resolver)
 	existingResolvers := make(map[string]bool)
-
 	for _, f := range t.Functions {
+		if !f.Generate {
+			continue
+		}
 		if _, ok := existingResolvers[f.Name]; ok {
 			continue
 		}
@@ -87,4 +88,5 @@ type ResolverDefinition struct {
 	Body      string
 	Type      types.Object
 	Arguments string
+	Generate  bool
 }

@@ -66,6 +66,7 @@ type ResourceConfig struct {
 	Multiplex            *FunctionConfig `hcl:"multiplex,block"`
 	DeleteFilter         *FunctionConfig `hcl:"deleteFilter,block"`
 	PostResourceResolver *FunctionConfig `hcl:"postResourceResolver,block"`
+	Resolver             *FunctionConfig `hcl:"resolver,block"`
 
 	// LimitDepth limits the depth cq-gen enters the structs, this is to avoid recursive structs
 	LimitDepth int `hcl:"limit_depth,optional"`

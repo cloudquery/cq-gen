@@ -104,7 +104,11 @@ func (f FieldObject) Fields() []source.Object {
 		return nil
 	}
 	named := getNamedType(f.v.Type())
+
 	pkg, _ := code.PkgAndType(f.originalPath)
+	if pkgObj := named.Obj().Pkg(); pkgObj != nil  {
+		pkg = pkgObj.Path()
+	}
 	rw, err := rewrite.NewFromImportPath(pkg)
 	if err != nil {
 		return nil
