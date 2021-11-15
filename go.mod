@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/cloudquery/cq-provider-k8s v0.0.0-00010101000000-000000000000
-	github.com/cloudquery/cq-provider-sdk v0.5.0
+	github.com/cloudquery/cq-provider-sdk v0.5.1
 	github.com/creasty/defaults v1.5.2
 	github.com/getkin/kin-openapi v0.80.0
 	github.com/hashicorp/go-hclog v1.0.0

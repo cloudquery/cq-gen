@@ -70,19 +70,18 @@ resource "k8s" "core" "namespaces" {
 
 }
 
+resource "k8s" "core" "nodes" {
+  path = "k8s.io/api/core/v1.Node"
 
-resource "k8s" "apps" "deployments" {
-  path = "k8s.io/api/apps/v1.Deployment"
+  options {
+    primary_keys = ["uid"]
+  }
 
   multiplex "ContextMultiplex" {
     path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
   }
   deleteFilter "DeleteContextFilter" {
     path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
-  }
-
-  options {
-    primary_keys = ["uid"]
   }
 
 
@@ -93,36 +92,60 @@ resource "k8s" "apps" "deployments" {
   column "object_meta" {
     skip_prefix = true
   }
-  // Skip owner references
+
   column "owner_references" {
-    skip = true
+    type = "json"
+    generate_resolver = true
   }
+
   column "managed_fields" {
     type = "json"
     generate_resolver = true
   }
 
-  relation "k8s" "" "owner_references" {
-    path = "k8s.io/apimachinery/pkg/apis/meta/v1.OwnerReference"
-
-    userDefinedColumn "resource_uid" {
-      type = "string"
-    }
-    column "uid" {
-      rename = "owner_uid"
-    }
-  }
-
-  // Skip owner references
-  column "object_meta_owner_references" {
-    skip = true
-  }
-
+  # Spec fields
   column "spec" {
-    skip = true
+    skip_prefix = true
   }
 
+  column "pod_c_id_r" {
+    rename = "pod_cidr"
+  }
+
+  column "pod_c_id_rs" {
+    rename = "pod_cidrs"
+  }
+
+  column "taints" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  # Status fields
   column "status" {
+    skip_prefix = true
+  }
+
+  column "node_info" {
+    skip_prefix = true
+  }
+
+  column "conditions" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "volumes_attached" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "images" {
+    type = "json"
+    generate_resolver = true
+  }
+
+  column "config" {
     type = "json"
     generate_resolver = true
   }
