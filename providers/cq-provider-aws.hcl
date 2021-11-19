@@ -1,4 +1,4 @@
-service          = "aws"
+service = "aws"
 
 output_directory = "../cq-provider-aws/resources"
 
@@ -1532,6 +1532,48 @@ resource "aws" "ecs" "clusters" {
     }
   }
 
+  options {
+    primary_keys = [
+      "arn"
+    ]
+  }
+
+  column "configuration" {
+    skip_prefix = true
+  }
+
+
+  column "cluster_arn" {
+    rename = "arn"
+  }
+
+  column "cluster_name" {
+    rename = "name"
+  }
+
+  column "execute_command_configuration_kms_key_id" {
+    rename = "execute_config_kms_key_id"
+  }
+  column "execute_command_configuration_log_configuration_cloud_watch_encryption_enabled" {
+    rename = "execute_config_logs_cloud_watch_encryption_enabled"
+  }
+  column "execute_command_configuration_log_configuration_cloud_watch_log_group_name" {
+    rename = "execute_config_log_cloud_watch_log_group_name"
+  }
+  column "execute_command_configuration_log_configuration_s3_bucket_name" {
+    rename = "execute_config_log_s3_bucket_name"
+  }
+  column "execute_command_configuration_log_configuration_s3_encryption_enabled" {
+    rename = "execute_config_log_s3_encryption_enabled"
+  }
+  column "execute_command_configuration_log_configuration_s3_key_prefix" {
+    rename = "execute_config_log_s3_key_prefix"
+  }
+  column "execute_command_configuration_logging" {
+    rename = "execute_config_logging"
+  }
+
+
   column "settings" {
     // TypeJson
     type              = "json"
@@ -1549,6 +1591,122 @@ resource "aws" "ecs" "clusters" {
     type              = "json"
     generate_resolver = true
   }
+  column "default_capacity_provider_strategy" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  relation "aws" "ecs" "attachments" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.Attachment"
+
+    options {
+      primary_keys = [
+        "cluster_cq_id",
+        "id"
+      ]
+    }
+    column "details" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+  }
+
+  relation "aws" "ecs" "services" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.Service"
+
+    column "capacity_provider_strategy" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+    column "enable_e_c_s_managed_tags" {
+      rename = "enable_ecs_managed_tags"
+    }
+
+    column "service_arn" {
+      rename = "arn"
+    }
+
+    column "service_name" {
+      rename = "name"
+    }
+    column "placement_constraints" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+    column "placement_strategy" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+    column "tags" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+    relation "aws" "ecs" "deployments" {
+      path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.Deployment"
+
+      column "capacity_provider_strategy" {
+        type              = "json"
+        generate_resolver = true
+      }
+    }
+
+    relation "aws" "ecs" "task_sets" {
+      path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.TaskSet"
+      column "task_set_arn" {
+        rename = "arn"
+      }
+      column "capacity_provider_strategy" {
+        type              = "json"
+        generate_resolver = true
+      }
+
+      column "tags" {
+        type              = "json"
+        generate_resolver = true
+      }
+      relation "aws" "ecs" "service_registries" {
+        path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.ServiceRegistry"
+
+        column "registry_arn" {
+          rename = "arn"
+        }
+      }
+    }
+
+    relation "aws" "ecs" "registries" {
+      path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.Registry"
+
+      column "registry_arn" {
+        rename = "arn"
+      }
+    }
+
+  }
+
+  relation "aws" "ecs" "container_instances" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.ContainerInstance"
+
+    relation "aws" "ecs" "attachments" {
+      path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.Attachment"
+
+      column "details" {
+        type              = "json"
+        generate_resolver = true
+      }
+
+    }
+    column "tags" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+  }
+
 
 }
 
@@ -4875,14 +5033,14 @@ resource "aws" "iot" "things" {
   }
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     description = "The AWS Region of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -4890,7 +5048,8 @@ resource "aws" "iot" "things" {
 
   options {
     primary_keys = [
-      "arn"]
+      "arn"
+    ]
   }
 
   column "thing_name" {
@@ -4905,7 +5064,7 @@ resource "aws" "iot" "things" {
 
   userDefinedColumn "principals" {
     generate_resolver = true
-    type = "stringarray"
+    type              = "stringarray"
   }
 }
 
@@ -4922,14 +5081,14 @@ resource "aws" "iot" "thing_types" {
   }
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     description = "The AWS Region of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -4938,7 +5097,8 @@ resource "aws" "iot" "thing_types" {
 
   options {
     primary_keys = [
-      "arn"]
+      "arn"
+    ]
   }
 
   column "thing_type_arn" {
@@ -4963,7 +5123,7 @@ resource "aws" "iot" "thing_types" {
 
   userDefinedColumn "tags" {
     generate_resolver = true
-    type = "json"
+    type              = "json"
   }
 }
 
@@ -4981,14 +5141,14 @@ resource "aws" "iot" "thing_groups" {
   }
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     description = "The AWS Region of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -4996,13 +5156,14 @@ resource "aws" "iot" "thing_groups" {
 
   options {
     primary_keys = [
-      "arn"]
+      "arn"
+    ]
   }
 
   userDefinedColumn "things_in_group" {
-    type = "stringarray"
+    type              = "stringarray"
     generate_resolver = true
-    description = "Lists the things in the specified group"
+    description       = "Lists the things in the specified group"
   }
 
   column "thing_group_arn" {
@@ -5023,7 +5184,7 @@ resource "aws" "iot" "thing_groups" {
   }
 
   column "root_to_parent_thing_groups" {
-    type = "json"
+    type              = "json"
     generate_resolver = true
   }
 
@@ -5033,13 +5194,13 @@ resource "aws" "iot" "thing_groups" {
   }
 
   userDefinedColumn "policies" {
-    type = "stringarray"
+    type              = "stringarray"
     generate_resolver = true
   }
 
   userDefinedColumn "tags" {
     generate_resolver = true
-    type = "json"
+    type              = "json"
   }
 }
 
@@ -5057,14 +5218,14 @@ resource "aws" "iot" "billing_groups" {
   }
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     description = "The AWS Region of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -5073,7 +5234,8 @@ resource "aws" "iot" "billing_groups" {
 
   options {
     primary_keys = [
-      "arn"]
+      "arn"
+    ]
   }
 
   column "billing_group_arn" {
@@ -5102,15 +5264,15 @@ resource "aws" "iot" "billing_groups" {
   }
 
   userDefinedColumn "things_in_group" {
-    type = "stringarray"
+    type              = "stringarray"
     generate_resolver = true
-    description = "Lists the things in the specified group"
+    description       = "Lists the things in the specified group"
   }
 
 
   userDefinedColumn "tags" {
     generate_resolver = true
-    type = "json"
+    type              = "json"
   }
 
 
@@ -5130,14 +5292,14 @@ resource "aws" "iot" "streams" {
   }
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     description = "The AWS Region of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -5145,7 +5307,8 @@ resource "aws" "iot" "streams" {
 
   options {
     primary_keys = [
-      "arn"]
+      "arn"
+    ]
   }
 
   column "stream_id" {
@@ -5174,14 +5337,14 @@ resource "aws" "iot" "security_profiles" {
   }
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     description = "The AWS Region of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -5190,7 +5353,8 @@ resource "aws" "iot" "security_profiles" {
 
   options {
     primary_keys = [
-      "arn"]
+      "arn"
+    ]
   }
 
   //  userDefinedColumn "tags" {
@@ -5211,7 +5375,7 @@ resource "aws" "iot" "security_profiles" {
   }
 
   userDefinedColumn "targets" {
-    type = "stringarray"
+    type              = "stringarray"
     generate_resolver = true
   }
 
@@ -5219,7 +5383,7 @@ resource "aws" "iot" "security_profiles" {
     path = "github.com/aws/aws-sdk-go-v2/service/iot/types.Behavior"
 
     column "criteria_value" {
-      type = "json"
+      type              = "json"
       generate_resolver = true
     }
   }
@@ -5247,14 +5411,14 @@ resource "aws" "iot" "ca_certificates" {
   }
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     description = "The AWS Region of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -5262,7 +5426,8 @@ resource "aws" "iot" "ca_certificates" {
 
   options {
     primary_keys = [
-      "arn"]
+      "arn"
+    ]
   }
 
 
@@ -5278,7 +5443,7 @@ resource "aws" "iot" "ca_certificates" {
 
 
   userDefinedColumn "certificates" {
-    type = "stringarray"
+    type              = "stringarray"
     generate_resolver = true
   }
 }
@@ -5297,14 +5462,14 @@ resource "aws" "iot" "certificates" {
   }
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     description = "The AWS Region of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -5313,7 +5478,8 @@ resource "aws" "iot" "certificates" {
 
   options {
     primary_keys = [
-      "arn"]
+      "arn"
+    ]
   }
 
   column "certificate_id" {
@@ -5330,7 +5496,7 @@ resource "aws" "iot" "certificates" {
   }
 
   userDefinedColumn "policies" {
-    type = "stringarray"
+    type              = "stringarray"
     generate_resolver = true
   }
 }
