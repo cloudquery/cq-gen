@@ -1020,6 +1020,12 @@ resource "azure" "network" "public_ip_addresses" {
     generate_resolver = true
   }
 
+  column "ip_address" {
+    type              = "cidr"
+    generate_resolver = true
+  }
+
+
 
   column "ip_tags" {
     type              = "json"
