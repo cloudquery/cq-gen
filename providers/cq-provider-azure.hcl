@@ -371,6 +371,10 @@ resource "azure" "network" "virtual_networks" {
       "id"
     ]
   }
+  column "dhcp_options_dns_servers" {
+    type              = "inetArray"
+    generate_resolver = true
+  }
 
   userDefinedColumn "subscription_id" {
     type        = "string"
@@ -1021,11 +1025,9 @@ resource "azure" "network" "public_ip_addresses" {
   }
 
   column "ip_address" {
-    type              = "cidr"
+    type              = "inet"
     generate_resolver = true
   }
-
-
 
   column "ip_tags" {
     type              = "json"
