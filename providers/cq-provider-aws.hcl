@@ -19,9 +19,7 @@ resource "aws" "autoscaling" "launch_configurations" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
-  column "metadata_options_http_tokens" {
-    description = "The state of token usage for your instance metadata requests."
-  }
+
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -30,6 +28,10 @@ resource "aws" "autoscaling" "launch_configurations" {
   }
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  column "metadata_options_http_tokens" {
+    description = "The state of token usage for your instance metadata requests."
   }
 
   relation "aws" "autoscaling" "block_device_mappings" {
@@ -48,6 +50,212 @@ resource "aws" "autoscaling" "launch_configurations" {
     column "no_device" {
       description = "Setting this value to true suppresses the specified device included in the block device mapping of the AMI."
     }
+  }
+}
+
+resource "aws" "codebuild" "projects" {
+  path = "github.com/aws/aws-sdk-go-v2/service/codebuild/types.Project"
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type        = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  options {
+    primary_keys = [
+      "arn"
+    ]
+  }
+  column "webhook_filter_groups" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "secondary_source_versions" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "tags" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  #  column "source_auth_type" {
+  #    skip = true
+  #  }
+  #
+  #  column "source_auth_resource" {
+  #    skip = true
+  #  }
+  #
+  #  relation "aws" "codebuild" "source_credentials" {
+  #    path = "github.com/aws/aws-sdk-go-v2/service/codebuild/types.SourceCredentialsInfo"
+  #  }
+}
+
+
+resource "aws" "autoscaling" "groups" {
+  path = "github.com/aws/aws-sdk-go-v2/service/autoscaling/types.AutoScalingGroup"
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type        = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  options {
+    primary_keys = [
+      "arn"
+    ]
+  }
+
+
+  column "auto_scaling_group_arn" {
+    rename = "arn"
+  }
+
+  column "auto_scaling_group_name" {
+    rename = "name"
+  }
+
+  column "target_group_arn_s" {
+    rename = "target_group_arns"
+  }
+
+  column "mixed_instances_policy" {
+    type = "json"
+  }
+
+  column "enabled_metrics" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "suspended_processes" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  userDefinedColumn "load_balancers" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  userDefinedColumn "load_balancer_target_groups" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  userDefinedColumn "notifications_configurations" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+
+  relation "aws" "autoscaling" "instances" {
+    path = "github.com/aws/aws-sdk-go-v2/service/autoscaling/types.Instance"
+
+    column "instance_id" {
+      rename = "id"
+    }
+
+    column "instance_type" {
+      rename = "type"
+    }
+  }
+
+
+  relation "aws" "autoscaling" "scaling_policies" {
+    path = "github.com/aws/aws-sdk-go-v2/service/autoscaling/types.ScalingPolicy"
+
+    column "policy_arn" {
+      rename = "arn"
+    }
+
+    column "policy_name" {
+      rename = "name"
+    }
+
+    column "policy_type" {
+      rename = "type"
+    }
+
+    column "alarms" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+    column "target_tracking_configuration_customized_metric_specification_dimensions" {
+      rename            = "target_tracking_configuration_customized_metric_dimensions"
+      type              = "json"
+      generate_resolver = true
+    }
+
+    column "target_tracking_configuration_customized_metric_specification_metric_name" {
+      rename = "target_tracking_configuration_customized_metric_name"
+    }
+    column "target_tracking_configuration_customized_metric_specification_namespace" {
+      rename = "target_tracking_configuration_customized_metric_namespace"
+    }
+    column "target_tracking_configuration_customized_metric_specification_statistic" {
+      rename = "target_tracking_configuration_customized_metric_statistic"
+    }
+    column "target_tracking_configuration_customized_metric_specification_unit" {
+      rename = "target_tracking_configuration_customized_metric_unit"
+    }
+    column "target_tracking_configuration_predefined_metric_specification_predefined_metric_type" {
+      rename = "target_tracking_configuration_predefined_metric_type"
+    }
+    column "target_tracking_configuration_predefined_metric_specification_resource_label" {
+      rename = "target_tracking_configuration_predefined_metric_resource_label"
+    }
+
+    column "step_adjustments" {
+      type              = "json"
+      generate_resolver = true
+    }
+  }
+
+  relation "aws" "autoscaling" "lifecycle_hooks" {
+    path = "github.com/aws/aws-sdk-go-v2/service/autoscaling/types.LifecycleHook"
   }
 }
 
