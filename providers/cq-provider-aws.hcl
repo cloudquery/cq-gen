@@ -5689,8 +5689,6 @@ resource "aws" "sagemaker" "training_jobs" {
     description       = "The Amazon Resource Name (ARN) of the Amazon SageMaker Ground Truth labeling job that created the transform or training job."
   }
 
-
-
   userDefinedColumn "profiling_status" {
     type              = "string"
     generate_resolver = false
@@ -5733,6 +5731,11 @@ resource "aws" "sagemaker" "training_jobs" {
 
   relation "aws" "sagemaker" "training_job_algorithm_specification" {
     path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.AlgorithmSpecification"
+
+    column "metric_definitions" {
+      type              = "json"
+      generate_resolver = true
+    }
   }
 
   userDefinedColumn "checkpoint_config" {
@@ -5743,6 +5746,11 @@ resource "aws" "sagemaker" "training_jobs" {
 
   relation "aws" "sagemaker" "training_job_debug_hook_config" {
     path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.DebugHookConfig"
+
+    column "collection_configurations" {
+      type              = "json"
+      generate_resolver = true
+    }
   }
 
   relation "aws" "sagemaker" "training_job_debug_rule_configurations" {
