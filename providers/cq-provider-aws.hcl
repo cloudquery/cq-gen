@@ -793,6 +793,81 @@ resource "aws" "directconnect" "virtual_gateways" {
   }
 }
 
+resource "aws" "dms" "replication_instances" {
+  path = "github.com/aws/aws-sdk-go-v2/service/databasemigrationservice/types.ReplicationInstance"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    type        = "string"
+    description = "The AWS Account ID of the resource."
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+
+  userDefinedColumn "region" {
+    type        = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  column "pending_modified_values_replication_instance_class" {
+    rename = "pending_modified_values_class"
+  }
+
+  column "replication_instance_arn" {
+    rename = "arn"
+  }
+
+  column "replication_instance_class" {
+    rename = "class"
+  }
+
+  column "replication_instance_identifier" {
+    rename = "identifier"
+  }
+
+  column "replication_instance_private_ip_address" {
+    type = "inet"
+    resolver "Resolver" {
+      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.IPAddressResolver"
+      path_resolver = true
+    }
+  }
+
+  column "replication_instance_private_ip_addresses" {
+    type = "inetrarray"
+    generate_resolver = true
+  }
+
+  column "replication_instance_public_ip_address" {
+    type = "inet"
+    resolver "Resolver" {
+      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.IPAddressResolver"
+      path_resolver = true
+    }
+  }
+
+  column "replication_instance_public_ip_addresses" {
+    type = "inetrarray"
+    generate_resolver = true
+  }
+
+  column "replication_instance_status" {
+    rename = "status"
+  }
+}
+
 resource "aws" "ec2" "images" {
   path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Image"
   ignoreError "IgnoreAccessDenied" {
