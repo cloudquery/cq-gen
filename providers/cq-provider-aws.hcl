@@ -5773,8 +5773,9 @@ resource "aws" "sagemaker" "training_jobs" {
     description       = "Associates a SageMaker job as a trial component with an experiment and trial."
   }
 
-  relation "aws" "sagemaker" "training_job_final_metric_data_list" {
-    path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.MetricData"
+  userDefinedColumn "final_metric_data_list" {
+    type              = "json"
+    generate_resolver = true
   }
 
   userDefinedColumn "hyper_parameters" {
@@ -5785,6 +5786,38 @@ resource "aws" "sagemaker" "training_jobs" {
 
   relation "aws" "sagemaker" "training_job_input_data_config" {
     path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.Channel"
+
+    column "data_source_file_system_data_source_directory_path" {
+      rename = "data_source_file_directory_path"
+    }
+
+    column "data_source_file_system_data_source_file_system_access_mode" {
+      rename = "data_source_file_system_access_mode"
+    }
+
+    column "data_source_file_system_data_source_file_system_id" {
+      rename = "data_source_file_system_id"
+    }
+
+    column "data_source_file_system_data_source_file_system_type" {
+      rename = "data_source_file_system_type"
+    }
+
+    column "data_source_s3_data_source_s3_data_type" {
+      rename = "data_source_s3_data_type"
+    }
+
+    column "data_source_s3_data_source_s3_uri" {
+      rename = "data_source_s3_uri"
+    }
+
+    column "data_source_s3_data_source_attribute_names" {
+      rename = "data_source_attribute_names"
+    }
+
+    column "data_source_s3_data_source_s3_data_distribution_type" {
+      rename = "data_source_s3_data_distribution_type"
+    }
   }
 
   userDefinedColumn "model_artifacts" {
@@ -5819,8 +5852,9 @@ resource "aws" "sagemaker" "training_jobs" {
     description       = "Resources, including ML compute instances and ML storage volumes, that are configured for model training."
   }
 
-  relation "aws" "sagemaker" "training_job_secondary_status_transitions" {
-    path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.SecondaryStatusTransition"
+  userDefinedColumn "secondary_status_transitions" {
+    type              = "json"
+    generate_resolver = true
   }
 
   userDefinedColumn "stopping_condition" {
