@@ -7,7 +7,7 @@ require (
 	github.com/cloudquery/cq-provider-aws v0.3.1
 	//github.com/cloudquery/cq-provider-azure v0.3.1
 	//github.com/cloudquery/cq-provider-okta v0.1.1
-	github.com/cloudquery/cq-provider-sdk v0.5.1
+	github.com/cloudquery/cq-provider-sdk v0.5.2
 	github.com/creasty/defaults v1.5.2
 	github.com/getkin/kin-openapi v0.81.0
 	github.com/hashicorp/go-hclog v1.0.0

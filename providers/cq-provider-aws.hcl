@@ -100,17 +100,99 @@ resource "aws" "codebuild" "projects" {
     generate_resolver = true
   }
 
-  #  column "source_auth_type" {
-  #    skip = true
-  #  }
-  #
-  #  column "source_auth_resource" {
-  #    skip = true
-  #  }
-  #
-  #  relation "aws" "codebuild" "source_credentials" {
-  #    path = "github.com/aws/aws-sdk-go-v2/service/codebuild/types.SourceCredentialsInfo"
-  #  }
+  column "tags" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "aws" "dms" "replication_instances" {
+  path = "github.com/aws/aws-sdk-go-v2/service/databasemigrationservice/types.ReplicationInstance"
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type        = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  options {
+    primary_keys = [
+      "arn"
+    ]
+  }
+
+  column "replication_instance_arn" {
+    rename = "arn"
+  }
+  column "replication_instance_class" {
+    rename = "class"
+  }
+  column "replication_instance_identifier" {
+    rename = "identifier"
+  }
+  column "replication_instance_private_ip_address" {
+    rename            = "private_ip_address"
+    type              = "inet"
+    generate_resolver = true
+  }
+  column "replication_instance_private_ip_addresses" {
+    rename            = "private_ip_addresses"
+    type              = "InetArray"
+    generate_resolver = true
+  }
+  column "replication_instance_public_ip_address" {
+    rename            = "public_ip_address"
+    type              = "inet"
+    generate_resolver = true
+  }
+  column "replication_instance_public_ip_addresses" {
+    rename            = "public_ip_addresses"
+    type              = "InetArray"
+    generate_resolver = true
+  }
+  column "replication_instance_status" {
+    rename = "status"
+  }
+
+  column "replication_subnet_group_subnets" {
+    rename = "group_subnets"
+  }
+
+  column "replication_subnet_group_subnet_group_status" {
+    rename = "replication_subnet_group_status"
+  }
+
+  column "vpc_security_groups" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "public_ip_address" {
+    skip = true
+  }
+
+  column "private_ip_address" {
+    skip = true
+  }
 }
 
 
@@ -1714,6 +1796,176 @@ resource "aws" "ecr" "repositories" {
   }
 }
 
+resource "aws" "ecs" "task_definitions" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.TaskDefinition"
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type        = "string"
+    description = "The AWS Account ID of the resource."
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type        = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  options {
+    primary_keys = [
+      "arn"
+    ]
+  }
+  column "task_definition_arn" {
+    rename = "arn"
+  }
+  userDefinedColumn "tags" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "inference_accelerators" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "placement_constraints" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "proxy_configuration_properties" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  relation "aws" "ecs" "container_definitions" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.ContainerDefinition"
+
+    column "repository_credentials_credentials_parameter" {
+      rename = "repository_credentials_parameter"
+    }
+    column "depends_on" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "environment" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "environment_files" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "extra_hosts" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "log_configuration_secret_options" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "resource_requirements" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "secrets" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "system_controls" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "volumes_from" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "volumes_from" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+    column "linux_parameters_devices" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "linux_parameters_tmpfs" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "mount_points" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "port_mappings" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "ulimits" {
+      type              = "json"
+      generate_resolver = true
+    }
+  }
+  relation "aws" "ecs" "volumes" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.Volume"
+
+    column "docker_volume_configuration_autoprovision" {
+      rename = "docker_autoprovision"
+    }
+    column "docker_volume_configuration_driver" {
+      rename = "docker_driver"
+    }
+    column "docker_volume_configuration_driver_opts" {
+      rename = "docker_driver_opts"
+    }
+    column "docker_volume_configuration_labels" {
+      rename = "docker_labels"
+    }
+    column "docker_volume_configuration_scope" {
+      rename = "docker_scope"
+    }
+
+    column "efs_volume_configuration_file_system_id" {
+      rename = "efs_file_system_id"
+    }
+    column "efs_volume_configuration_authorization_config_access_point_id" {
+      rename = "efs_authorization_config_access_point_id"
+    }
+    column "efs_volume_configuration_authorization_config_iam" {
+      rename = "efs_authorization_config_iam"
+    }
+    column "efs_volume_configuration_root_directory" {
+      rename = "efs_root_directory"
+    }
+    column "efs_volume_configuration_transit_encryption_port" {
+      rename = "efs_transit_encryption_port"
+    }
+
+    column "fsx_windows_file_server_volume_configuration_authorization_config_credentials_parameter" {
+      rename = "fsx_wfs_authorization_config_credentials_parameter"
+    }
+    column "fsx_windows_file_server_volume_configuration_authorization_config_domain" {
+      rename = "fsx_wfs_authorization_config_domain"
+    }
+    column "fsx_windows_file_server_volume_configuration_file_system_id" {
+      rename = "fsx_wfs_file_system_id"
+    }
+    column "fsx_windows_file_server_volume_configuration_root_directory" {
+      rename = "fsx_wfs_root_directory"
+    }
+  }
+}
+
 resource "aws" "ecs" "clusters" {
   path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.Cluster"
   ignoreError "IgnoreAccessDenied" {
@@ -1749,16 +2001,12 @@ resource "aws" "ecs" "clusters" {
   column "configuration" {
     skip_prefix = true
   }
-
-
   column "cluster_arn" {
     rename = "arn"
   }
-
   column "cluster_name" {
     rename = "name"
   }
-
   column "execute_command_configuration_kms_key_id" {
     rename = "execute_config_kms_key_id"
   }
@@ -1780,22 +2028,15 @@ resource "aws" "ecs" "clusters" {
   column "execute_command_configuration_logging" {
     rename = "execute_config_logging"
   }
-
-
   column "settings" {
-    // TypeJson
     type              = "json"
     generate_resolver = true
   }
-
   column "statistics" {
-    // TypeJson
     type              = "json"
     generate_resolver = true
   }
-
   column "tags" {
-    // TypeJson
     type              = "json"
     generate_resolver = true
   }
