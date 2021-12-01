@@ -5470,3 +5470,100 @@ resource "aws" "iot" "certificates" {
 
 
 
+resource "aws" "elasticbeanstalk" "applications" {
+  path = "github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk/types.ApplicationDescription"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+  options {
+    primary_keys = ["arn", "date_created"]
+  }
+
+  column "application_arn" {
+    rename = "arn"
+  }
+  column "application_name" {
+    rename = "name"
+  }
+}
+
+
+
+resource "aws" "elasticbeanstalk" "configuration_settings" {
+  path = "github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk/types.ConfigurationSettingsDescription"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+  options {
+    primary_keys = ["application_name","date_created"]
+  }
+
+}
+
+
+resource "aws" "elasticbeanstalk" "configuration_options" {
+  path = "github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk/types.ConfigurationOptionDescription"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+}
