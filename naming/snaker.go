@@ -164,6 +164,7 @@ var commonInitialisms = map[string]bool{
 	"URN":   true,
 	"CORS":  true,
 	"CNAME": true,
+	"SSE":   true,
 }
 
 // add exceptions here for things that are not automatically convertable

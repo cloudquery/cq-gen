@@ -3,11 +3,15 @@ module github.com/cloudquery/cq-gen
 go 1.15
 
 require (
+	github.com/aws/aws-sdk-go-v2/service/acm v1.9.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.10.0
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.16.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/route53domains v1.6.0 // indirect
 	github.com/cloudquery/cq-provider-aws v0.6.1
 	github.com/cloudquery/cq-provider-azure v0.2.2
 	github.com/cloudquery/cq-provider-gcp v0.3.2
 	github.com/cloudquery/cq-provider-okta v0.1.1
-	github.com/cloudquery/cq-provider-sdk v0.5.1
+	github.com/cloudquery/cq-provider-sdk v0.5.2
 	github.com/creasty/defaults v1.5.2
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/hashicorp/go-hclog v1.0.0

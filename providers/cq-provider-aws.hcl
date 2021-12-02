@@ -1,6 +1,188 @@
 service          = "aws"
 
-output_directory = "../forks/cq-provider-aws/resources"
+output_directory = "../cq-provider-aws/resources"
+
+resource "aws" "dynamodb" "tables" {
+  path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.TableDescription"
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type        = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+  userDefinedColumn "tags" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "sse_description" {
+    skip_prefix = true
+  }
+  column "status" {
+    rename = "sse_status"
+  }
+
+  column "attribute_definitions" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "key_schema" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "billing_mode_summary" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "archival_summary" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "restore_summary" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "stream_specification" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "table_arn" {
+    rename = "arn"
+  }
+  column "table_name" {
+    rename = "name"
+  }
+  column "table_id" {
+    rename = "id"
+  }
+
+  relation "aws" "dynamodb" "replica_auto_scaling" {
+    path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.ReplicaAutoScalingDescription"
+
+    column "replica_provisioned_read_capacity_auto_scaling_settings" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+    column "replica_provisioned_write_capacity_auto_scaling_settings" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+    relation "aws" "dynamodb" "replica_auto_scaling_global_secondary_indexes" {
+      path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.ReplicaGlobalSecondaryIndexAutoScalingDescription"
+
+      column "provisioned_read_capacity_auto_scaling_settings" {
+        type              = "json"
+        generate_resolver = true
+      }
+
+      column "provisioned_write_capacity_auto_scaling_settings" {
+        type              = "json"
+        generate_resolver = true
+      }
+    }
+  }
+
+  relation "aws" "dynamodb" "global_secondary_indexes" {
+    path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.GlobalSecondaryIndexDescription"
+
+    column "key_schema" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+    column "index_arn" {
+      rename = "arn"
+    }
+    column "index_name" {
+      rename = "name"
+    }
+    column "index_status" {
+      rename = "status"
+    }
+  }
+
+  relation "aws" "dynamodb" "local_secondary_indexes" {
+    path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.LocalSecondaryIndexDescription"
+
+    column "key_schema" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+    column "index_arn" {
+      rename = "arn"
+    }
+    column "index_name" {
+      rename = "name"
+    }
+    column "index_status" {
+      rename = "status"
+    }
+  }
+
+  relation "aws" "dynamodb" "table_replicas" {
+    path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.ReplicaDescription"
+
+    column "global_secondary_indexes" {
+      type              = "json"
+      generate_resolver = true
+    }
+  }
+
+}
+
+resource "aws" "dax" "clusters" {
+  path = "github.com/aws/aws-sdk-go-v2/service/dax/types.Cluster"
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type        = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+  userDefinedColumn "tags" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "parameter_group" {
+    skip_prefix = true
+  }
+
+  column "cluster_arn" {
+    rename = "arn"
+  }
+  column "cluster_name" {
+    rename = "name"
+  }
+
+  column "security_groups" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
 
 resource "aws" "autoscaling" "launch_configurations" {
   path = "github.com/aws/aws-sdk-go-v2/service/autoscaling/types.LaunchConfiguration"
