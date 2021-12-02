@@ -22,6 +22,19 @@ resource "aws" "dynamodb" "tables" {
   userDefinedColumn "tags" {
     type              = "json"
     generate_resolver = true
+    description = "The tags associated with the table."
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  options {
+    primary_keys = [
+      "arn"
+    ]
   }
 
   column "sse_description" {
@@ -165,6 +178,19 @@ resource "aws" "dax" "clusters" {
   userDefinedColumn "tags" {
     type              = "json"
     generate_resolver = true
+    description = "The tags associated with the cluster."
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  options {
+    primary_keys = [
+      "arn"
+    ]
   }
 
   column "parameter_group" {
