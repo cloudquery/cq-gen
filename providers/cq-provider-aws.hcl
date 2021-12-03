@@ -3,7 +3,7 @@ service          = "aws"
 output_directory = "../cq-provider-aws/resources"
 
 resource "aws" "dynamodb" "tables" {
-  path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.TableDescription"
+  path        = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.TableDescription"
   description = "Information about a DynamoDB table."
 
   userDefinedColumn "account_id" {
@@ -23,7 +23,7 @@ resource "aws" "dynamodb" "tables" {
   userDefinedColumn "tags" {
     type              = "json"
     generate_resolver = true
-    description = "The tags associated with the table."
+    description       = "The tags associated with the table."
   }
   multiplex "AwsAccountRegion" {
     path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
@@ -159,6 +159,13 @@ resource "aws" "dynamodb" "tables" {
     }
   }
 
+  relation "aws" "dynamodb" "continuous_backups" {
+    path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.ContinuousBackupsDescription"
+
+    column "point_in_time_recovery_description" {
+      skip_prefix = true
+    }
+  }
 }
 
 resource "aws" "dax" "clusters" {
