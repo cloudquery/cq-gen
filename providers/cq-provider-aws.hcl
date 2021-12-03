@@ -81,6 +81,18 @@ resource "aws" "dynamodb" "tables" {
   column "table_id" {
     rename = "id"
   }
+  column "table_size_bytes" {
+    rename = "size_bytes"
+  }
+  column "table_status" {
+    rename = "status"
+  }
+  column "table_class_summary_last_update_date_time" {
+    rename = "table_class_last_update"
+  }
+  column "table_class_summary_table_class" {
+    rename = "table_class"
+  }
 
   relation "aws" "dynamodb" "replica_auto_scaling" {
     path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.ReplicaAutoScalingDescription"
