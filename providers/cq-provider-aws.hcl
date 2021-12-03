@@ -4,6 +4,7 @@ output_directory = "../cq-provider-aws/resources"
 
 resource "aws" "dynamodb" "tables" {
   path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.TableDescription"
+  description = "Information about a DynamoDB table."
 
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
@@ -85,28 +86,22 @@ resource "aws" "dynamodb" "tables" {
     path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.ReplicaAutoScalingDescription"
 
     column "replica_provisioned_read_capacity_auto_scaling_settings" {
+      rename            = "read_capacity"
       type              = "json"
       generate_resolver = true
     }
 
     column "replica_provisioned_write_capacity_auto_scaling_settings" {
+      rename            = "write_capacity"
       type              = "json"
       generate_resolver = true
     }
 
-    relation "aws" "dynamodb" "replica_auto_scaling_global_secondary_indexes" {
-      path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.ReplicaGlobalSecondaryIndexAutoScalingDescription"
-
-      column "provisioned_read_capacity_auto_scaling_settings" {
-        type              = "json"
-        generate_resolver = true
-      }
-
-      column "provisioned_write_capacity_auto_scaling_settings" {
-        type              = "json"
-        generate_resolver = true
-      }
+    column "global_secondary_indexes" {
+      type              = "json"
+      generate_resolver = true
     }
+
   }
 
   relation "aws" "dynamodb" "global_secondary_indexes" {
@@ -154,12 +149,21 @@ resource "aws" "dynamodb" "tables" {
       type              = "json"
       generate_resolver = true
     }
+
+    column "replica_table_class_summary_last_update_date_time" {
+      rename = "summary_last_update_date_time"
+    }
+
+    column "replica_table_class_summary_table_class" {
+      rename = "summary_table_class"
+    }
   }
 
 }
 
 resource "aws" "dax" "clusters" {
   path = "github.com/aws/aws-sdk-go-v2/service/dax/types.Cluster"
+  description = "Information about a DAX cluster."
 
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
