@@ -2,6 +2,69 @@ service          = "aws"
 
 output_directory = "../cq-provider-aws/resources"
 
+resource "aws" "applicationautoscaling" "policies" {
+  path        = "github.com/aws/aws-sdk-go-v2/service/applicationautoscaling/types.ScalingPolicy"
+  description =  "Information about a scaling policy to use with Application Auto Scaling"
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type        = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+  userDefinedColumn "namespace" {
+    type        = "string"
+    description = "The AWS Service Namespace of the resource."
+    resolver "resolveAWSNamespace" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSNamespace"
+    }
+  }
+
+  multiplex "AwsAccountRegionNamespace" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionNamespaceMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  options {
+    primary_keys = [
+      "arn"
+    ]
+  }
+
+  column "policy_arn" {
+    rename = "arn"
+  }
+  column "policy_name" {
+    rename = "name"
+  }
+
+  column "step_scaling_policy_configuration" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "target_tracking_scaling_policy_configuration" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "alarms" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+}
+
 resource "aws" "dynamodb" "tables" {
   path        = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.TableDescription"
   description = "Information about a DynamoDB table."

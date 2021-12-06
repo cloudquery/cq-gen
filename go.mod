@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/aws/aws-sdk-go-v2/service/acm v1.9.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.10.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.10.0
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.16.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/route53domains v1.6.0 // indirect
