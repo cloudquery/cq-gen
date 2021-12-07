@@ -47,6 +47,9 @@ resource "aws" "applicationautoscaling" "policies" {
   column "policy_name" {
     rename = "name"
   }
+  column "policy_type" {
+    rename = "type"
+  }
 
   column "step_scaling_policy_configuration" {
     type              = "json"
