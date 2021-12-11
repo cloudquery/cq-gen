@@ -25,6 +25,7 @@ func Test_Generate(t *testing.T) {
 		{Name: "simple", Config: "./tests/base.hcl", Domain: "base", ResourceName: "simple", ExpectedOutput: "./tests/expected/base_simple.go"},
 		{Name: "complex", Config: "./tests/base.hcl", Domain: "base", ResourceName: "complex", ExpectedOutput: "./tests/expected/base_complex.go"},
 		{Name: "relations", Config: "./tests/base.hcl", Domain: "base", ResourceName: "relations", ExpectedOutput: "./tests/expected/base_relations.go"},
+		{Name: "resolvers", Config: "./tests/resolvers.hcl", Domain: "resolvers", ResourceName: "resolvers", ExpectedOutput: "./tests/expected/resolvers_resolvers.go"},
 		{Name: "user_defined_simple", Config: "./tests/user_defined.hcl", Domain: "user_defined", ResourceName: "simple", ExpectedOutput: "./tests/expected/user_defined_simple.go"},
 		{Name: "user_defined_resolvers", Config: "./tests/user_defined.hcl", Domain: "user_defined", ResourceName: "resolvers", ExpectedOutput: "./tests/expected/user_defined_resolvers.go"},
 	}
