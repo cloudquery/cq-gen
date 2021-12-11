@@ -2,10 +2,11 @@ package codegen
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/naming"
 	"github.com/jinzhu/inflection"
-	"strings"
 )
 
 func GetColumnName(fieldName string, meta BuildMeta) string {

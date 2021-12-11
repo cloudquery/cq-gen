@@ -2,8 +2,9 @@ package code
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"go/types"
+
+	"github.com/pkg/errors"
 )
 
 var MapType = types.NewMap(types.Typ[types.String], types.NewInterfaceType(nil, nil).Complete())

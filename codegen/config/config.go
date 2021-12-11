@@ -2,10 +2,11 @@ package config
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/creasty/defaults"
 	"github.com/hashicorp/hcl/v2/hclsimple"
-	"strings"
 )
 
 type Config struct {
@@ -92,7 +93,8 @@ type FunctionConfig struct {
 	Path string `hcl:"path"`
 	// Generate tells cq-gen to create the function code in template, usually set automatically.
 	// Setting to true will force function generation in template.
-	Generate     bool `hcl:"generate,optional"`
+	Generate bool `hcl:"generate,optional"`
+	// PathResolver defines this function to be called the FieldPath traversed, this is used by generic functions
 	PathResolver bool `hcl:"path_resolver,optional"`
 }
 

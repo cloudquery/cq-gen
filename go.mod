@@ -1,10 +1,10 @@
 module github.com/cloudquery/cq-gen
 
-go 1.15
+go 1.16
 
 require (
-	github.com/cloudquery/cq-provider-k8s v0.0.0-00010101000000-000000000000
-	github.com/cloudquery/cq-provider-sdk v0.5.1
+	github.com/cloudquery/cq-provider-aws v0.6.4
+	github.com/cloudquery/cq-provider-sdk v0.5.4
 	github.com/creasty/defaults v1.5.2
 	github.com/getkin/kin-openapi v0.80.0
 	github.com/hashicorp/go-hclog v1.0.0
@@ -21,6 +21,7 @@ require (
 	github.com/Masterminds/squirrel v1.5.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/guardduty v1.7.1 // indirect
 	github.com/cloudquery/faker/v3 v3.7.5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/doug-martin/goqu/v9 v9.17.0 // indirect
@@ -80,16 +81,12 @@ require (
 	go.uber.org/atomic v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
 	golang.org/x/mod v0.4.2 // indirect
-	golang.org/x/net v0.0.0-20210520170846-37e1c6afe023 // indirect
 	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20210927094055-39ccf1dd6fa6 // indirect
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d // indirect
 	golang.org/x/text v0.3.6 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	google.golang.org/genproto v0.0.0-20211005153810-c76a74d43a8e // indirect
-	google.golang.org/grpc v1.41.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -105,4 +102,4 @@ require (
 
 // Note: add replace for your local provider so cq-gen rewriter will work properlly
 //github.com/cloudquery/cq-provider-azure => ../cq-provider-azure
-replace github.com/cloudquery/cq-provider-k8s => ../cq-provider-k8s
+replace github.com/cloudquery/cq-provider-aws v0.6.4 => ../forks/cq-provider-aws

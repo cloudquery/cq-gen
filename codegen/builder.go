@@ -2,6 +2,11 @@ package codegen
 
 import (
 	"fmt"
+	"go/types"
+	"os"
+	"path"
+	"strings"
+
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/codegen/source"
@@ -12,10 +17,6 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
-	"go/types"
-	"os"
-	"path"
-	"strings"
 )
 
 const defaultImplementation = `panic("not implemented")`
@@ -257,7 +258,7 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 		table.Columns = append(table.Columns, colDef)
 	default:
 		colDef.Type = valueType
-		tb.addPathResolver(field, &colDef, nil, meta)
+		tb.addPathResolver(field.Name(), &colDef, nil, meta)
 		table.Columns = append(table.Columns, colDef)
 	}
 	return nil
@@ -271,12 +272,14 @@ func (tb TableBuilder) addUserDefinedColumns(table *TableDefinition, resource *c
 			Description: uc.Description,
 			Type:        schema.ValueTypeFromString(uc.Type),
 		}
+
+		if uc.Resolver != nil && uc.GenerateResolver {
+			return fmt.Errorf("can't set resolver with generate resolver flag set to true")
+		}
+		// if we were requested to generate a resolver we create the resolver with the implementation
 		if uc.GenerateResolver {
-			if uc.Resolver != nil {
-				tb.log.Warn("overriding already defined column resolver", "column", uc.Name, "resolver", uc.Resolver.Name)
-			}
 			columnResolver, err := tb.buildResolverDefinition(table, &config.FunctionConfig{
-				Name:     fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(uc.Name)),
+				Name:     template.ToGo(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(uc.Name))),
 				Body:     defaultImplementation,
 				Path:     path.Join(sdkPath, "provider/schema.ColumnResolver"),
 				Generate: true,
@@ -285,12 +288,37 @@ func (tb TableBuilder) addUserDefinedColumns(table *TableDefinition, resource *c
 				return err
 			}
 			colDef.Resolver = columnResolver
-		} else if uc.Resolver != nil {
+			table.Columns = append(table.Columns, colDef)
+			continue
+		}
+
+		if uc.Resolver == nil {
+			tb.log.Debug("no resolver set and generate resolver was false", "table", table.TableName, "column", uc.Name)
+			table.Columns = append(table.Columns, colDef)
+			continue
+		}
+		if uc.Resolver.Body != "" {
+			columnResolver, err := tb.buildResolverDefinition(table, &config.FunctionConfig{
+				Name:     template.ToGo(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(uc.Name))),
+				Body:     uc.Resolver.Body,
+				Path:     path.Join(sdkPath, "provider/schema.ColumnResolver"),
+				Generate: true,
+			})
+			if err != nil {
+				return err
+			}
+			colDef.Resolver = columnResolver
+		} else {
 			ro, err := tb.finder.FindObjectFromName(uc.Resolver.Path)
 			if err != nil {
 				return fmt.Errorf("user defined column %s requires resolver definition %w", uc.Name, err)
 			}
-			colDef.Resolver = &ResolverDefinition{Type: ro}
+			// if the resolver is a path resolver
+			if uc.Resolver.PathResolver {
+				tb.addPathResolver(template.ToGo(uc.Name), &colDef, ro, BuildMeta{})
+			} else {
+				colDef.Resolver = &ResolverDefinition{Type: ro}
+			}
 		}
 		table.Columns = append(table.Columns, colDef)
 	}
@@ -346,7 +374,7 @@ func (tb TableBuilder) SetColumnResolver(tableDef *TableDefinition, field source
 			return err
 		}
 		if cfg.Resolver.Path != "" && cfg.Resolver.PathResolver {
-			tb.addPathResolver(field, colDef, ro, meta)
+			tb.addPathResolver(field.Name(), colDef, ro, meta)
 		} else {
 			colDef.Resolver = &ResolverDefinition{
 				Type: ro,
@@ -355,7 +383,7 @@ func (tb TableBuilder) SetColumnResolver(tableDef *TableDefinition, field source
 	}
 	if cfg.Rename != "" {
 		colDef.Name = cfg.Rename
-		tb.addPathResolver(field, colDef, nil, meta)
+		tb.addPathResolver(field.Name(), colDef, nil, meta)
 	}
 	if cfg.GenerateResolver {
 		if colDef.Resolver != nil {
@@ -378,7 +406,7 @@ func (tb TableBuilder) SetColumnResolver(tableDef *TableDefinition, field source
 	return nil
 }
 
-func (tb TableBuilder) addPathResolver(field source.Object, definition *ColumnDefinition, funcObj types.Object, meta BuildMeta) {
+func (tb TableBuilder) addPathResolver(fieldName string, definition *ColumnDefinition, funcObj types.Object, meta BuildMeta) {
 	if definition.Resolver != nil {
 		return
 	}
@@ -387,21 +415,21 @@ func (tb TableBuilder) addPathResolver(field source.Object, definition *ColumnDe
 		signatureName = fmt.Sprintf("%s.%s", funcObj.Pkg().Name(), funcObj.Name())
 	}
 	if meta.FieldPath != "" {
-		tb.log.Debug("Adding embedded resolver path", "column", strcase.ToCamel(definition.Name), "field", field.Name())
+		tb.log.Debug("Adding embedded resolver path", "column", strcase.ToCamel(definition.Name), "field", fieldName)
 		definition.Resolver = &ResolverDefinition{
 			Type:      funcObj,
-			Signature: fmt.Sprintf("%s(\"%s.%s\")", signatureName, meta.FieldPath, field.Name()),
+			Signature: fmt.Sprintf("%s(\"%s.%s\")", signatureName, meta.FieldPath, fieldName),
 		}
 		return
 	}
 	// use strcase here since sdk uses it and we didn't get a user defined path resolver
-	if strcase.ToCamel(definition.Name) == field.Name() && funcObj == nil {
+	if strcase.ToCamel(definition.Name) == fieldName && funcObj == nil {
 		return
 	}
-	tb.log.Debug("Adding path resolver column name. camelCase is not same as original field name", "column", strcase.ToCamel(definition.Name), "field", field.Name())
+	tb.log.Debug("Adding path resolver column name. camelCase is not same as original field name", "column", strcase.ToCamel(definition.Name), "field", fieldName)
 	definition.Resolver = &ResolverDefinition{
 		Type:      funcObj,
-		Signature: fmt.Sprintf("%s(\"%s\")", signatureName, field.Name()),
+		Signature: fmt.Sprintf("%s(\"%s\")", signatureName, fieldName),
 	}
 	return
 }
