@@ -2,14 +2,13 @@ package output
 
 import (
 	"context"
-
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func Bases() *schema.Table {
+func BaseSimples() *schema.Table {
 	return &schema.Table{
-		Name:     "test_base",
-		Resolver: fetchBases,
+		Name:     "test_base_simple",
+		Resolver: fetchBaseSimples,
 		Columns: []schema.Column{
 			{
 				Name: "int_value",
@@ -32,6 +31,6 @@ func Bases() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchBases(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchBaseSimples(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
 	panic("not implemented")
 }

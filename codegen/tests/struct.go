@@ -23,3 +23,17 @@ type ComplexStruct struct {
 	// Comments written as descriptions on fields are show as descriptions
 	Json map[string]interface{}
 }
+
+type RelationStruct struct {
+	Int64Value  int64
+	String      string
+	StringArray []string
+	SomeBases   []BaseStruct
+	Inner       RelationalRelation
+	Relations   []RelationalRelation
+}
+
+type RelationalRelation struct {
+	EmbeddedString string
+	SomeBases      []BaseStruct
+}

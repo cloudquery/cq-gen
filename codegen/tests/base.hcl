@@ -9,3 +9,7 @@ resource "test" "base" "simple" {
 resource "test" "base" "complex" {
   path = "github.com/cloudquery/cq-gen/codegen/tests.ComplexStruct"
 }
+
+resource "test" "base" "relations" {
+  path = "github.com/cloudquery/cq-gen/codegen/tests.RelationStruct"
+}
