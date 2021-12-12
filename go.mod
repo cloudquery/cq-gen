@@ -18,6 +18,7 @@ require (
 )
 
 require (
+	github.com/cloudquery/cq-provider-aws v0.6.4
 	github.com/Masterminds/squirrel v1.5.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
@@ -84,7 +85,6 @@ require (
 	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d // indirect
-	golang.org/x/text v0.3.6 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
@@ -99,7 +99,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.1.2 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
-
-// Note: add replace for your local provider so cq-gen rewriter will work properlly
-//github.com/cloudquery/cq-provider-azure => ../cq-provider-azure
-replace github.com/cloudquery/cq-provider-aws v0.6.4 => ../forks/cq-provider-aws
