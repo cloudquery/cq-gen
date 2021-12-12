@@ -8,11 +8,7 @@ on:
 
 jobs:
   unitests:
-    strategy:
-      matrix:
-        go: ['1.16']
-        platform: [ ubuntu-latest]
-    runs-on: ${{ matrix.platform }}
+    runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.x
         uses: actions/setup-go@v2
