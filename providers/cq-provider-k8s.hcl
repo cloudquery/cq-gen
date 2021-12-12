@@ -1,4 +1,4 @@
-service = "k8s"
+service          = "k8s"
 output_directory = "../cq-provider-k8s/resources"
 
 #description_source "openapi" {
@@ -29,12 +29,12 @@ resource "k8s" "core" "namespaces" {
   }
 
   column "owner_references" {
-    type = "json"
+    type              = "json"
     generate_resolver = true
   }
 
   column "managed_fields" {
-    type = "json"
+    type              = "json"
     generate_resolver = true
   }
 
@@ -45,8 +45,8 @@ resource "k8s" "core" "namespaces" {
     rename = "phase"
   }
   column "status_conditions" {
-    type = "json"
-    rename = "conditions"
+    type              = "json"
+    rename            = "conditions"
     generate_resolver = true
   }
 
@@ -56,11 +56,11 @@ resource "k8s" "core" "namespaces" {
     }
     path = "k8s.io/apimachinery/pkg/apis/meta/v1.OwnerReference"
 
-    resolver "OwnerReferenceResolver"{
+    resolver "OwnerReferenceResolver" {
       path = "github.com/cloudquery/cq-provider-k8s/client.OwnerReferenceResolver"
     }
     userDefinedColumn "resource_uid" {
-      type = "string"
+      type        = "string"
       description = "resources this owner object references"
     }
     column "uid" {
@@ -70,11 +70,293 @@ resource "k8s" "core" "namespaces" {
 
 }
 
-resource "k8s" "core" "nodes" {
-  path = "k8s.io/api/core/v1.Node"
+
+resource "k8s" "apps" "deployments" {
+  path = "k8s.io/api/apps/v1.Deployment"
+
+  multiplex "ContextMultiplex" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
+  }
+  deleteFilter "DeleteContextFilter" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
+  }
 
   options {
     primary_keys = ["uid"]
+  }
+
+  column "object_meta" {
+    skip_prefix = true
+  }
+  column "type_meta" {
+    skip_prefix = true
+  }
+  column "spec" {
+    skip_prefix = true
+  }
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "template" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "k8s" "batch" "cron_jobs" {
+  path = "k8s.io/api/batch/v1.CronJob"
+
+  multiplex "ContextMultiplex" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
+  }
+  deleteFilter "DeleteContextFilter" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
+  }
+
+  options {
+    primary_keys = ["uid"]
+  }
+
+  column "object_meta" {
+    skip_prefix = true
+  }
+
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "spec" {
+    skip_prefix = true
+  }
+
+  column "type_meta" {
+    skip = true
+  }
+
+  column "job_template" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+
+  column "status" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "k8s" "batch" "jobs" {
+  path = "k8s.io/api/batch/v1.Job"
+
+  multiplex "ContextMultiplex" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
+  }
+  deleteFilter "DeleteContextFilter" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
+  }
+
+  options {
+    primary_keys = ["uid"]
+  }
+
+  column "object_meta" {
+    skip_prefix = true
+  }
+
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "spec" {
+    skip_prefix = true
+  }
+
+  column "type_meta" {
+    skip = true
+  }
+
+  column "template" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "k8s" "apps" "daemon_sets" {
+  path = "k8s.io/api/apps/v1.DaemonSet"
+
+  multiplex "ContextMultiplex" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
+  }
+  deleteFilter "DeleteContextFilter" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
+  }
+
+  options {
+    primary_keys = ["uid"]
+  }
+
+  column "object_meta" {
+    skip_prefix = true
+  }
+
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+
+  column "spec" {
+    skip_prefix = true
+  }
+
+  column "type_meta" {
+    skip = true
+  }
+
+  column "template" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "k8s" "apps" "replica_sets" {
+  path = "k8s.io/api/apps/v1.ReplicaSet"
+
+  multiplex "ContextMultiplex" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
+  }
+  deleteFilter "DeleteContextFilter" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
+  }
+
+  // Changing column to user defined: table=k8s_apps_replica_sets column=Template valueType=TypeInvalid userDefinedType=json
+
+  options {
+    primary_keys = ["uid"]
+  }
+
+  column "object_meta" {
+    skip_prefix = true
+  }
+
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "spec" {
+    skip_prefix = true
+  }
+
+  column "type_meta" {
+    skip = true
+  }
+
+  column "template" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "template" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "k8s" "apps" "stateful_sets" {
+  path = "k8s.io/api/apps/v1.StatefulSet"
+
+  multiplex "ContextMultiplex" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
+  }
+  deleteFilter "DeleteContextFilter" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
+  }
+
+  options {
+    primary_keys = ["uid"]
+  }
+
+  column "object_meta" {
+    skip_prefix = true
+  }
+
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "spec" {
+    skip_prefix = true
+  }
+
+  column "type_meta" {
+    skip = true
+  }
+
+  column "template" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "volume_claim_templates" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
+
+resource "k8s" "rbac" "roles" {
+  path = "k8s.io/api/rbac/v1.Role"
+
+  column "type_meta" {
+    skip_prefix = true
+  }
+
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
   }
 
   multiplex "ContextMultiplex" {
@@ -84,69 +366,174 @@ resource "k8s" "core" "nodes" {
     path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
   }
 
-
-  column "type_meta" {
-    skip_prefix = true
+  options {
+    primary_keys = ["uid"]
   }
 
   column "object_meta" {
     skip_prefix = true
   }
 
+  relation "k8s" "rbac" "role_rules" {
+    path = "k8s.io/api/rbac/v1.PolicyRule"
+
+    column "non_resource_url_s" {
+      rename = "non_resource_urls"
+    }
+  }
+
+}
+
+
+resource "k8s" "rbac" "role_bindings" {
+  path = "k8s.io/api/rbac/v1.RoleBinding"
+
+
+  multiplex "ContextMultiplex" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
+  }
+  deleteFilter "DeleteContextFilter" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
+  }
+
+  options {
+    primary_keys = ["uid"]
+  }
+  column "type_meta" {
+    skip_prefix = true
+  }
+  column "object_meta" {
+    skip_prefix = true
+  }
   column "owner_references" {
-    type = "json"
+    type              = "json"
     generate_resolver = true
   }
 
   column "managed_fields" {
-    type = "json"
+    type              = "json"
     generate_resolver = true
   }
+}
 
-  # Spec fields
+
+resource "k8s" "networking" "network_policies" {
+  path = "k8s.io/api/networking/v1.NetworkPolicy"
+
+  multiplex "ContextMultiplex" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
+  }
+  deleteFilter "DeleteContextFilter" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
+  }
+
+  options {
+    primary_keys = ["uid"]
+  }
+  column "type_meta" {
+    skip_prefix = true
+  }
+  column "object_meta" {
+    skip_prefix = true
+  }
   column "spec" {
     skip_prefix = true
   }
-
-  column "pod_c_id_r" {
-    rename = "pod_cidr"
-  }
-
-  column "pod_c_id_rs" {
-    rename = "pod_cidrs"
-  }
-
-  column "taints" {
-    type = "json"
+  column "owner_references" {
+    type              = "json"
     generate_resolver = true
   }
 
-  # Status fields
-  column "status" {
-    skip_prefix = true
-  }
-
-  column "node_info" {
-    skip_prefix = true
-  }
-
-  column "conditions" {
-    type = "json"
+  column "managed_fields" {
+    type              = "json"
     generate_resolver = true
   }
+  relation "k8s" "networking" "ingress" {
+    path = "k8s.io/api/networking/v1.NetworkPolicyIngressRule"
 
-  column "volumes_attached" {
-    type = "json"
-    generate_resolver = true
+    userDefinedColumn "network_policy_uid" {
+      type        = "string"
+      //argument ("uid")
+      description = "The name of the Availability Zone.."
+      resolver "parentPathResolver" {
+        path          = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
+        generate      = true
+        path_resolver = true
+      }
+    }
+
+    relation "k8s" "networking" "from" {
+      path = "k8s.io/api/networking/v1.NetworkPolicyPeer"
+
+      column "pod_selector_match_expressions" {
+        type              = "json"
+        generate_resolver = true
+      }
+      column "ip_block_c_id_r" {
+        rename = "ip_block_cidr"
+      }
+
+
+      column "namespace_selector_match_expressions" {
+        type              = "json"
+        generate_resolver = true
+      }
+    }
   }
 
-  column "images" {
-    type = "json"
-    generate_resolver = true
-  }
+  relation "k8s" "networking" "egress" {
+    path = "k8s.io/api/networking/v1.NetworkPolicyEgressRule"
 
-  column "config" {
-    type = "json"
-    generate_resolver = true
+    userDefinedColumn "network_policy_uid" {
+      type        = "string"
+      //argument ("uid")
+      description = "The name of the Availability Zone.."
+      resolver "parentPathResolver" {
+        path          = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
+        generate      = true
+        path_resolver = true
+      }
+    }
+
+    relation "k8s" "networking" "to" {
+      path = "k8s.io/api/networking/v1.NetworkPolicyPeer"
+
+      column "ip_block_c_id_r" {
+        rename = "ip_block_cidr"
+      }
+
+      column "pod_selector_match_expressions" {
+        type              = "json"
+        generate_resolver = true
+      }
+
+      column "namespace_selector_match_expressions" {
+        type              = "json"
+        generate_resolver = true
+      }
+    }
+  }
+}
+
+
+resource "k8s" "meta" "owner_references" {
+  path = "k8s.io/apimachinery/pkg/apis/meta/v1.OwnerReference"
+  userDefinedColumn "resource_cq_id" {
+    description = "cq_id of parent resource"
+    type        = "uuid"
+  }
+  options {
+    primary_keys = ["resource_cq_id", "uid"]
+  }
+}
+
+resource "k8s" "meta" "managed_fields" {
+  path = "k8s.io/apimachinery/pkg/apis/meta/v1.ManagedFieldsEntry"
+  userDefinedColumn "resource_cq_id" {
+    description = "cq_id of parent resource"
+    type        = "uuid"
+  }
+  options {
+    primary_keys = ["resource_cq_id", "cq_id"]
   }
 }
