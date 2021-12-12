@@ -100,7 +100,7 @@ type FunctionConfig struct {
 
 func (r ResourceConfig) GetRelationConfig(name string) *ResourceConfig {
 	for _, r := range r.Relations {
-		if strings.ToLower(r.Name) == strings.ToLower(name) {
+		if strings.EqualFold(r.Name, name) {
 			return &r
 		}
 		if _, typeName := code.PkgAndType(r.Path); typeName == name {

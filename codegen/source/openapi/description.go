@@ -47,7 +47,7 @@ func (d DescriptionSource) FindColumnDescription(schemaRef *openapi3.SchemaRef, 
 			childRef = p
 			break
 		}
-		if strings.ToLower(strcase.ToCamel(k)) == strings.ToLower(parts[0]) {
+		if strings.EqualFold(strcase.ToCamel(k), parts[0]) {
 			childRef = p
 			break
 		}

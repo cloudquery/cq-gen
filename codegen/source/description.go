@@ -27,7 +27,7 @@ func (p *AzureDescriptionParser) Parse(description string) string {
 
 type GcpDescriptionParser struct{}
 
-var gcpRegex = regexp.MustCompile("(?is)(?P<Attr>.?:.)(?P<Output>\\[?Output only\\]?\\..)?(?P<Description>.*\\.)")
+var gcpRegex = regexp.MustCompile(`(?is)(?P<Attr>.?:.)(?P<Output>\\[?Output only\\]?\\..)?(?P<Description>.*\\.)`)
 
 func (p *GcpDescriptionParser) Parse(description string) string {
 	matches := gcpRegex.FindStringSubmatch(description)

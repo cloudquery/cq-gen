@@ -20,7 +20,7 @@ func GetFunctionParams(sig *types.Signature) string {
 	results := make([]string, sig.Results().Len())
 	for i := 0; i < sig.Results().Len(); i++ {
 		v := sig.Results().At(i)
-		results[i] = fmt.Sprintf("%s", typeIdentifier(v.Type()))
+		results[i] = typeIdentifier(v.Type())
 	}
 	if len(results) == 1 {
 		return fmt.Sprintf("(%s) %s", strings.Join(params, ","), results[0])
@@ -29,7 +29,6 @@ func GetFunctionParams(sig *types.Signature) string {
 }
 
 func typeIdentifier(t types.Type) string {
-
 	typeStr := t.String()
 	// get only the base path, removing package path
 	current := path.Base(typeStr)

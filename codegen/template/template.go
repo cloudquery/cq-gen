@@ -9,12 +9,10 @@ import (
 	"path"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"text/template"
 
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/rewrite"
-	"github.com/modern-go/reflect2"
 	"github.com/pkg/errors"
 )
 
@@ -105,19 +103,11 @@ func Funcs() template.FuncMap {
 		"lookupImport":  CurrentImports.Lookup,
 		"ucFirst":       UcFirst,
 		"lcFirst":       LcFirst,
-		"isNil": func(i interface{}) bool {
-			return reflect2.IsNil(i)
-		},
-		"joinQuotes": func(ss []string) string {
-			ns := make([]string, len(ss))
-			for i, s := range ss {
-				ns[i] = strconv.Quote(s)
-			}
-			return strings.Join(ns, ",")
-		},
-		"go":        ToGo,
-		"goPrivate": ToGoPrivate,
-		"ref":       ref,
+		"isNil":         IsNil,
+		"joinQuotes":    JoinQuotes,
+		"go":            ToGo,
+		"goPrivate":     ToGoPrivate,
+		"ref":           ref,
 	}
 }
 

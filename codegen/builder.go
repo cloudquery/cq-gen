@@ -449,7 +449,6 @@ func (tb TableBuilder) addPathResolver(fieldName string, definition *ColumnDefin
 		Type:      funcObj,
 		Signature: fmt.Sprintf("%s(\"%s\")", signatureName, fieldName),
 	}
-	return
 }
 
 func (tb TableBuilder) buildTableRelations(parentTable *TableDefinition, cfg *config.ResourceConfig, _ BuildMeta) error {
@@ -521,7 +520,7 @@ func (tb TableBuilder) getDescription(obj source.Object, description string, met
 	}
 	// if alternative description source is defined
 	if tb.descriptionSource != nil {
-		parts := append(meta.FieldParts, obj.Name())
+		parts := append(meta.FieldParts, obj.Name()) //nolint
 		d, err := tb.descriptionSource.FindDescription(parts...)
 		if err != nil {
 			return ""
