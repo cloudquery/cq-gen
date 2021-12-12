@@ -2,12 +2,13 @@ package codegen
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/codegen/source/golang"
 	"github.com/cloudquery/cq-gen/codegen/source/openapi"
 	"github.com/cloudquery/cq-gen/rewrite"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestTableBuilder_BuildTable(t *testing.T) {
@@ -20,10 +21,10 @@ func TestTableBuilder_BuildTable(t *testing.T) {
 	tb := NewTableBuilder(source, dsource, rw)
 
 	def, err := tb.BuildTable(nil, &config.ResourceConfig{
-		Service:                 "digitalocean",
-		Domain:                  "",
-		Name:                    "droplet",
-		Path:                    "github.com/digitalocean/godo.Droplet",
+		Service: "digitalocean",
+		Domain:  "",
+		Name:    "droplet",
+		Path:    "github.com/digitalocean/godo.Droplet",
 	}, BuildMeta{
 		Depth:      0,
 		ColumnPath: "",

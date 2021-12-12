@@ -1,11 +1,12 @@
 package golang
 
 import (
-	"github.com/cloudquery/cq-gen/codegen/source"
-	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 	"go/types"
 	"path"
 	"strings"
+
+	"github.com/cloudquery/cq-gen/codegen/source"
+	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
 func getValueType(typ types.Type) schema.ValueType {

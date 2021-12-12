@@ -3,14 +3,15 @@ package rewrite
 import (
 	"bytes"
 	"fmt"
-	"github.com/cloudquery/cq-gen/code"
 	"go/ast"
 	"go/token"
-	"golang.org/x/tools/go/packages"
 	"io/ioutil"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/cloudquery/cq-gen/code"
+	"golang.org/x/tools/go/packages"
 )
 
 type Rewriter struct {

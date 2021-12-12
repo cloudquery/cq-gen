@@ -171,6 +171,7 @@ var commonInitialisms = map[string]bool{
 	"NFS":   true,
 	"ISCSI": true,
 	"GigaBytes": true,
+	"SSE":       true,
 }
 
 // add exceptions here for things that are not automatically convertable
