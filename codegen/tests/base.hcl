@@ -1,5 +1,4 @@
-
-service = "test"
+service          = "test"
 output_directory = "./tests/output"
 
 resource "test" "base" "simple" {

@@ -1,7 +1,7 @@
 // This configuration file creates all mutations possible user defined columns
 
 
-service = "test"
+service          = "test"
 output_directory = "./tests/output"
 
 // Simple use case of defining user columns that aren't part of the original structure
@@ -10,8 +10,8 @@ resource "test" "user_defined" "simple" {
   path = "github.com/cloudquery/cq-gen/codegen/tests.BaseStruct"
 
   userDefinedColumn "test_column" {
-    type = "json"
-    description = "user defined column test"
+    type              = "json"
+    description       = "user defined column test"
     generate_resolver = true
   }
 }
@@ -23,7 +23,7 @@ resource "test" "user_defined" "resolvers" {
   path = "github.com/cloudquery/cq-gen/codegen/tests.BaseStruct"
 
   userDefinedColumn "test_column_with_resolver" {
-    type = "json"
+    type        = "json"
     description = "user defined column resolver test"
     // point to and existing resolver "TestResolver" function that implements the ColumnResolver interface
     resolver "testResolver" {
@@ -35,11 +35,11 @@ resource "test" "user_defined" "resolvers" {
   // the value in the structure, this is usually done with generic resolvers and funk.Get function
   // Its important when the Path and column pathing isn't the same.
   userDefinedColumn "test_column_path_resolver" {
-    type = "int"
+    type        = "int"
     description = "user defined column path resolver test"
 
     resolver "testResolver" {
-      path = "github.com/cloudquery/cq-gen/codegen/tests.PathTestResolver"
+      path          = "github.com/cloudquery/cq-gen/codegen/tests.PathTestResolver"
       path_resolver = true
     }
   }
@@ -47,7 +47,7 @@ resource "test" "user_defined" "resolvers" {
   // Some use cases we want to define an on the fly resolver, the body should usually hold simple functions, as any
   // imported packages won't be read from the body
   userDefinedColumn "test_column_templated" {
-    type = "json"
+    type        = "json"
     description = "user defined column test"
 
     resolver "testResolver" {

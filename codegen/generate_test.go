@@ -25,7 +25,12 @@ func Test_Generate(t *testing.T) {
 		{Name: "simple", Config: "./tests/base.hcl", Domain: "base", ResourceName: "simple", ExpectedOutput: "./tests/expected/base_simple.go"},
 		{Name: "complex", Config: "./tests/base.hcl", Domain: "base", ResourceName: "complex", ExpectedOutput: "./tests/expected/base_complex.go"},
 		{Name: "relations", Config: "./tests/base.hcl", Domain: "base", ResourceName: "relations", ExpectedOutput: "./tests/expected/base_relations.go"},
+		{Name: "columns", Config: "./tests/columns.hcl", Domain: "columns", ResourceName: "columns", ExpectedOutput: "./tests/expected/columns_columns.go"},
+		{Name: "embedded_prefix_skip", Config: "./tests/columns.hcl", Domain: "columns", ResourceName: "embedded_prefix_skip", ExpectedOutput: "./tests/expected/columns_embedded_prefix_skip.go"},
+		{Name: "embedded_rename", Config: "./tests/columns.hcl", Domain: "columns", ResourceName: "embedded_rename", ExpectedOutput: "./tests/expected/columns_embedded_rename.go"},
+		{Name: "embedded_field_rename", Config: "./tests/columns.hcl", Domain: "columns", ResourceName: "embedded_field_rename", ExpectedOutput: "./tests/expected/columns_embedded_field_rename.go"},
 		{Name: "resolvers", Config: "./tests/resolvers.hcl", Domain: "resolvers", ResourceName: "resolvers", ExpectedOutput: "./tests/expected/resolvers_resolvers.go"},
+		{Name: "resolvers_user_defined", Config: "./tests/resolvers.hcl", Domain: "resolvers", ResourceName: "user_defined", ExpectedOutput: "./tests/expected/resolvers_resolvers.go"},
 		{Name: "user_defined_simple", Config: "./tests/user_defined.hcl", Domain: "user_defined", ResourceName: "simple", ExpectedOutput: "./tests/expected/user_defined_simple.go"},
 		{Name: "user_defined_resolvers", Config: "./tests/user_defined.hcl", Domain: "user_defined", ResourceName: "resolvers", ExpectedOutput: "./tests/expected/user_defined_resolvers.go"},
 	}

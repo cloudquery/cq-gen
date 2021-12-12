@@ -19,8 +19,11 @@ import (
 	"github.com/jinzhu/inflection"
 )
 
-const defaultImplementation = `panic("not implemented")`
-const sdkPath = "github.com/cloudquery/cq-provider-sdk"
+const (
+	defaultImplementation = `panic("not implemented")`
+	sdkPath               = "github.com/cloudquery/cq-provider-sdk"
+	MaxColumnLength       = 63
+)
 
 // BuildMeta is information passed when the TableBuilder is traversing over a source.Object to build it's table
 type BuildMeta struct {
@@ -32,21 +35,28 @@ type BuildMeta struct {
 	FieldPath string
 	// FieldParts is a list of fields we traversed
 	FieldParts []string
+	// fullColumnPath saves full path of column regardless of prefix skips, this allows users to define
+	// either only column name or full embedded path
+	fullColumnPath string
 }
 
 func BuildColumnMeta(field source.Object, parentMeta BuildMeta, cfg config.ColumnConfig) BuildMeta {
 	meta := BuildMeta{
-		Depth:      0,
-		ColumnPath: field.Name(),
-		FieldPath:  field.Name(),
-		FieldParts: make([]string, len(parentMeta.FieldParts)),
+		Depth:          0,
+		ColumnPath:     field.Name(),
+		FieldPath:      field.Name(),
+		FieldParts:     make([]string, len(parentMeta.FieldParts)),
+		fullColumnPath: fmt.Sprintf("%s_%s", parentMeta.fullColumnPath, field.Name()),
 	}
-
-	meta.ColumnPath = fmt.Sprintf("%s_%s", parentMeta.ColumnPath, meta.ColumnPath)
+	if cfg.Rename != "" {
+		meta.ColumnPath = cfg.Rename
+	}
+	if parentMeta.ColumnPath != "" {
+		meta.ColumnPath = fmt.Sprintf("%s_%s", parentMeta.ColumnPath, meta.ColumnPath)
+	}
 	if cfg.SkipPrefix {
 		meta.ColumnPath = parentMeta.ColumnPath
 	}
-
 	if parentMeta.FieldPath != "" {
 		meta.FieldPath = fmt.Sprintf("%s.%s", parentMeta.FieldPath, field.Name())
 	}
@@ -195,8 +205,12 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 		Type:     0,
 		Resolver: nil,
 	}
+	// limit max column length, this is because of postgres, we can make this configurable in the future.
+	if len(colDef.Name) > MaxColumnLength {
+		return fmt.Errorf("column %s name length is too long, max allowed is %d chars, consider renaming/skip_prefix", colDef.Name, MaxColumnLength)
+	}
 	// check if configuration wants column to be skipped
-	cfg := resourceCfg.GetColumnConfig(colDef.Name)
+	cfg := resourceCfg.GetColumnConfig(colDef.Name, meta.fullColumnPath)
 	if cfg.Skip {
 		return nil
 	}
@@ -359,9 +373,11 @@ func (tb TableBuilder) buildResolverDefinition(table *TableDefinition, cfg *conf
 		Arguments: GetFunctionParams(signature),
 		Generate:  cfg.Generate,
 	}
-	if cfg.Generate {
+	// if user requested to generate or gave us a body in the configuration
+	if cfg.Generate || (cfg.Body != "") {
 		// Set signature of function as the generated resolver name
 		def.Signature = cfg.Name
+		def.Generate = true
 		table.Functions = append(table.Functions, def)
 	}
 	return def, nil
