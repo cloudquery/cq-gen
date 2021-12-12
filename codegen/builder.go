@@ -188,8 +188,10 @@ func (tb TableBuilder) buildTableFunctions(table *TableDefinition, resource *con
 
 // buildColumns iterates over every field in source.Object adding a ColumnDefinition or RelationDefinition based on the type
 func (tb TableBuilder) buildColumns(table *TableDefinition, object source.Object, resourceCfg *config.ResourceConfig, meta BuildMeta) error {
-	for _, f := range object.Fields() {
-		tb.log.Debug("building column", "field", f.Name(), "object", object.Name(), "table", table.Name)
+	fields := object.Fields()
+	for _, f := range fields {
+		name := f.Name()
+		tb.log.Debug("building column", "field", name, "object", object.Name(), "table", table.Name)
 		if err := tb.buildColumn(table, f, resourceCfg, meta); err != nil {
 			return err
 		}
@@ -293,7 +295,7 @@ func (tb TableBuilder) addUserDefinedColumns(table *TableDefinition, resource *c
 		// if we were requested to generate a resolver we create the resolver with the implementation
 		if uc.GenerateResolver {
 			columnResolver, err := tb.buildResolverDefinition(table, &config.FunctionConfig{
-				Name:     template.ToGo(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(uc.Name))),
+				Name:     template.ToGo(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strcase.ToCamel(uc.Name))),
 				Body:     defaultImplementation,
 				Path:     path.Join(sdkPath, "provider/schema.ColumnResolver"),
 				Generate: true,

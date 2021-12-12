@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-
 	"github.com/cloudquery/cq-gen/codegen"
 )
 
@@ -13,7 +12,6 @@ func main() {
 	config := flag.String("config", "config.hcl", "resource name to generate")
 	flag.Parse()
 
-	fmt.Println("Starting code generation")
 	if err := codegen.Generate(*config, *domain, *resource); err != nil {
 		fmt.Println(err)
 		return
