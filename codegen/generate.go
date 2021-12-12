@@ -1,10 +1,15 @@
 package codegen
 
 import (
+	_ "embed"
+	"path"
+
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/codegen/template"
-	"path"
 )
+
+//go:embed table.gotpl
+var tableTemplate string
 
 func Generate(configPath string, domain string, resourceName string) error {
 	cfg, err := config.Parse(configPath)
@@ -15,14 +20,13 @@ func Generate(configPath string, domain string, resourceName string) error {
 	if err != nil {
 		return err
 	}
-
 	for _, resource := range resources {
 		err = template.Render(template.Options{
-			Template:    "codegen/table.gotpl",
+			Template:    tableTemplate,
 			Filename:    path.Join(cfg.OutputDirectory, resource.Table.FileName),
 			PackageName: path.Base(cfg.OutputDirectory),
 			Data:        resource,
-			Funcs:       map[string]interface{}{
+			Funcs: map[string]interface{}{
 				"call": Call,
 			},
 		})

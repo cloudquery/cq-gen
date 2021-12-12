@@ -37,7 +37,7 @@ func (p *GcpDescriptionParser) Parse(description string) string {
 	description = matches[3]
 	// remove possible values
 	//
-	prefixes := []string{"[Beta] [Optional]", "[Required]", "[TrustedTester]", "[Repeated]", "[Optional, Trusted Tester]", "[Output-only, Beta]", "[Pick one]", "[TrustedTester]", "Optional", "[Output-only]", "[Output only]","[Output Only]", "(Optional)", "[Optional]", "Required", "[Required]"}
+	prefixes := []string{"[Beta] [Optional]", "[Required]", "[TrustedTester]", "[Repeated]", "[Optional, Trusted Tester]", "[Output-only, Beta]", "[Pick one]", "[TrustedTester]", "Optional", "[Output-only]", "[Output only]", "[Output Only]", "(Optional)", "[Optional]", "Required", "[Required]"}
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(description, prefix) {
 			description = strings.SplitN(description, prefix, 2)[1]
@@ -46,6 +46,7 @@ func (p *GcpDescriptionParser) Parse(description string) string {
 
 	return strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(description, ".", ""), "\n", " "))
 }
+
 // TODO: move this out of here
 func GetDescriptionParser(parser string) DescriptionParser {
 	switch parser {
@@ -57,4 +58,3 @@ func GetDescriptionParser(parser string) DescriptionParser {
 		return &DefaultDescriptionParser{}
 	}
 }
-

@@ -1,10 +1,11 @@
 package codegen
 
 import (
-	"github.com/cloudquery/cq-gen/codegen/config"
-	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 	"go/types"
 	"strings"
+
+	"github.com/cloudquery/cq-gen/codegen/config"
+	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
 type TableDefinition struct {

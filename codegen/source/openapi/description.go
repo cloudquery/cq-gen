@@ -2,10 +2,11 @@ package openapi
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/cloudquery/cq-gen/naming"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
-	"strings"
 )
 
 type DescriptionSource struct {

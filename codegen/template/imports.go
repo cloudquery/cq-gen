@@ -2,10 +2,11 @@ package template
 
 import (
 	"fmt"
-	"github.com/cloudquery/cq-gen/code"
 	"go/types"
 	"strconv"
 	"strings"
+
+	"github.com/cloudquery/cq-gen/code"
 )
 
 type Import struct {
