@@ -2,14 +2,15 @@ package golang
 
 import (
 	"fmt"
+	"go/ast"
+	"go/types"
+	"strings"
+
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/codegen/source"
 	"github.com/cloudquery/cq-gen/rewrite"
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 	"github.com/hashicorp/go-hclog"
-	"go/ast"
-	"go/types"
-	"strings"
 )
 
 // DataSource of golang reads from objects from golang code
@@ -106,7 +107,7 @@ func (f FieldObject) Fields() []source.Object {
 	named := getNamedType(f.v.Type())
 
 	pkg, _ := code.PkgAndType(f.originalPath)
-	if pkgObj := named.Obj().Pkg(); pkgObj != nil  {
+	if pkgObj := named.Obj().Pkg(); pkgObj != nil {
 		pkg = pkgObj.Path()
 	}
 	rw, err := rewrite.NewFromImportPath(pkg)

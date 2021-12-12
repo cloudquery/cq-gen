@@ -2,10 +2,11 @@ package config
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/creasty/defaults"
 	"github.com/hashicorp/hcl/v2/hclsimple"
-	"strings"
 )
 
 type Config struct {
@@ -92,7 +93,8 @@ type FunctionConfig struct {
 	Path string `hcl:"path"`
 	// Generate tells cq-gen to create the function code in template, usually set automatically.
 	// Setting to true will force function generation in template.
-	Generate     bool `hcl:"generate,optional"`
+	Generate bool `hcl:"generate,optional"`
+	// PathResolver defines this function to be called the FieldPath traversed, this is used by generic functions
 	PathResolver bool `hcl:"path_resolver,optional"`
 }
 
@@ -108,15 +110,20 @@ func (r ResourceConfig) GetRelationConfig(name string) *ResourceConfig {
 	return nil
 }
 
-func (r ResourceConfig) GetColumnConfig(name string) ColumnConfig {
+func (r ResourceConfig) GetColumnConfig(baseName string, names ...string) ColumnConfig {
 	for _, c := range r.Columns {
-		if c.Name == name {
+		if c.Name == baseName {
 			return c
+		}
+		for _, n := range names {
+			if c.Name == n {
+				return c
+			}
 		}
 	}
 	var c ColumnConfig
-	defaults.Set(&c)
-	c.Name = name
+	_ = defaults.Set(&c)
+	c.Name = baseName
 	return c
 }
 
@@ -127,7 +134,7 @@ type ColumnConfig struct {
 	Description string `hcl:"description,optional"`
 	// SkipPrefix Whether we want to skip adding the embedded prefix to a column
 	SkipPrefix bool `hcl:"skip_prefix,optional" defaults:"false"`
-	// Skip
+	// Skip makes cq-gen skip the column
 	Skip bool `hcl:"skip,optional" defaults:"false"`
 	// GenerateResolver whether to force a resolver creation
 	GenerateResolver bool `hcl:"generate_resolver,optional"`

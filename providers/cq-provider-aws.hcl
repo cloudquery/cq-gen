@@ -1,6 +1,144 @@
 service = "aws"
 
-output_directory = "../cq-provider-aws/resources"
+output_directory = "../forks/cq-provider-aws/resources"
+
+resource "aws" "dynamodb" "tables" {
+  path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.TableDescription"
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type        = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+  column "table_arn" {
+    rename = "arn"
+  }
+
+  column "archival_summary" {
+    skip_prefix = true
+  }
+  column "billing_mode_summary" {
+    skip_prefix = true
+  }
+
+  column "attribute_definitions" {
+    type              = "json"
+    generate_resolver = true
+  }
+  relation "aws" "dynamodb" "global_secondary_indexes" {
+    path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.GlobalSecondaryIndexDescription"
+    column "key_schema" {
+      type              = "json"
+      generate_resolver = true
+    }
+  }
+
+  relation "aws" "dynamodb" "local_secondary_indexes" {
+    path = "github.com/aws/aws-sdk-go-v2/service/dynamodb/types.LocalSecondaryIndexDescription"
+    column "key_schema" {
+      type              = "json"
+      generate_resolver = true
+    }
+  }
+
+  column "key_schema" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
+
+resource "aws" "" "regions" {
+  path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Region"
+  multiplex "AwsAccount" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
+  }
+  deleteFilter "AccountFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountFilter"
+  }
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+
+  userDefinedColumn "enabled" {
+    type = "bool"
+    description = "Defines if region is enabled stated or not."
+    generate_resolver = true
+  }
+
+  column "region_name" {
+    rename = "region"
+  }
+}
+
+resource "aws" "guardduty" "detectors" {
+  path = "github.com/aws/aws-sdk-go-v2/service/guardduty.GetDetectorOutput"
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type        = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  column "result_metadata" {
+    skip = true
+  }
+
+  column "created_at" {
+    type = "timestamp"
+  }
+    column "updated_at" {
+    type = "timestamp"
+  }
+
+  relation "aws" "guardduty" "members" {
+    path = "github.com/aws/aws-sdk-go-v2/service/guardduty/types.Member"
+
+    column "invited_at" {
+      type = "timestamp"
+    }
+    column "updated_at" {
+      type = "timestamp"
+    }
+  }
+}
+
 
 resource "aws" "autoscaling" "launch_configurations" {
   path = "github.com/aws/aws-sdk-go-v2/service/autoscaling/types.LaunchConfiguration"

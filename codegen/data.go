@@ -1,12 +1,13 @@
 package codegen
 
 import (
+	"path"
+
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/codegen/source"
 	"github.com/cloudquery/cq-gen/codegen/source/golang"
 	"github.com/cloudquery/cq-gen/codegen/source/openapi"
 	"github.com/cloudquery/cq-gen/rewrite"
-	"path"
 )
 
 type ResourceDefinition struct {
