@@ -1,13 +1,9 @@
-name: UnitTest
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches: [ main ]
+name: tests
+on: [ push, pull_request ]
 
 jobs:
-  unitests:
+  tests:
+    name: unittests
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.x
