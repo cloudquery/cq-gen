@@ -90,6 +90,7 @@ func checkDuplicates(resources []config.ResourceConfig, domain, resourceName str
 		if _, ok := foundResources[rName]; ok {
 			return fmt.Errorf("duplicate resource found. Domain: %s Resource: %s", resource.Domain, resource.Name)
 		}
+		foundResources[rName] = true
 	}
 	return nil
 }
