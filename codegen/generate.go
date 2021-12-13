@@ -11,7 +11,7 @@ import (
 //go:embed table.gotpl
 var tableTemplate string
 
-func Generate(configPath string, domain string, resourceName string) error {
+func Generate(configPath, domain, resourceName, outputDir string) error {
 	cfg, err := config.Parse(configPath)
 	if err != nil {
 		return err
@@ -20,11 +20,15 @@ func Generate(configPath string, domain string, resourceName string) error {
 	if err != nil {
 		return err
 	}
+	if outputDir == "" {
+		outputDir = cfg.OutputDirectory
+	}
+
 	for _, resource := range resources {
 		err = template.Render(template.Options{
 			Template:    tableTemplate,
-			Filename:    path.Join(cfg.OutputDirectory, resource.Table.FileName),
-			PackageName: path.Base(cfg.OutputDirectory),
+			Filename:    path.Join(outputDir, resource.Table.FileName),
+			PackageName: path.Base(outputDir),
 			Data:        resource,
 			Funcs: map[string]interface{}{
 				"call": Call,
