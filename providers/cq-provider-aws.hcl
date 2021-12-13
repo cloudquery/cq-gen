@@ -385,7 +385,7 @@ resource "aws" "cloudfront" "cache_policies" {
 }
 
 resource "aws" "cloudfront" "distributions" {
-  path        = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.DistributionSummary"
+  path        = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.Distribution"
   description = "A summary of the information about a CloudFront distribution."
 
   multiplex "AwsAccount" {
@@ -414,11 +414,18 @@ resource "aws" "cloudfront" "distributions" {
   }
 
   column "is_ipv6_enabled" {
-    rename = "ip_v6_enabled"
+    rename = "ipv6_enabled"
   }
 
   column "restrictions_geo_restriction_restriction_type" {
-    rename = "restrictions_geo_restriction_type"
+    rename = "geo_restriction_type"
+  }
+  column "restrictions_geo_restriction_quantity" {
+    skip = true
+  }
+
+  column "restrictions_geo_restriction_items" {
+    rename = "geo_restrictions"
   }
 
   column "aliases_quantity" {
@@ -435,9 +442,7 @@ resource "aws" "cloudfront" "distributions" {
   column "origins_quantity" {
     skip = true
   }
-  column "restrictions_geo_restriction_quantity" {
-    skip = true
-  }
+
   column "origin_groups_quantity" {
     skip = true
   }
@@ -451,7 +456,12 @@ resource "aws" "cloudfront" "distributions" {
     rename = "default_cache_behavior_lambda_functions"
   }
 
-  relation "aws" "cloudfront" "distribution_origins" {
+  column "origins_items" {
+    rename = "origins"
+  }
+
+
+  relation "aws" "cloudfront" "origins" {
     path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.Origin"
     column "custom_headers_items" {
       rename = "custom_headers"
@@ -466,7 +476,7 @@ resource "aws" "cloudfront" "distributions" {
     }
 
     column "custom_origin_config_origin_ssl_protocols_items" {
-      rename = "custom_origin_config_origin_ssl_protocols"
+      rename = "custom_origin_config_ssl_protocols"
     }
 
     column "custom_headers" {
@@ -499,7 +509,10 @@ resource "aws" "cloudfront" "distributions" {
     }
   }
 
-  relation "aws" "cloudfront" "distribution_cache_behaviours" {
+  column "cache_behaviors_items" {
+    rename = "cache_behaviors"
+  }
+  relation "aws" "cloudfront" "cache_behaviors" {
     path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.CacheBehavior"
     column "lambda_function_associations_items" {
       rename = "lambda_functions"
@@ -561,7 +574,10 @@ resource "aws" "cloudfront" "distributions" {
 
   }
 
-  relation "aws" "cloudfront" "distribution_origin_groups" {
+  column "origin_groups_items" {
+    rename = "origin_groups"
+  }
+  relation "aws" "cloudfront" "origin_groups" {
     path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.OriginGroup"
 
 
@@ -585,175 +601,234 @@ resource "aws" "cloudfront" "distributions" {
     }
   }
 
-  relation "aws" "cloudfront" "distribution_default_behaviour_lambda_functions" {
-    path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.LambdaFunctionAssociation"
+  column "alias_icp_recordals" {
+    type              = "json"
+    generate_resolver = true
   }
 
-  relation "aws" "cloudfront" "distribution_alias_icp_recordals" {
-    path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.AliasICPRecordal"
-    column "c_n_a_m_e" {
-      rename = "cname"
-    }
-
-    column "i_c_p_recordal_status" {
-      rename = "icp_recordal_status"
-    }
+  column "active_trusted_key_groups_quantity" {
+    skip = true
   }
+  column "active_trusted_signers_quantity" {
+    skip = true
+  }
+  column "active_trusted_key_groups_items" {
+    rename            = "active_trusted_key_groups"
+    type              = "json"
+    generate_resolver = true
+  }
+  column "active_trusted_signers_items" {
+    rename            = "active_trusted_signers"
+    type              = "json"
+    generate_resolver = true
+  }
+
+  #  relation "aws" "cloudfront" "active_trusted_signers" {
+  #    path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.ActiveTrustedSigners"
+  #
+  #    column "key_pair_ids_quantity" {
+  #      skip = true
+  #    }
+  #    column "key_pair_ids_items" {
+  #      rename = "key_pair_ids"
+  #    }
+  #  }
+  #
+  #  relation "aws" "cloudfront" "active_trusted_key_groups" {
+  #    path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.ActiveTrustedKeyGroups"
+  #
+  #    column "key_pair_ids_quantity" {
+  #      skip = true
+  #    }
+  #    column "key_pair_ids_items" {
+  #      rename = "key_pair_ids"
+  #    }
+  #  }
+
+  #  column "active_trusted_signers" {
+  #    type              = "json"
+  #    generate_resolver = true
+  #  }
+  #    column "active_trusted_key_groups" {
+  #      type              = "json"
+  #      generate_resolver = true
+  #    }
+
+  #  relation "aws" "cloudfront" "active_trusted_key_groups" {
+  #    path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.ActiveTrustedKeyGroups"
+  #
+  #    column "quantity" {
+  #      skip = true
+  #    }
+  #    column "items" {
+  #
+  #      type              = "json"
+  #      generate_resolver = true
+  #    }
+  #  }
+  #
+  #  relation "aws" "cloudfront" "alias_icp_recordals" {
+  #    path = "github.com/aws/aws-sdk-go-v2/service/cloudfront/types.AliasICPRecordal"
+  #    column "c_n_a_m_e" {
+  #      rename = "cname"
+  #    }
+  #
+  #    column "i_c_p_recordal_status" {
+  #      rename = "icp_recordal_status"
+  #    }
+  #  }
 
 
   column "aliases_items" {
     rename = "aliases"
   }
 
+
+  column "alias_i_c_p_recordals" {
+    rename            = "alias_icp_recordals"
+    type              = "json"
+    generate_resolver = true
+  }
+
+
   column "custom_error_responses_items" {
     rename = "custom_error_responses"
   }
 
 
-  column "active_trusted_key_groups_items" {
-    rename = "active_trusted_key_groups"
-  }
-
-  column "active_trusted_signers_items" {
-    rename = "active_trusted_signers"
-  }
-
   column "default_cache_behavior_cache_policy_id" {
-    rename = "cache_behaviour_cache_policy_id"
+    rename = "cache_behavior_cache_policy_id"
   }
 
   column "default_cache_behavior_target_origin_id" {
-    rename = "cache_behaviour_target_origin_id"
+    rename = "cache_behavior_target_origin_id"
   }
 
   column "default_cache_behavior_viewer_protocol_policy" {
-    rename = "cache_behaviour_viewer_protocol_policy"
+    rename = "cache_behavior_viewer_protocol_policy"
   }
 
   column "default_cache_behavior_allowed_methods_items" {
-    rename = "cache_behaviour_allowed_methods"
+    rename = "cache_behavior_allowed_methods"
   }
 
 
   column "default_cache_behavior_allowed_methods_quantity" {
     skip = true
-    #    rename = "cache_behaviour_allowed_methods_quantity"
+    #    rename = "cache_behavior_allowed_methods_quantity"
   }
 
   column "default_cache_behavior_allowed_methods_cached_methods_items" {
-    rename = "cache_behaviour_allowed_methods_cached_methods"
+    rename = "cache_behavior_allowed_methods_cached_methods"
   }
 
   column "default_cache_behavior_allowed_methods_cached_methods_quantity" {
     skip = true
-    #    rename = "cache_behaviour_allowed_methods_cached_methods_quantity"
+    #    rename = "cache_behavior_allowed_methods_cached_methods_quantity"
   }
 
   column "default_cache_behavior_allowed_methods_cached_methods_quantity" {
-    rename = "cache_behaviour_allowed_methods_cached_methods_quantity"
+    rename = "cache_behavior_allowed_methods_cached_methods_quantity"
   }
 
   column "default_cache_behavior_compress" {
-    rename = "cache_behaviour_compress"
+    rename = "cache_behavior_compress"
   }
 
   column "default_cache_behavior_default_ttl" {
-    rename = "cache_behaviour_default_ttl"
+    rename = "cache_behavior_default_ttl"
   }
 
   column "default_cache_behavior_field_level_encryption_id" {
-    rename = "cache_behaviour_field_level_encryption_id"
+    rename = "cache_behavior_field_level_encryption_id"
   }
 
   column "default_cache_behavior_forwarded_values_cookies_forward" {
-    rename = "cache_behaviour_forwarded_values_cookies_forward"
+    rename = "cache_behavior_forwarded_values_cookies_forward"
   }
 
   column "default_cache_behavior_forwarded_values_cookies_whitelisted_names_quantity" {
     skip = true
-    #    rename = "cache_behaviour_forwarded_values_cookies_whitelisted_names_quantity"
+    #    rename = "cache_behavior_forwarded_values_cookies_whitelisted_names_quantity"
   }
 
   column "default_cache_behavior_forwarded_values_cookies_whitelisted_names_items" {
-    rename = "cache_behaviour_forwarded_values_cookies_whitelisted_names"
+    rename = "cache_behavior_forwarded_values_cookies_whitelisted_names"
   }
 
   column "default_cache_behavior_forwarded_values_query_string" {
-    rename = "cache_behaviour_forwarded_values_query_string"
+    rename = "cache_behavior_forwarded_values_query_string"
   }
 
   column "default_cache_behavior_forwarded_values_headers_quantity" {
     skip = true
-    #    rename = "cache_behaviour_forwarded_values_headers_quantity"
+    #    rename = "cache_behavior_forwarded_values_headers_quantity"
   }
 
   column "default_cache_behavior_forwarded_values_headers_items" {
-    rename = "cache_behaviour_forwarded_values_headers"
+    rename = "cache_behavior_forwarded_values_headers"
   }
 
   column "default_cache_behavior_forwarded_values_query_string_cache_keys_quantity" {
     skip = true
-    #    rename = "cache_behaviour_forwarded_values_query_string_cache_keys_quantity"
+    #    rename = "cache_behavior_forwarded_values_query_string_cache_keys_quantity"
   }
 
   column "default_cache_behavior_forwarded_values_query_string_cache_keys_items" {
-    rename = "cache_behaviour_forwarded_values_query_string_cache_keys"
+    rename = "cache_behavior_forwarded_values_query_string_cache_keys"
   }
 
   column "default_cache_behavior_lambda_function_associations_quantity" {
     skip = true
-    #    rename = "cache_behaviour_lambda_function_associations_quantity"
+    #    rename = "cache_behavior_lambda_function_associations_quantity"
   }
 
   column "default_cache_behavior_max_ttl" {
-    rename = "cache_behaviour_max_ttl"
+    rename = "cache_behavior_max_ttl"
   }
 
   column "default_cache_behavior_min_ttl" {
-    rename = "cache_behaviour_min_ttl"
+    rename = "cache_behavior_min_ttl"
   }
 
   column "default_cache_behavior_origin_request_policy_id" {
-    rename = "cache_behaviour_origin_request_policy_id"
+    rename = "cache_behavior_origin_request_policy_id"
   }
 
   column "default_cache_behavior_realtime_log_config_arn" {
-    rename = "cache_behaviour_realtime_log_config_arn"
+    rename = "cache_behavior_realtime_log_config_arn"
   }
 
   column "default_cache_behavior_smooth_streaming" {
-    rename = "cache_behaviour_smooth_streaming"
+    rename = "cache_behavior_smooth_streaming"
   }
 
   column "default_cache_behavior_trusted_key_groups_enabled" {
-    rename = "cache_behaviour_trusted_key_groups_enabled"
+    rename = "cache_behavior_trusted_key_groups_enabled"
   }
 
   column "default_cache_behavior_trusted_key_groups_quantity" {
     skip = true
-    #    rename = "cache_behaviour_trusted_key_groups_quantity"
+    #    rename = "cache_behavior_trusted_key_groups_quantity"
   }
 
   column "default_cache_behavior_trusted_key_groups_items" {
-    rename = "cache_behaviour_trusted_key_groups"
+    rename = "cache_behavior_trusted_key_groups"
   }
 
   column "default_cache_behavior_trusted_signers_enabled" {
-    rename = "cache_behaviour_trusted_signers_enabled"
+    rename = "cache_behavior_trusted_signers_enabled"
   }
 
   column "default_cache_behavior_trusted_signers_quantity" {
     skip = true
-    #    rename = "cache_behaviour_trusted_signers_quantity"
+    #    rename = "cache_behavior_trusted_signers_quantity"
   }
 
   column "default_cache_behavior_trusted_signers_items" {
-    rename = "cache_behaviour_trusted_signers"
+    rename = "cache_behavior_trusted_signers"
   }
 
-  column "restrictions_geo_restriction_items" {
-    rename = "restrictions_geo_restrictions"
-  }
 
   column "viewer_certificate_a_c_m_certificate_arn" {
     rename = "viewer_certificate_acm_certificate_arn"
@@ -1164,15 +1239,102 @@ resource "aws" "ec2" "instances" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
-  relation "aws" "ec2" "InstanceNetworkInterface" {
+  column "instance_id" {
+    rename = "id"
+  }
+
+  column "licenses" {
+    type              = "stringArray"
+    generate_resolver = true
+  }
+
+  relation "aws" "ec2" "block_device_mappings" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.InstanceBlockDeviceMapping"
+    options {
+      primary_keys = [
+        "instance_cq_id", "ebs_volume_id"
+      ]
+    }
+  }
+
+  relation "aws" "ec2" "elastic_gpu_associations" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.ElasticGpuAssociation"
+    options {
+      primary_keys = [
+        "instance_cq_id", "elastic_gpu_association_id"
+      ]
+    }
+  }
+
+  relation "aws" "ec2" "elastic_inference_accelerator_associations" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.ElasticInferenceAcceleratorAssociation"
+    options {
+      primary_keys = [
+        "instance_cq_id", "elastic_inference_accelerator_association_id"
+      ]
+    }
+  }
+  relation "aws" "ec2" "network_interfaces" {
     path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.InstanceNetworkInterface"
 
-    relation "aws" "ec2" "InstancePrivateIpAddress" {
+    options {
+      primary_keys = [
+        "instance_cq_id", "network_interface_id"
+      ]
+    }
+
+    column "ipv6_prefixes" {
+      type              = "stringArray"
+      generate_resolver = true
+    }
+    column "ipv6_prefixes" {
+      type              = "stringArray"
+      generate_resolver = true
+    }
+    column "ipv4_prefixes" {
+      type              = "stringArray"
+      generate_resolver = true
+    }
+
+    relation "aws" "ec2" "groups" {
+      path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.GroupIdentifier"
+      userDefinedColumn "network_interface_id" {
+        type = "string"
+        description = "The ID of the network interface."
+# Resolver: schema.ParentPathResolver("NetworkInterfaceId"),
+      }
+      options {
+        primary_keys = [
+          "instance_network_interface_cq_id", "group_id"
+        ]
+      }
+    }
+
+    relation "aws" "ec2" "private_ip_addresses" {
       path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.InstancePrivateIpAddress"
       column "primary" {
-        type   = "bool"
         rename = "is_primary"
       }
+
+    }
+
+  }
+
+  relation "aws" "ec2" "product_codes" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.ProductCode"
+    options {
+      primary_keys = [
+        "instance_cq_id", "product_code_id"
+      ]
+    }
+  }
+
+  relation "aws" "ec2" "security_groups" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.GroupIdentifier"
+    options {
+      primary_keys = [
+        "instance_cq_id", "group_id"
+      ]
     }
   }
   userDefinedColumn "account_id" {
@@ -1190,6 +1352,12 @@ resource "aws" "ec2" "instances" {
     }
   }
 
+  options {
+    primary_keys = [
+      "account_id",
+      "id"
+    ]
+  }
   column "capacity_reservation_specification_capacity_reservation_preference" {
     rename = "cap_reservation_preference"
   }
@@ -1200,6 +1368,11 @@ resource "aws" "ec2" "instances" {
 
   column "capacity_reservation_specification_capacity_reservation_target_capacity_reservation_resource_group_arn" {
     rename = "cap_reservation_target_capacity_reservation_rg_arn"
+  }
+
+  userDefinedColumn "state_transition_reason_time" {
+    generate_resolver = true
+    type              = "timestamp"
   }
 
   column "tags" {
@@ -1487,6 +1660,10 @@ resource "aws" "ec2" "subnets" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
   }
 
+  options {
+    primary_keys = ["account_id", "id"]
+  }
+
   userDefinedColumn "account_id" {
     type        = "string"
     description = "The AWS Account ID of the resource."
@@ -1502,10 +1679,24 @@ resource "aws" "ec2" "subnets" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
+  column "subnet_arn" {
+   rename = "arn"
+  }
+
+  column "subnet_id" {
+    rename = "id"
+  }
   column "tags" {
     // TypeJson
     type              = "json"
     generate_resolver = true
+  }
+
+  relation "aws" "ec2" "ipv6_cidr_block_association_sets"{
+    path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.SubnetIpv6CidrBlockAssociation"
+    options {
+      primary_keys = ["subnet_cq_id", "ipv6_cidr_block"]
+    }
   }
 }
 
@@ -1797,7 +1988,7 @@ resource "aws" "ecr" "repositories" {
 }
 
 resource "aws" "ecs" "task_definitions" {
-    path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.TaskDefinition"
+  path = "github.com/aws/aws-sdk-go-v2/service/ecs/types.TaskDefinition"
 
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
@@ -1833,6 +2024,7 @@ resource "aws" "ecs" "task_definitions" {
   }
   userDefinedColumn "tags" {
     type              = "json"
+    description       = "The metadata that you apply to the service to help you categorize and organize them"
     generate_resolver = true
   }
   column "inference_accelerators" {
@@ -1844,6 +2036,10 @@ resource "aws" "ecs" "task_definitions" {
     generate_resolver = true
   }
   column "proxy_configuration_properties" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "requires_attributes" {
     type              = "json"
     generate_resolver = true
   }
