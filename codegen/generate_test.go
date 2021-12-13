@@ -19,6 +19,7 @@ func Test_Generate(t *testing.T) {
 		Domain         string
 		ResourceName   string
 		ExpectedOutput string
+		ExpectError    error
 	}
 
 	generatorTests := []test{
@@ -33,11 +34,18 @@ func Test_Generate(t *testing.T) {
 		{Name: "resolvers_user_defined", Config: "./tests/resolvers.hcl", Domain: "resolvers", ResourceName: "user_defined", ExpectedOutput: "./tests/expected/resolvers_user_defined.go"},
 		{Name: "user_defined_simple", Config: "./tests/user_defined.hcl", Domain: "user_defined", ResourceName: "simple", ExpectedOutput: "./tests/expected/user_defined_simple.go"},
 		{Name: "user_defined_resolvers", Config: "./tests/user_defined.hcl", Domain: "user_defined", ResourceName: "resolvers", ExpectedOutput: "./tests/expected/user_defined_resolvers.go"},
+		// Bad configurations
+		{Name: "bad_duplicate_resource", Config: "./tests/bad_config.hcl", Domain: "bad", ResourceName: "duplicate", ExpectError: fmt.Errorf("duplicate resource found. Domain: bad Resource: duplicate")},
 	}
 	for _, tc := range generatorTests {
 		t.Run(tc.Name, func(t *testing.T) {
-			err := Generate(tc.Config, tc.Domain, tc.ResourceName)
-			assert.NoError(t, err)
+			err := Generate(tc.Config, tc.Domain, tc.ResourceName, "./tests/output")
+			if tc.ExpectError == nil {
+				assert.NoError(t, err)
+			} else {
+				assert.EqualError(t, err, tc.ExpectError.Error())
+				return
+			}
 			filename := fmt.Sprintf("./tests/output/%s.go", tc.ResourceName)
 			if tc.Domain != "" {
 				filename = fmt.Sprintf("./tests/output/%s_%s.go", tc.Domain, tc.ResourceName)
