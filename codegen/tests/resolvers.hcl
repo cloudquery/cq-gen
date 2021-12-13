@@ -28,3 +28,13 @@ resource "test" "resolvers" "user_defined" {
     body = "panic(\"my fetch implementation\")"
   }
 }
+
+resource "test" "resolvers" "rename_with_resolver" {
+  path = "github.com/cloudquery/cq-gen/codegen/tests.BaseStruct"
+  column "int_value" {
+    rename = "other_value"
+    resolver "testResolver" {
+      path = "github.com/cloudquery/cq-gen/codegen/tests.TestResolver"
+    }
+  }
+}
