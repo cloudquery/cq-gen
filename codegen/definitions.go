@@ -32,6 +32,7 @@ type TableDefinition struct {
 
 	// parent table definition
 	parentTable *TableDefinition
+	path        string
 }
 
 func (t TableDefinition) UniqueResolvers() []*ResolverDefinition {
@@ -61,15 +62,21 @@ func (t TableDefinition) UniqueResolvers() []*ResolverDefinition {
 	return rd
 }
 
-func (t TableDefinition) RelationExists(name string) bool {
+func (t TableDefinition) RelationExists(cfg config.RelationConfig) bool {
 	for _, rel := range t.Relations {
-		if rel.Name == name {
+		if rel.Name == cfg.Name {
 			return true
 		}
-		if strings.HasSuffix(rel.TableFuncName, name) {
+		if rel.Name == cfg.Rename {
 			return true
 		}
-		if strings.HasSuffix(rel.TableName, name) {
+		if rel.path == cfg.Path && cfg.Name != rel.Name {
+			return true
+		}
+		if strings.HasSuffix(rel.TableFuncName, cfg.Name) {
+			return true
+		}
+		if strings.HasSuffix(rel.TableName, cfg.Name) {
 			return true
 		}
 	}

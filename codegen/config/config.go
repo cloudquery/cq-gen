@@ -6,16 +6,15 @@ import (
 
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/creasty/defaults"
-	"github.com/hashicorp/hcl/v2/hclsimple"
 )
 
 type Config struct {
-	Service           string             `hcl:"service"`
-	OutputDirectory   string             `hcl:"output_directory"`
-	DescriptionParser string             `hcl:"description_parser,optional"`
-	DataSource        *DataSource        `hcl:"data_source,block"`
-	DescriptionSource *DescriptionSource `hcl:"description_source,block"`
-	Resources         []ResourceConfig   `hcl:"resource,block"`
+	Service            string              `hcl:"service"`
+	OutputDirectory    string              `hcl:"output_directory"`
+	DataSource         *DataSource         `hcl:"data_source,block"`
+	DescriptionSource  *DescriptionSource  `hcl:"description_source,block"`
+	DescriptionParsers []DescriptionParser `hcl:"description_parser,block"`
+	Resources          []ResourceConfig    `hcl:"resource,block"`
 }
 
 type DataSource struct {
@@ -26,6 +25,12 @@ type DataSource struct {
 type DescriptionSource struct {
 	Type string `hcl:"type,label"`
 	Path string `hcl:"path"`
+}
+
+type DescriptionParser struct {
+	Name        string   `hcl:"name,label"`
+	Regex       string   `hcl:"regex,optional"`
+	RemoveWords []string `hcl:"words,optional"`
 }
 
 func (c Config) GetResource(resource string) (ResourceConfig, error) {
@@ -57,8 +62,11 @@ type ResourceConfig struct {
 
 	// Column configurations we want to modify
 	Columns []ColumnConfig `hcl:"column,block"`
-	// Relations configurations we want to modify / add
-	Relations []ResourceConfig `hcl:"relation,block"`
+	// Relations configurations we want to modify
+	Relations []RelationConfig `hcl:"relation,block"`
+	// User Relations we want to add that aren't part of the original structure
+	UserRelations []RelationConfig `hcl:"user_relation,block"`
+
 	// UserDefinedColumns are a list of columns we add that aren't part of the original struct
 	UserDefinedColumn []ColumnConfig `hcl:"userDefinedColumn,block"`
 
@@ -72,16 +80,21 @@ type ResourceConfig struct {
 	// LimitDepth limits the depth cq-gen enters the structs, this is to avoid recursive structs
 	LimitDepth int `hcl:"limit_depth,optional"`
 
-	// EmbedRelation embeds all of the relations columns into the parent struct
-	EmbedRelation bool `hcl:"embed,optional"`
-	// EmbedSkipPrefix skips the embedded relation name prefix for all it's embedded columns
-	EmbedSkipPrefix bool `hcl:"embed_skip_prefix,optional"`
 	// Disables reading the struct for description comments for each column
 	DisableReadDescriptions bool `hcl:"disable_auto_descriptions,optional"`
 	// Disable pluralize of the name of the resource
 	NoPluralize bool `hcl:"disable_pluralize,optional"`
 
 	DescriptionPathParts []string `hcl:"description_path_parts,optional"`
+}
+
+type RelationConfig struct {
+	ResourceConfig
+	Rename string `hcl:"rename,optional"`
+	// Embed all the relations columns into the parent struct
+	Embed bool `hcl:"embed,optional"`
+	// SkipPrefix skips the embedded relation name prefix for all it's embedded columns
+	SkipPrefix bool `hcl:"skip_prefix,optional"`
 }
 
 type FunctionConfig struct {
@@ -98,7 +111,7 @@ type FunctionConfig struct {
 	PathResolver bool `hcl:"path_resolver,optional"`
 }
 
-func (r ResourceConfig) GetRelationConfig(name string) *ResourceConfig {
+func (r ResourceConfig) GetRelationConfig(name string) *RelationConfig {
 	for _, r := range r.Relations {
 		if strings.EqualFold(r.Name, name) {
 			return &r
@@ -146,12 +159,4 @@ type ColumnConfig struct {
 	Rename string `hcl:"rename,optional"`
 	// ExtractDescriptionFromParentField, take column description from parent spec
 	ExtractDescriptionFromParentField bool `hcl:"extract_description_from_parent_field,optional" defaults:"false"`
-}
-
-func Parse(configPath string) (*Config, error) {
-	var config Config
-	if err := hclsimple.DecodeFile(configPath, nil, &config); err != nil {
-		return nil, err
-	}
-	return &config, nil
 }

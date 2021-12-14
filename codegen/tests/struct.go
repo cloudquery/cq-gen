@@ -37,3 +37,12 @@ type RelationalRelation struct {
 	EmbeddedString string
 	SomeBases      []BaseStruct
 }
+
+type SimpleRelation struct {
+	Column    int
+	Relations []BaseStruct
+}
+
+type OtherStruct struct {
+	OtherField int
+}

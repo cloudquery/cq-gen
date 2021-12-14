@@ -65,14 +65,15 @@ func BuildColumnMeta(field source.Object, parentMeta BuildMeta, cfg config.Colum
 }
 
 type TableBuilder struct {
-	finder            code.Finder
-	source            source.DataSource
-	rewriter          *rewrite.Rewriter
-	log               hclog.Logger
-	descriptionSource source.DescriptionSource
+	finder             code.Finder
+	source             source.DataSource
+	rewriter           *rewrite.Rewriter
+	log                hclog.Logger
+	descriptionSource  source.DescriptionSource
+	descriptionParsers []source.DescriptionParser
 }
 
-func NewTableBuilder(source source.DataSource, descriptionSource source.DescriptionSource, rewriter *rewrite.Rewriter) TableBuilder {
+func NewTableBuilder(source source.DataSource, descriptionSource source.DescriptionSource, rewriter *rewrite.Rewriter, parsers []source.DescriptionParser) TableBuilder {
 	return TableBuilder{
 		source:            source,
 		descriptionSource: descriptionSource,
@@ -81,6 +82,7 @@ func NewTableBuilder(source source.DataSource, descriptionSource source.Descript
 			Level:  hclog.Debug,
 			Output: os.Stdout,
 		}),
+		descriptionParsers: parsers,
 	}
 }
 
@@ -94,6 +96,7 @@ func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *con
 		parentTable:   parentTable,
 		Options:       resourceCfg.TableOptions,
 		Description:   resourceCfg.Description,
+		path:          resourceCfg.Path,
 	}
 	// will only mark table function as copied
 	tb.rewriter.GetFunctionBody(table.TableFuncName, "")
@@ -240,11 +243,13 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 		relationCfg := resourceCfg.GetRelationConfig(colDef.Name)
 		if relationCfg == nil {
 			tb.log.Debug("relation config not defined in parent resource, assuming configuration", "table", table.TableName, "column", field.Name(), "object", field.Name())
-			relationCfg = &config.ResourceConfig{
-				Service: resourceCfg.Service,
-				Domain:  resourceCfg.Domain,
-				Name:    colDef.Name,
-				Path:    field.Path(),
+			relationCfg = &config.RelationConfig{
+				ResourceConfig: config.ResourceConfig{
+					Service: resourceCfg.Service,
+					Domain:  resourceCfg.Domain,
+					Name:    colDef.Name,
+					Path:    field.Path(),
+				},
 			}
 		}
 		if relationCfg.Path == "" {
@@ -453,9 +458,10 @@ func (tb TableBuilder) addPathResolver(fieldName string, definition *ColumnDefin
 
 func (tb TableBuilder) buildTableRelations(parentTable *TableDefinition, cfg *config.ResourceConfig, _ BuildMeta) error {
 
-	for _, relCfg := range cfg.Relations {
+	for _, relCfg := range cfg.UserRelations {
 		// if relation already exists i.e was built from one of the columns we skip it
-		if parentTable.RelationExists(relCfg.Name) {
+		if parentTable.RelationExists(relCfg) {
+			tb.log.Debug("Relation already exists skipping", "relation", relCfg.Name, "path", relCfg.Path)
 			continue
 		}
 
@@ -470,13 +476,19 @@ func (tb TableBuilder) buildTableRelations(parentTable *TableDefinition, cfg *co
 	return nil
 }
 
-func (tb TableBuilder) buildTableRelation(parentTable *TableDefinition, cfg *config.ResourceConfig, meta BuildMeta) error {
+func (tb TableBuilder) buildTableRelation(parentTable *TableDefinition, cfg *config.RelationConfig, meta BuildMeta) error {
 	if cfg.LimitDepth != 0 && meta.Depth >= cfg.LimitDepth {
 		tb.log.Warn("depth level exceeded", "parent_table", parentTable.TableName, "table", cfg.Name)
 		return nil
 	}
 	tb.log.Debug("building column relation", "parent_table", parentTable.TableName, "table", cfg.Name)
-	if cfg.EmbedRelation {
+
+	if cfg.Rename != "" {
+		tb.log.Debug("rename relation", "from", cfg.Name, "to", cfg.Rename)
+		cfg.Name = cfg.Rename
+	}
+
+	if cfg.Embed {
 		return tb.buildEmbeddedRelation(parentTable, cfg, meta)
 	}
 
@@ -488,7 +500,7 @@ func (tb TableBuilder) buildTableRelation(parentTable *TableDefinition, cfg *con
 		log:               tb.log,
 	}
 
-	rel, err := innerBuilder.BuildTable(parentTable, cfg, BuildMeta{Depth: meta.Depth, ColumnPath: "", FieldPath: "", FieldParts: meta.FieldParts})
+	rel, err := innerBuilder.BuildTable(parentTable, &cfg.ResourceConfig, BuildMeta{Depth: meta.Depth, ColumnPath: "", FieldPath: "", FieldParts: meta.FieldParts})
 	if err != nil {
 		return err
 	}
@@ -502,16 +514,16 @@ func (tb TableBuilder) buildTableRelation(parentTable *TableDefinition, cfg *con
 	return nil
 }
 
-func (tb TableBuilder) buildEmbeddedRelation(parentTable *TableDefinition, cfg *config.ResourceConfig, parentMeta BuildMeta) error {
+func (tb TableBuilder) buildEmbeddedRelation(parentTable *TableDefinition, cfg *config.RelationConfig, parentMeta BuildMeta) error {
 	obj, err := tb.source.Find(cfg.Path)
 	if err != nil {
 		return err
 	}
 	meta := parentMeta
-	if cfg.EmbedSkipPrefix {
+	if cfg.SkipPrefix {
 		meta.ColumnPath = ""
 	}
-	return tb.buildColumns(parentTable, obj, cfg, meta)
+	return tb.buildColumns(parentTable, obj, &cfg.ResourceConfig, meta)
 }
 
 func (tb TableBuilder) getDescription(obj source.Object, description string, meta BuildMeta) string {
@@ -531,4 +543,11 @@ func (tb TableBuilder) getDescription(obj source.Object, description string, met
 		return d
 	}
 	return obj.Description()
+}
+
+func (tb TableBuilder) parseDescription(description string) string {
+	for _, dp := range tb.descriptionParsers {
+		description = dp.Parse(description)
+	}
+	return description
 }

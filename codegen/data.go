@@ -55,7 +55,12 @@ func buildResources(cfg *config.Config, domain string, resourceName string) ([]*
 		}
 	}
 
-	tb := NewTableBuilder(src, dsrc, rw)
+	parsers := make([]source.DescriptionParser, len(cfg.DescriptionParsers))
+	for i, p := range cfg.DescriptionParsers {
+		parsers[i] = source.NewUserDescriptionParser(p.Regex, p.RemoveWords)
+	}
+
+	tb := NewTableBuilder(src, dsrc, rw, parsers)
 	resources := make([]*ResourceDefinition, 0)
 	for _, resource := range cfg.Resources {
 		if domain != "" && resource.Domain != domain {

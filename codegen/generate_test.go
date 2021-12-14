@@ -32,12 +32,15 @@ func Test_Generate(t *testing.T) {
 		{Name: "embedded_field_rename", Config: "./tests/columns.hcl", Domain: "columns", ResourceName: "embedded_field_rename", ExpectedOutput: "./tests/expected/columns_embedded_field_rename.go"},
 		{Name: "resolvers", Config: "./tests/resolvers.hcl", Domain: "resolvers", ResourceName: "resolvers", ExpectedOutput: "./tests/expected/resolvers_resolvers.go"},
 		{Name: "resolvers_user_defined", Config: "./tests/resolvers.hcl", Domain: "resolvers", ResourceName: "user_defined", ExpectedOutput: "./tests/expected/resolvers_user_defined.go"},
-		{Name: "resolvers_user_defined", Config: "./tests/resolvers.hcl", Domain: "resolvers", ResourceName: "rename_with_resolver", ExpectedOutput: "./tests/expected/resolvers_rename_with_resolver.go"},
+		{Name: "resolvers_rename", Config: "./tests/resolvers.hcl", Domain: "resolvers", ResourceName: "rename_with_resolver", ExpectedOutput: "./tests/expected/resolvers_rename_with_resolver.go"},
 		{Name: "user_defined_simple", Config: "./tests/user_defined.hcl", Domain: "user_defined", ResourceName: "simple", ExpectedOutput: "./tests/expected/user_defined_simple.go"},
 		{Name: "user_defined_resolvers", Config: "./tests/user_defined.hcl", Domain: "user_defined", ResourceName: "resolvers", ExpectedOutput: "./tests/expected/user_defined_resolvers.go"},
+		{Name: "relations_rename", Config: "./tests/relations.hcl", Domain: "relations", ResourceName: "rename", ExpectedOutput: "./tests/expected/relations_rename.go"},
+		{Name: "relations_user_relations", Config: "./tests/relations.hcl", Domain: "relations", ResourceName: "user_relation", ExpectedOutput: "./tests/expected/relations_user_relation.go"},
 		// Bad configurations
 		{Name: "bad_duplicate_resource", Config: "./tests/bad_config.hcl", Domain: "bad", ResourceName: "duplicate", ExpectError: fmt.Errorf("duplicate resource found. Domain: bad Resource: duplicate")},
 	}
+	t.Parallel()
 	for _, tc := range generatorTests {
 		t.Run(tc.Name, func(t *testing.T) {
 			err := Generate(tc.Config, tc.Domain, tc.ResourceName, "./tests/output")

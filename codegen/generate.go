@@ -2,6 +2,8 @@ package codegen
 
 import (
 	_ "embed"
+	"fmt"
+	"log"
 	"path"
 
 	"github.com/cloudquery/cq-gen/codegen/config"
@@ -12,9 +14,12 @@ import (
 var tableTemplate string
 
 func Generate(configPath, domain, resourceName, outputDir string) error {
-	cfg, err := config.Parse(configPath)
-	if err != nil {
-		return err
+	cfg, diags := config.ParseConfiguration(configPath)
+	if diags.HasErrors() {
+		for _, d := range diags {
+			log.Printf("configuration error: %s", d.Error())
+		}
+		return fmt.Errorf("failed to parse configuration")
 	}
 	resources, err := buildResources(cfg, domain, resourceName)
 	if err != nil {
