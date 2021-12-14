@@ -1,13 +1,13 @@
-service            = "azure"
-output_directory   = "../cq-provider-azure/resources"
+service = "azure"
+output_directory = "../cq-provider-azure/resources"
 description_parser = "azure"
 
 resource "azure" "compute" "disks" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-01/compute.Disk"
+  path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-01/compute.Disk"
   description = "Azure compute disk"
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -27,7 +27,7 @@ resource "azure" "compute" "disks" {
   }
 
   column "time_created_time" {
-    rename                                = "time_created"
+    rename = "time_created"
     extract_description_from_parent_field = true
   }
   column "hyper_v_generation" {
@@ -45,22 +45,22 @@ resource "azure" "compute" "disks" {
   }
 
   column "share_info" {
-    type              = "StringArray"
+    type = "StringArray"
     generate_resolver = true
   }
 
   relation "azure" "compute" "disk_encryption_settings" {
     description = "Azure compute disk encryption setting"
-    path        = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-01/compute.EncryptionSettingsElement"
+    path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-01/compute.EncryptionSettingsElement"
   }
 }
 
 resource "azure" "storage" "containers" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2019-06-01/storage.ListContainerItem"
+  path = "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2019-06-01/storage.ListContainerItem"
   description = "Azure storage container"
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -68,7 +68,7 @@ resource "azure" "storage" "containers" {
   }
 
   userDefinedColumn "account_id" {
-    type        = "uuid"
+    type = "uuid"
     description = "Azure storage account id"
     resolver "parentIdResolver" {
       path = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentIdResolver"
@@ -99,12 +99,12 @@ resource "azure" "storage" "containers" {
   }
 
   column "legal_hold" {
-    type              = "json"
+    type = "json"
     generate_resolver = true
   }
 
   column "immutability_policy" {
-    type              = "json"
+    type = "json"
     generate_resolver = true
   }
 
@@ -130,11 +130,11 @@ resource "azure" "storage" "containers" {
 }
 
 resource "azure" "storage" "accounts" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2019-06-01/storage.Account"
+  path = "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2019-06-01/storage.Account"
   description = "Azure storage account"
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -215,7 +215,7 @@ resource "azure" "storage" "accounts" {
 
   column "encryption_key_vault_properties_last_key_rotation_timestamp_time" {
     extract_description_from_parent_field = true
-    rename                                = "encryption_key_last_key_rotation_timestamp_time"
+    rename = "encryption_key_last_key_rotation_timestamp_time"
   }
 
   column "blob_restore_status_parameters_time_to_restore_time" {
@@ -227,12 +227,12 @@ resource "azure" "storage" "accounts" {
   }
 
   column "blob_restore_status_parameters_blob_ranges" {
-    type              = "json"
+    type = "json"
     generate_resolver = true
   }
 
   relation "azure" "storage" "private_endpoint_connections" {
-    path        = "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2019-06-01/storage.PrivateEndpointConnection"
+    path = "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2019-06-01/storage.PrivateEndpointConnection"
     description = "Azure storage account private endpoint connection"
     column "id" {
       rename = "resource_id"
@@ -245,10 +245,10 @@ resource "azure" "storage" "accounts" {
 
 resource "azure" "sql" "servers" {
   description = "Azure sql server"
-  path        = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.Server"
+  path = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.Server"
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -273,11 +273,11 @@ resource "azure" "sql" "servers" {
 
 resource "azure" "sql" "databases" {
   description = "Azure sql database"
-  path        = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.Database"
+  path = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.Database"
 
   userDefinedColumn "subscription_id" {
     description = "Azure subscription id"
-    type        = "string"
+    type = "string"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
     }
@@ -322,7 +322,7 @@ resource "azure" "sql" "databases" {
 
   relation "azure" "sql" "transparent_data_encryptions" {
     description = "Azure sql database encryption"
-    path        = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.TransparentDataEncryption"
+    path = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.TransparentDataEncryption"
     column "transparent_data_encryption_properties" {
       skip_prefix = true
     }
@@ -333,11 +333,11 @@ resource "azure" "sql" "databases" {
 }
 
 resource "azure" "resources" "groups" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2020-06-01/resources.Group"
+  path = "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2020-06-01/resources.Group"
   description = "Azure resource group"
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -362,22 +362,11 @@ resource "azure" "resources" "groups" {
 
 resource "azure" "network" "virtual_networks" {
   description = "Azure virtual network"
-  path        = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.VirtualNetwork"
+  path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.VirtualNetwork"
   limit_depth = 1
 
-  options {
-    primary_keys = [
-      "subscription_id",
-      "id"
-    ]
-  }
-  column "dhcp_options_dns_servers" {
-    type              = "inetArray"
-    generate_resolver = true
-  }
-
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -394,45 +383,51 @@ resource "azure" "network" "virtual_networks" {
     skip_prefix = true
   }
 
-  column "ip_allocations" {
-    type              = "stringArray"
-    generate_resolver = true
+  column "id" {
+    rename = "resource_id"
   }
 
   relation "azure" "networks" "subnets" {
-    path        = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.Subnet"
+    path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.Subnet"
     description = "Azure virtual network subnet"
-    options {
-      primary_keys = [
-        "virtual_network_cq_id",
-        "id"
-      ]
-    }
     column "subnet_properties_format" {
       skip_prefix = true
     }
     column "route_table_properties_format" {
       skip_prefix = true
     }
+    column "id" {
+      rename = "resource_id"
+    }
+
     column "network_security_group_security_group_properties_format_resource_guid" {
       rename = "security_group_properties_format_resource_guid"
     }
+
     column "network_security_group_security_group_properties_format_provisioning_state" {
       rename = "security_group_properties_format_provisioning_state"
     }
   }
 
   relation "azure" "networks" "peerings" {
-    path        = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.VirtualNetworkPeering"
+    path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.VirtualNetworkPeering"
     description = "Azure virtual network peering"
-    options {
-      primary_keys = [
-        "virtual_network_cq_id",
-        "id"
-      ]
-    }
     column "virtual_network_peering_properties_format" {
       skip_prefix = true
+    }
+    column "id" {
+      rename = "resource_id"
+    }
+  }
+
+  relation "azure" "networks" "ip_allocations" {
+    path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.SubResource"
+    description = "Azure virtual network ip allocation"
+    column "virtual_network_ip_allocations_properties_format" {
+      skip_prefix = true
+    }
+    column "id" {
+      rename = "resource_id"
     }
   }
 }
@@ -442,11 +437,11 @@ resource "azure" "graphrbac" "users" {
 }
 
 resource "azure" "keyvault" "vaults" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2019-09-01/keyvault.Vault"
+  path = "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2019-09-01/keyvault.Vault"
   description = "Azure ketvault vault"
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -465,8 +460,7 @@ resource "azure" "keyvault" "vaults" {
   options {
     primary_keys = [
       "subscription_id",
-      "id"
-    ]
+      "id"]
   }
 
   column "properties" {
@@ -474,7 +468,7 @@ resource "azure" "keyvault" "vaults" {
   }
 
   column "network_acls_ip_rules" {
-    type              = "stringArray"
+    type = "stringArray"
     generate_resolver = true
   }
 
@@ -486,22 +480,22 @@ resource "azure" "keyvault" "vaults" {
     }
 
     column "expires" {
-      type              = "timestamp"
+      type = "timestamp"
       generate_resolver = true
     }
 
     column "not_before" {
-      type              = "timestamp"
+      type = "timestamp"
       generate_resolver = true
     }
 
     column "created" {
-      type              = "timestamp"
+      type = "timestamp"
       generate_resolver = true
     }
 
     column "updated" {
-      type              = "timestamp"
+      type = "timestamp"
       generate_resolver = true
     }
   }
@@ -514,28 +508,28 @@ resource "azure" "keyvault" "vaults" {
     }
 
     column "expires" {
-      type              = "timestamp"
+      type = "timestamp"
       generate_resolver = true
     }
 
     column "not_before" {
-      type              = "timestamp"
+      type = "timestamp"
       generate_resolver = true
     }
 
     column "created" {
-      type              = "timestamp"
+      type = "timestamp"
       generate_resolver = true
     }
 
     column "updated" {
-      type              = "timestamp"
+      type = "timestamp"
       generate_resolver = true
     }
   }
 
   relation "azure" "keyvault" "private_endpoint_connections" {
-    path        = "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2019-09-01/keyvault.PrivateEndpointConnectionItem"
+    path = "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2019-09-01/keyvault.PrivateEndpointConnectionItem"
     description = "Azure ketvault vault endpoint connection"
     column "private_endpoint_connection_properties" {
       skip_prefix = true
@@ -543,17 +537,17 @@ resource "azure" "keyvault" "vaults" {
   }
 
   column "network_acls_virtual_network_rules" {
-    type              = "stringArray"
+    type = "stringArray"
     generate_resolver = true
   }
 }
 
 resource "azure" "postgresql" "servers" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2020-01-01/postgresql.Server"
+  path = "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2020-01-01/postgresql.Server"
   description = "Azure postgresql server"
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -577,7 +571,7 @@ resource "azure" "postgresql" "servers" {
   }
 
   relation "azure" "postgresql" "private_endpoint_connection" {
-    path        = "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2020-01-01/postgresql.ServerPrivateEndpointConnection"
+    path = "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2020-01-01/postgresql.ServerPrivateEndpointConnection"
     description = "Azure postgresql server private endpoint connection"
     column "properties" {
       skip_prefix = true
@@ -589,7 +583,7 @@ resource "azure" "postgresql" "servers" {
   }
 
   relation "azure" "postgresql" "configurations" {
-    path        = "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2020-01-01/postgresql.Configuration"
+    path = "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2020-01-01/postgresql.Configuration"
     description = "Azure postgresql server configuration"
     column "configuration_properties" {
       skip_prefix = true
@@ -602,11 +596,11 @@ resource "azure" "postgresql" "servers" {
 }
 
 resource "azure" "mySQL" "servers" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2020-01-01/mysql.Server"
+  path = "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2020-01-01/mysql.Server"
   description = "Azure mysql server"
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -630,7 +624,7 @@ resource "azure" "mySQL" "servers" {
   }
 
   relation "azure" "mySQL" "private_endpoint_connections" {
-    path        = "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2020-01-01/mysql.ServerPrivateEndpointConnection"
+    path = "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2020-01-01/mysql.ServerPrivateEndpointConnection"
     description = "Azure mysql server private endpoint connection"
     column "properties" {
       skip_prefix = true
@@ -641,7 +635,7 @@ resource "azure" "mySQL" "servers" {
   }
 
   relation "azure" "mySQL" "configurations" {
-    path        = "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2020-01-01/mysql.Configuration"
+    path = "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2020-01-01/mysql.Configuration"
     description = "Azure mysql server configuration"
     column "configuration_properties" {
       skip_prefix = true
@@ -654,12 +648,12 @@ resource "azure" "mySQL" "servers" {
 
 
 resource "azure" "network" "watchers" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.Watcher"
+  path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.Watcher"
   description = "Azure network watcher"
 
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -681,7 +675,7 @@ resource "azure" "monitor" "diagnostic_settings" {
   path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.DiagnosticSettingsResource"
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -708,12 +702,11 @@ resource "azure" "compute" "virtual_machines" {
   options {
     primary_keys = [
       "subscription_id",
-      "id"
-    ]
+      "id"]
   }
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -742,17 +735,17 @@ resource "azure" "compute" "virtual_machines" {
   }
 
   column "storage_profile" {
-    type              = "json"
+    type = "json"
     generate_resolver = true
   }
 
   column "os_profile" {
-    skip_prefix       = true
+    skip_prefix = true
     generate_resolver = true
   }
 
   column "instance_view" {
-    type              = "json"
+    type = "json"
     generate_resolver = true
   }
 
@@ -765,12 +758,12 @@ resource "azure" "compute" "virtual_machines" {
   }
 
   column "windows_configuration_additional_unattend_content" {
-    type              = "json"
+    type = "json"
     generate_resolver = true
   }
 
   column "network_profile_network_interfaces" {
-    type              = "json"
+    type = "json"
     generate_resolver = true
   }
 
@@ -780,18 +773,18 @@ resource "azure" "compute" "virtual_machines" {
 
 
   column "linux_configuration_ssh_public_keys" {
-    type              = "json"
+    type = "json"
     generate_resolver = true
   }
 
 
   column "last_patch_installation_summary_error_details" {
-    type              = "json"
+    type = "json"
     generate_resolver = true
   }
 
   column "available_patch_summary_error_details" {
-    type              = "json"
+    type = "json"
     generate_resolver = true
   }
 
@@ -805,11 +798,11 @@ resource "azure" "compute" "virtual_machines" {
     path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.VirtualMachineExtension"
 
     column "virtual_machine_extension_properties" {
-      type              = "json"
+      type = "json"
       generate_resolver = true
     }
     column "settings" {
-      type              = "json"
+      type = "json"
       generate_resolver = true
     }
 
@@ -822,7 +815,7 @@ resource "azure" "compute" "virtual_machines" {
     }
 
     column "protected_settings" {
-      type              = "json"
+      type = "json"
       generate_resolver = true
     }
 
@@ -831,13 +824,13 @@ resource "azure" "compute" "virtual_machines" {
 
 
 resource "azure" "monitor" "activity_log_alerts" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.ActivityLogAlertResource"
+  path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.ActivityLogAlertResource"
   //  description = "Azure network security group"
   limit_depth = 1
 
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -879,12 +872,12 @@ resource "azure" "monitor" "activity_log_alerts" {
 
 
 resource "azure" "network" "security_groups" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.SecurityGroup"
+  path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.SecurityGroup"
   description = "Azure network security group"
   limit_depth = 1
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -899,8 +892,7 @@ resource "azure" "network" "security_groups" {
   options {
     primary_keys = [
       "subscription_id",
-      "id"
-    ]
+      "id"]
   }
 
   multiplex "AzureSubscription" {
@@ -938,43 +930,42 @@ resource "azure" "network" "security_groups" {
 
     column "flow_analytics_configuration_network_watcher_flow_analytics_configuration_enabled" {
       description = "Flag to enable/disable traffic analytics for network watcher"
-      rename      = "flow_analytics_configuration_enabled"
+      rename = "flow_analytics_configuration_enabled"
     }
 
     column "flow_analytics_configuration_network_watcher_flow_analytics_configuration_workspace_id" {
       description = "The resource guid of the attached workspace for network watcher"
-      rename      = "flow_analytics_configuration_workspace_id"
+      rename = "flow_analytics_configuration_workspace_id"
     }
 
     column "flow_analytics_configuration_network_watcher_flow_analytics_configuration_workspace_region" {
       description = "The location of the attached workspace for network watcher"
-      rename      = "flow_analytics_configuration_workspace_region"
+      rename = "flow_analytics_configuration_workspace_region"
     }
     column "flow_analytics_configuration_network_watcher_flow_analytics_configuration_workspace_resource_id" {
       description = "Resource Id of the attached workspace for network watcher"
-      rename      = "flow_analytics_configuration_workspace_resource_id"
+      rename = "flow_analytics_configuration_workspace_resource_id"
     }
     column "flow_analytics_configuration_network_watcher_flow_analytics_configuration_traffic_analytics_interval" {
       description = "The interval in minutes which would decide how frequently TA service should do flow analytics for network watcher"
-      rename      = "flow_analytics_configuration_traffic_analytics_interval"
+      rename = "flow_analytics_configuration_traffic_analytics_interval"
     }
   }
 }
 
 
 resource "azure" "network" "public_ip_addresses" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.PublicIPAddress"
+  path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network.PublicIPAddress"
   limit_depth = 1
 
   options {
     primary_keys = [
       "subscription_id",
-      "id"
-    ]
+      "id"]
   }
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -993,49 +984,21 @@ resource "azure" "network" "public_ip_addresses" {
     skip_prefix = true
   }
 
-  column "nat_gateway_nat_gateway_properties_format_idle_timeout_in_minutes" {
-    rename = "nat_gateway_idle_timeout_in_minutes"
-  }
-
-  column "nat_gateway_nat_gateway_properties_format_idle_timeout_in_minutes" {
-    rename = "nat_gateway_idle_timeout_in_minutes"
-  }
-
-  column "nat_gateway_nat_gateway_properties_format_resource_guid" {
-    rename = "nat_gateway_resource_guid"
-  }
-
-  column "nat_gateway_nat_gateway_properties_format_provisioning_state" {
-    rename = "nat_gateway_provisioning_state"
-  }
-
-  column "service_public_ip_address" {
-    type              = "json"
-    generate_resolver = true
-  }
-
-  column "linked_public_ip_address" {
-    type              = "json"
-    generate_resolver = true
-  }
-
   column "ip_configuration" {
-    type              = "json"
+    skip_prefix = true
+  }
+
+  column "ip_configuration_properties_format" {
+    skip_prefix = true
+  }
+
+  column "public_ip_address" {
+    type = "json"
     generate_resolver = true
   }
 
-  column "ip_address" {
-    type              = "inet"
-    generate_resolver = true
-  }
-
-  column "ip_tags" {
-    type              = "json"
-    generate_resolver = true
-  }
-
-  column "nat_gateway" {
-    type              = "json"
+  column "subnet" {
+    type = "json"
     generate_resolver = true
   }
 }
@@ -1051,7 +1014,7 @@ resource "azure" "monitor" "diagnostic_settings" {
   }
 
   userDefinedColumn "subscription_id" {
-    type        = "string"
+    type = "string"
     description = "Azure subscription id"
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
@@ -1068,7 +1031,7 @@ resource "azure" "monitor" "diagnostic_settings" {
 }
 
 resource "azure" "monitor" "activity_logs" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.EventData"
+  path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.EventData"
   description = "Azure network watcher"
 
 
