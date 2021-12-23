@@ -1299,9 +1299,9 @@ resource "aws" "ec2" "instances" {
     relation "aws" "ec2" "groups" {
       path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.GroupIdentifier"
       userDefinedColumn "network_interface_id" {
-        type = "string"
+        type        = "string"
         description = "The ID of the network interface."
-# Resolver: schema.ParentPathResolver("NetworkInterfaceId"),
+        # Resolver: schema.ParentPathResolver("NetworkInterfaceId"),
       }
       options {
         primary_keys = [
@@ -1680,7 +1680,7 @@ resource "aws" "ec2" "subnets" {
     }
   }
   column "subnet_arn" {
-   rename = "arn"
+    rename = "arn"
   }
 
   column "subnet_id" {
@@ -1692,7 +1692,10 @@ resource "aws" "ec2" "subnets" {
     generate_resolver = true
   }
 
-  relation "aws" "ec2" "ipv6_cidr_block_association_sets"{
+  column "ipv6_cidr_block_association_set" {
+    skip = true
+  }
+  relation "aws" "ec2" "ipv6_cidr_block_association_sets" {
     path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.SubnetIpv6CidrBlockAssociation"
     options {
       primary_keys = ["subnet_cq_id", "ipv6_cidr_block"]
