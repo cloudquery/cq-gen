@@ -19,7 +19,12 @@ func decodeConfig(body hcl.Body, diags hcl.Diagnostics) (*Config, hcl.Diagnostic
 	config := &Config{}
 	content, contentDiags := body.Content(configFileSchema)
 	diags = append(diags, contentDiags...)
-
+	if attr, exists := content.Attributes["service"]; exists {
+		diags = append(diags, gohcl.DecodeExpression(attr.Expr, nil, &config.Service)...)
+	}
+	if attr, exists := content.Attributes["output_directory"]; exists {
+		diags = append(diags, gohcl.DecodeExpression(attr.Expr, nil, &config.OutputDirectory)...)
+	}
 	for _, block := range content.Blocks {
 		switch block.Type {
 		case "resource":
