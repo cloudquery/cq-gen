@@ -6150,4 +6150,88 @@ resource "aws" "iot" "certificates" {
 }
 
 
+resource "aws" "sso_admin" "instances" {
+  path = "github.com/aws/aws-sdk-go-v2/service/ssoadmin/types.InstanceMetadata"
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  options {
+    primary_keys = [
+      "account_id",
+      "arn"]
+  }
+
+  column "instance_arn" {
+    rename = "arn"
+  }
+
+  userDefinedColumn "tags" {
+    description = "tags of the instance"
+    type = "json"
+    generate_resolver = true
+  }
+
+  relation "aws" "sso_admin" "instance_groups" {
+    path = "github.com/aws/aws-sdk-go-v2/service/identitystore/types.Group"
+
+    column "group_id" {
+      rename = "id"
+    }
+
+    column "group_name" {
+      rename = "name"
+    }
+  }
+
+  relation "aws" "sso_admin" "instance_users" {
+    path = "github.com/aws/aws-sdk-go-v2/service/identitystore/types.User"
+
+    column "user_id" {
+      rename = "id"
+    }
+
+    column "user_name" {
+      rename = "name"
+    }
+  }
+
+  relation "aws" "sso_admin" "instance_permission_sets" {
+    path = "github.com/aws/aws-sdk-go-v2/service/ssoadmin/types.PermissionSet"
+
+    userDefinedColumn "inline_policy" {
+      type = "json"
+      generate_resolver = true
+    }
+
+    column "permission_set_arn" {
+      rename = "arn"
+    }
+    relation "aws" "sso_admin" "instance_permission_set_account_assignments" {
+      path = "github.com/aws/aws-sdk-go-v2/service/ssoadmin/types.AccountAssignment"
+    }
+  }
+}
+
 
