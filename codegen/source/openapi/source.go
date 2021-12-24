@@ -2,6 +2,7 @@ package openapi
 
 import (
 	"fmt"
+
 	"github.com/cloudquery/cq-gen/codegen/source"
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 	"github.com/getkin/kin-openapi/openapi3"

@@ -3,3 +3,5 @@
 */.cq/*
 cq-gen
 vendor/*
+
+codegen/tests/output/*

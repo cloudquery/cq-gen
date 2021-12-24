@@ -2,24 +2,24 @@ package codegen
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/naming"
 	"github.com/jinzhu/inflection"
-	"strings"
 )
 
 func GetColumnName(fieldName string, meta BuildMeta) string {
 	if meta.ColumnPath == "" {
 		return naming.CamelToSnake(fieldName)
 	}
-	parentNameParts := strings.Replace(meta.ColumnPath, "_", "", -1)
-	if strings.HasSuffix(parentNameParts, fieldName) {
-		return naming.CamelToSnake(parentNameParts)
+	if strings.HasSuffix(meta.ColumnPath, fieldName) {
+		return naming.CamelToSnake(meta.ColumnPath)
 	}
-	if strings.HasPrefix(fieldName, parentNameParts) {
+	if strings.HasPrefix(fieldName, meta.ColumnPath) {
 		return naming.CamelToSnake(fieldName)
 	}
-	return strings.ToLower(fmt.Sprintf("%s_%s", naming.CamelToSnake(parentNameParts), naming.CamelToSnake(fieldName)))
+	return strings.ToLower(fmt.Sprintf("%s_%s", naming.CamelToSnake(meta.ColumnPath), naming.CamelToSnake(fieldName)))
 }
 
 func GetResourceName(parentTable *TableDefinition, resourceCfg *config.ResourceConfig) string {

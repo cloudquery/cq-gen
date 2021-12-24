@@ -1,28 +1,41 @@
 package codegen
 
 import (
+	_ "embed"
+	"fmt"
+	"log"
+	"path"
+
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/codegen/template"
-	"path"
 )
 
-func Generate(configPath string, domain string, resourceName string) error {
-	cfg, err := config.Parse(configPath)
-	if err != nil {
-		return err
+//go:embed table.gotpl
+var tableTemplate string
+
+func Generate(configPath, domain, resourceName, outputDir string) error {
+	cfg, diags := config.ParseConfiguration(configPath)
+	if diags.HasErrors() {
+		for _, d := range diags {
+			log.Printf("configuration error: %s", d.Error())
+		}
+		return fmt.Errorf("failed to parse configuration")
 	}
 	resources, err := buildResources(cfg, domain, resourceName)
 	if err != nil {
 		return err
 	}
+	if outputDir == "" {
+		outputDir = cfg.OutputDirectory
+	}
 
 	for _, resource := range resources {
 		err = template.Render(template.Options{
-			Template:    "codegen/table.gotpl",
-			Filename:    path.Join(cfg.OutputDirectory, resource.Table.FileName),
-			PackageName: path.Base(cfg.OutputDirectory),
+			Template:    tableTemplate,
+			Filename:    path.Join(outputDir, resource.Table.FileName),
+			PackageName: path.Base(outputDir),
 			Data:        resource,
-			Funcs:       map[string]interface{}{
+			Funcs: map[string]interface{}{
 				"call": Call,
 			},
 		})

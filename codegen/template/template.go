@@ -3,18 +3,17 @@ package template
 import (
 	"bytes"
 	"fmt"
-	"github.com/cloudquery/cq-gen/code"
-	"github.com/cloudquery/cq-gen/rewrite"
-	"github.com/modern-go/reflect2"
-	"github.com/pkg/errors"
 	"go/format"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"text/template"
+
+	"github.com/cloudquery/cq-gen/code"
+	"github.com/cloudquery/cq-gen/rewrite"
+	"github.com/pkg/errors"
 )
 
 var CurrentImports *Imports
@@ -63,13 +62,7 @@ func Render(opts Options) error {
 		funcs[n] = f
 	}
 	t := template.New("").Funcs(funcs)
-
-	b, err := ioutil.ReadFile(opts.Template)
-	if err != nil {
-		return err
-	}
-
-	t, err = t.New("").Parse(string(b))
+	t, err = t.New("").Parse(opts.Template)
 	if err != nil {
 		return err
 	}
@@ -110,19 +103,11 @@ func Funcs() template.FuncMap {
 		"lookupImport":  CurrentImports.Lookup,
 		"ucFirst":       UcFirst,
 		"lcFirst":       LcFirst,
-		"isNil": func(i interface{}) bool {
-			return reflect2.IsNil(i)
-		},
-		"joinQuotes": func(ss []string) string {
-			ns := make([]string, len(ss))
-			for i, s := range ss {
-				ns[i] = strconv.Quote(s)
-			}
-			return strings.Join(ns, ",")
-		},
-		"go":   ToGo,
-		"goPrivate": ToGoPrivate,
-		"ref":  ref,
+		"isNil":         IsNil,
+		"joinQuotes":    JoinQuotes,
+		"go":            ToGo,
+		"goPrivate":     ToGoPrivate,
+		"ref":           ref,
 	}
 }
 

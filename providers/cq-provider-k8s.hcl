@@ -71,6 +71,166 @@ resource "k8s" "core" "namespaces" {
 }
 
 
+resource "k8s" "core" "limit_ranges" {
+  path = "k8s.io/api/core/v1.LimitRange"
+
+  options {
+    primary_keys = ["uid"]
+  }
+
+  multiplex "ContextMultiplex" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
+  }
+  deleteFilter "DeleteContextFilter" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
+  }
+
+  column "type_meta" {
+    skip_prefix = true
+  }
+
+  column "object_meta" {
+    skip_prefix = true
+  }
+
+  column "spec" {
+    skip_prefix = true
+  }
+
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "k8s" "core" "resource_quotas" {
+  path = "k8s.io/api/core/v1.ResourceQuota"
+
+  options {
+    primary_keys = ["uid"]
+  }
+
+  multiplex "ContextMultiplex" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
+  }
+  deleteFilter "DeleteContextFilter" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
+  }
+
+  column "type_meta" {
+    skip_prefix = true
+  }
+
+  column "object_meta" {
+    skip_prefix = true
+  }
+
+  column "spec" {
+    skip_prefix = true
+  }
+
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "k8s" "core" "endpoints" {
+  path = "k8s.io/api/core/v1.Endpoints"
+
+  options {
+    primary_keys = ["uid"]
+  }
+
+  multiplex "ContextMultiplex" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
+  }
+  deleteFilter "DeleteContextFilter" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
+  }
+
+  column "type_meta" {
+    skip_prefix = true
+  }
+
+  column "object_meta" {
+    skip_prefix = true
+  }
+
+  column "subsets" {
+    skip_prefix = true
+  }
+
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
+
+
+resource "k8s" "core" "service_accounts" {
+  path = "k8s.io/api/core/v1.ServiceAccount"
+
+  options {
+    primary_keys = ["uid"]
+  }
+
+  multiplex "ContextMultiplex" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.ContextMultiplex"
+  }
+  deleteFilter "DeleteContextFilter" {
+    path = "github.com/cloudquery/cq-provider-k8s/client.DeleteContextFilter"
+  }
+
+  column "type_meta" {
+    skip_prefix = true
+  }
+
+  column "object_meta" {
+    skip_prefix = true
+  }
+
+  column "secrets" {
+    skip_prefix = true
+  }
+
+  column "image_pull_secrets" {
+    skip_prefix = true
+  }
+
+  column "automount_service_account_token" {
+    skip_prefix = true
+  }
+
+  column "owner_references" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "managed_fields" {
+    type              = "json"
+    generate_resolver = true
+  }
+}
+
+
 resource "k8s" "apps" "deployments" {
   path = "k8s.io/api/apps/v1.Deployment"
 
