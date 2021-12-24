@@ -1,12 +1,14 @@
 package codegen
 
 import (
+	"fmt"
+	"path"
+
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/codegen/source"
 	"github.com/cloudquery/cq-gen/codegen/source/golang"
 	"github.com/cloudquery/cq-gen/codegen/source/openapi"
 	"github.com/cloudquery/cq-gen/rewrite"
-	"path"
 )
 
 type ResourceDefinition struct {
@@ -18,6 +20,13 @@ type ResourceDefinition struct {
 func buildResources(cfg *config.Config, domain string, resourceName string) ([]*ResourceDefinition, error) {
 	rw, err := rewrite.New(cfg.OutputDirectory)
 	if err != nil {
+		return nil, err
+	}
+
+	// checks for duplicates, although we duplicate this loop, it is more efficient to do this check before building
+	// resources and then finding duplicates after build
+	// TODO: move configuration checking into config package, requires more complex hcl checks
+	if err := checkDuplicates(cfg.Resources, domain, resourceName); err != nil {
 		return nil, err
 	}
 
@@ -46,7 +55,12 @@ func buildResources(cfg *config.Config, domain string, resourceName string) ([]*
 		}
 	}
 
-	tb := NewTableBuilder(src, dsrc, rw)
+	parsers := make([]source.DescriptionParser, len(cfg.DescriptionParsers))
+	for i, p := range cfg.DescriptionParsers {
+		parsers[i] = source.NewUserDescriptionParser(p.Regex, p.RemoveWords)
+	}
+
+	tb := NewTableBuilder(src, dsrc, rw, parsers)
 	resources := make([]*ResourceDefinition, 0)
 	for _, resource := range cfg.Resources {
 		if domain != "" && resource.Domain != domain {
@@ -66,5 +80,22 @@ func buildResources(cfg *config.Config, domain string, resourceName string) ([]*
 		})
 	}
 	return resources, nil
+}
 
+func checkDuplicates(resources []config.ResourceConfig, domain, resourceName string) error {
+	foundResources := make(map[string]bool)
+	for _, resource := range resources {
+		if domain != "" && resource.Domain != domain {
+			continue
+		}
+		if resourceName != "" && resource.Name != resourceName {
+			continue
+		}
+		rName := fmt.Sprintf("%s-%s", resource.Domain, resource.Name)
+		if _, ok := foundResources[rName]; ok {
+			return fmt.Errorf("duplicate resource found. Domain: %s Resource: %s", resource.Domain, resource.Name)
+		}
+		foundResources[rName] = true
+	}
+	return nil
 }

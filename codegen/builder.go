@@ -2,6 +2,11 @@ package codegen
 
 import (
 	"fmt"
+	"go/types"
+	"os"
+	"path"
+	"strings"
+
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/codegen/source"
@@ -12,14 +17,13 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
-	"go/types"
-	"os"
-	"path"
-	"strings"
 )
 
-const defaultImplementation = `panic("not implemented")`
-const sdkPath = "github.com/cloudquery/cq-provider-sdk"
+const (
+	defaultImplementation = `panic("not implemented")`
+	sdkPath               = "github.com/cloudquery/cq-provider-sdk"
+	MaxColumnLength       = 63
+)
 
 // BuildMeta is information passed when the TableBuilder is traversing over a source.Object to build it's table
 type BuildMeta struct {
@@ -31,21 +35,28 @@ type BuildMeta struct {
 	FieldPath string
 	// FieldParts is a list of fields we traversed
 	FieldParts []string
+	// fullColumnPath saves full path of column regardless of prefix skips, this allows users to define
+	// either only column name or full embedded path
+	fullColumnPath string
 }
 
 func BuildColumnMeta(field source.Object, parentMeta BuildMeta, cfg config.ColumnConfig) BuildMeta {
 	meta := BuildMeta{
-		Depth:      0,
-		ColumnPath: field.Name(),
-		FieldPath:  field.Name(),
-		FieldParts: make([]string, len(parentMeta.FieldParts)),
+		Depth:          0,
+		ColumnPath:     field.Name(),
+		FieldPath:      field.Name(),
+		FieldParts:     make([]string, len(parentMeta.FieldParts)),
+		fullColumnPath: fmt.Sprintf("%s_%s", parentMeta.fullColumnPath, field.Name()),
 	}
-
-	meta.ColumnPath = fmt.Sprintf("%s_%s", parentMeta.ColumnPath, meta.ColumnPath)
+	if cfg.Rename != "" {
+		meta.ColumnPath = cfg.Rename
+	}
+	if parentMeta.ColumnPath != "" {
+		meta.ColumnPath = fmt.Sprintf("%s_%s", parentMeta.ColumnPath, meta.ColumnPath)
+	}
 	if cfg.SkipPrefix {
 		meta.ColumnPath = parentMeta.ColumnPath
 	}
-
 	if parentMeta.FieldPath != "" {
 		meta.FieldPath = fmt.Sprintf("%s.%s", parentMeta.FieldPath, field.Name())
 	}
@@ -54,14 +65,15 @@ func BuildColumnMeta(field source.Object, parentMeta BuildMeta, cfg config.Colum
 }
 
 type TableBuilder struct {
-	finder            code.Finder
-	source            source.DataSource
-	rewriter          *rewrite.Rewriter
-	log               hclog.Logger
-	descriptionSource source.DescriptionSource
+	finder             code.Finder
+	source             source.DataSource
+	rewriter           *rewrite.Rewriter
+	log                hclog.Logger
+	descriptionSource  source.DescriptionSource
+	descriptionParsers []source.DescriptionParser
 }
 
-func NewTableBuilder(source source.DataSource, descriptionSource source.DescriptionSource, rewriter *rewrite.Rewriter) TableBuilder {
+func NewTableBuilder(source source.DataSource, descriptionSource source.DescriptionSource, rewriter *rewrite.Rewriter, parsers []source.DescriptionParser) TableBuilder {
 	return TableBuilder{
 		source:            source,
 		descriptionSource: descriptionSource,
@@ -70,6 +82,7 @@ func NewTableBuilder(source source.DataSource, descriptionSource source.Descript
 			Level:  hclog.Debug,
 			Output: os.Stdout,
 		}),
+		descriptionParsers: parsers,
 	}
 }
 
@@ -83,6 +96,7 @@ func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *con
 		parentTable:   parentTable,
 		Options:       resourceCfg.TableOptions,
 		Description:   resourceCfg.Description,
+		path:          resourceCfg.Path,
 	}
 	// will only mark table function as copied
 	tb.rewriter.GetFunctionBody(table.TableFuncName, "")
@@ -196,8 +210,12 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 		Type:     0,
 		Resolver: nil,
 	}
+	// limit max column length, this is because of postgres, we can make this configurable in the future.
+	if len(colDef.Name) > MaxColumnLength {
+		return fmt.Errorf("column %s name length is too long, max allowed is %d chars, consider renaming/skip_prefix", colDef.Name, MaxColumnLength)
+	}
 	// check if configuration wants column to be skipped
-	cfg := resourceCfg.GetColumnConfig(colDef.Name)
+	cfg := resourceCfg.GetColumnConfig(colDef.Name, meta.fullColumnPath)
 	if cfg.Skip {
 		return nil
 	}
@@ -225,11 +243,13 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 		relationCfg := resourceCfg.GetRelationConfig(colDef.Name)
 		if relationCfg == nil {
 			tb.log.Debug("relation config not defined in parent resource, assuming configuration", "table", table.TableName, "column", field.Name(), "object", field.Name())
-			relationCfg = &config.ResourceConfig{
-				Service: resourceCfg.Service,
-				Domain:  resourceCfg.Domain,
-				Name:    colDef.Name,
-				Path:    field.Path(),
+			relationCfg = &config.RelationConfig{
+				ResourceConfig: config.ResourceConfig{
+					Service: resourceCfg.Service,
+					Domain:  resourceCfg.Domain,
+					Name:    colDef.Name,
+					Path:    field.Path(),
+				},
 			}
 		}
 		if relationCfg.Path == "" {
@@ -259,7 +279,7 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 		table.Columns = append(table.Columns, colDef)
 	default:
 		colDef.Type = valueType
-		tb.addPathResolver(field, &colDef, nil, meta)
+		tb.addPathResolver(field.Name(), &colDef, nil, meta)
 		table.Columns = append(table.Columns, colDef)
 	}
 	return nil
@@ -273,12 +293,14 @@ func (tb TableBuilder) addUserDefinedColumns(table *TableDefinition, resource *c
 			Description: uc.Description,
 			Type:        schema.ValueTypeFromString(uc.Type),
 		}
+
+		if uc.Resolver != nil && uc.GenerateResolver {
+			return fmt.Errorf("can't set resolver with generate resolver flag set to true")
+		}
+		// if we were requested to generate a resolver we create the resolver with the implementation
 		if uc.GenerateResolver {
-			if uc.Resolver != nil {
-				tb.log.Warn("overriding already defined column resolver", "column", uc.Name, "resolver", uc.Resolver.Name)
-			}
 			columnResolver, err := tb.buildResolverDefinition(table, &config.FunctionConfig{
-				Name:     fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(strcase.ToCamel(uc.Name))),
+				Name:     template.ToGo(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strcase.ToCamel(uc.Name))),
 				Body:     defaultImplementation,
 				Path:     path.Join(sdkPath, "provider/schema.ColumnResolver"),
 				Generate: true,
@@ -287,12 +309,37 @@ func (tb TableBuilder) addUserDefinedColumns(table *TableDefinition, resource *c
 				return err
 			}
 			colDef.Resolver = columnResolver
-		} else if uc.Resolver != nil {
+			table.Columns = append(table.Columns, colDef)
+			continue
+		}
+
+		if uc.Resolver == nil {
+			tb.log.Debug("no resolver set and generate resolver was false", "table", table.TableName, "column", uc.Name)
+			table.Columns = append(table.Columns, colDef)
+			continue
+		}
+		if uc.Resolver.Body != "" {
+			columnResolver, err := tb.buildResolverDefinition(table, &config.FunctionConfig{
+				Name:     template.ToGo(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(uc.Name))),
+				Body:     uc.Resolver.Body,
+				Path:     path.Join(sdkPath, "provider/schema.ColumnResolver"),
+				Generate: true,
+			})
+			if err != nil {
+				return err
+			}
+			colDef.Resolver = columnResolver
+		} else {
 			ro, err := tb.finder.FindObjectFromName(uc.Resolver.Path)
 			if err != nil {
 				return fmt.Errorf("user defined column %s requires resolver definition %w", uc.Name, err)
 			}
-			colDef.Resolver = &ResolverDefinition{Type: ro}
+			// if the resolver is a path resolver
+			if uc.Resolver.PathResolver {
+				tb.addPathResolver(template.ToGo(uc.Name), &colDef, ro, BuildMeta{})
+			} else {
+				colDef.Resolver = &ResolverDefinition{Type: ro}
+			}
 		}
 		table.Columns = append(table.Columns, colDef)
 	}
@@ -333,9 +380,11 @@ func (tb TableBuilder) buildResolverDefinition(table *TableDefinition, cfg *conf
 		Arguments: GetFunctionParams(signature),
 		Generate:  cfg.Generate,
 	}
-	if cfg.Generate {
+	// if user requested to generate or gave us a body in the configuration
+	if cfg.Generate || (cfg.Body != "") {
 		// Set signature of function as the generated resolver name
 		def.Signature = cfg.Name
+		def.Generate = true
 		table.Functions = append(table.Functions, def)
 	}
 	return def, nil
@@ -348,7 +397,7 @@ func (tb TableBuilder) SetColumnResolver(tableDef *TableDefinition, field source
 			return err
 		}
 		if cfg.Resolver.Path != "" && cfg.Resolver.PathResolver {
-			tb.addPathResolver(field, colDef, ro, meta)
+			tb.addPathResolver(field.Name(), colDef, ro, meta)
 		} else {
 			colDef.Resolver = &ResolverDefinition{
 				Type: ro,
@@ -357,7 +406,7 @@ func (tb TableBuilder) SetColumnResolver(tableDef *TableDefinition, field source
 	}
 	if cfg.Rename != "" {
 		colDef.Name = cfg.Rename
-		tb.addPathResolver(field, colDef, nil, meta)
+		tb.addPathResolver(field.Name(), colDef, nil, meta)
 	}
 	if cfg.GenerateResolver {
 		if colDef.Resolver != nil {
@@ -380,7 +429,7 @@ func (tb TableBuilder) SetColumnResolver(tableDef *TableDefinition, field source
 	return nil
 }
 
-func (tb TableBuilder) addPathResolver(field source.Object, definition *ColumnDefinition, funcObj types.Object, meta BuildMeta) {
+func (tb TableBuilder) addPathResolver(fieldName string, definition *ColumnDefinition, funcObj types.Object, meta BuildMeta) {
 	if definition.Resolver != nil {
 		return
 	}
@@ -389,30 +438,30 @@ func (tb TableBuilder) addPathResolver(field source.Object, definition *ColumnDe
 		signatureName = fmt.Sprintf("%s.%s", funcObj.Pkg().Name(), funcObj.Name())
 	}
 	if meta.FieldPath != "" {
-		tb.log.Debug("Adding embedded resolver path", "column", strcase.ToCamel(definition.Name), "field", field.Name())
+		tb.log.Debug("Adding embedded resolver path", "column", strcase.ToCamel(definition.Name), "field", fieldName)
 		definition.Resolver = &ResolverDefinition{
 			Type:      funcObj,
-			Signature: fmt.Sprintf("%s(\"%s.%s\")", signatureName, meta.FieldPath, field.Name()),
+			Signature: fmt.Sprintf("%s(\"%s.%s\")", signatureName, meta.FieldPath, fieldName),
 		}
 		return
 	}
 	// use strcase here since sdk uses it and we didn't get a user defined path resolver
-	if strcase.ToCamel(definition.Name) == field.Name() && funcObj == nil {
+	if strcase.ToCamel(definition.Name) == fieldName && funcObj == nil {
 		return
 	}
-	tb.log.Debug("Adding path resolver column name. camelCase is not same as original field name", "column", strcase.ToCamel(definition.Name), "field", field.Name())
+	tb.log.Debug("Adding path resolver column name. camelCase is not same as original field name", "column", strcase.ToCamel(definition.Name), "field", fieldName)
 	definition.Resolver = &ResolverDefinition{
 		Type:      funcObj,
-		Signature: fmt.Sprintf("%s(\"%s\")", signatureName, field.Name()),
+		Signature: fmt.Sprintf("%s(\"%s\")", signatureName, fieldName),
 	}
-	return
 }
 
 func (tb TableBuilder) buildTableRelations(parentTable *TableDefinition, cfg *config.ResourceConfig, _ BuildMeta) error {
 
-	for _, relCfg := range cfg.Relations {
+	for _, relCfg := range cfg.UserRelations {
 		// if relation already exists i.e was built from one of the columns we skip it
-		if parentTable.RelationExists(relCfg.Name) {
+		if parentTable.RelationExists(relCfg) {
+			tb.log.Debug("Relation already exists skipping", "relation", relCfg.Name, "path", relCfg.Path)
 			continue
 		}
 
@@ -427,13 +476,19 @@ func (tb TableBuilder) buildTableRelations(parentTable *TableDefinition, cfg *co
 	return nil
 }
 
-func (tb TableBuilder) buildTableRelation(parentTable *TableDefinition, cfg *config.ResourceConfig, meta BuildMeta) error {
+func (tb TableBuilder) buildTableRelation(parentTable *TableDefinition, cfg *config.RelationConfig, meta BuildMeta) error {
 	if cfg.LimitDepth != 0 && meta.Depth >= cfg.LimitDepth {
 		tb.log.Warn("depth level exceeded", "parent_table", parentTable.TableName, "table", cfg.Name)
 		return nil
 	}
 	tb.log.Debug("building column relation", "parent_table", parentTable.TableName, "table", cfg.Name)
-	if cfg.EmbedRelation {
+
+	if cfg.Rename != "" {
+		tb.log.Debug("rename relation", "from", cfg.Name, "to", cfg.Rename)
+		cfg.Name = cfg.Rename
+	}
+
+	if cfg.Embed {
 		return tb.buildEmbeddedRelation(parentTable, cfg, meta)
 	}
 
@@ -445,7 +500,7 @@ func (tb TableBuilder) buildTableRelation(parentTable *TableDefinition, cfg *con
 		log:               tb.log,
 	}
 
-	rel, err := innerBuilder.BuildTable(parentTable, cfg, BuildMeta{Depth: meta.Depth, ColumnPath: "", FieldPath: "", FieldParts: meta.FieldParts})
+	rel, err := innerBuilder.BuildTable(parentTable, &cfg.ResourceConfig, BuildMeta{Depth: meta.Depth, ColumnPath: "", FieldPath: "", FieldParts: meta.FieldParts})
 	if err != nil {
 		return err
 	}
@@ -459,16 +514,16 @@ func (tb TableBuilder) buildTableRelation(parentTable *TableDefinition, cfg *con
 	return nil
 }
 
-func (tb TableBuilder) buildEmbeddedRelation(parentTable *TableDefinition, cfg *config.ResourceConfig, parentMeta BuildMeta) error {
+func (tb TableBuilder) buildEmbeddedRelation(parentTable *TableDefinition, cfg *config.RelationConfig, parentMeta BuildMeta) error {
 	obj, err := tb.source.Find(cfg.Path)
 	if err != nil {
 		return err
 	}
 	meta := parentMeta
-	if cfg.EmbedSkipPrefix {
+	if cfg.SkipPrefix {
 		meta.ColumnPath = ""
 	}
-	return tb.buildColumns(parentTable, obj, cfg, meta)
+	return tb.buildColumns(parentTable, obj, &cfg.ResourceConfig, meta)
 }
 
 func (tb TableBuilder) getDescription(obj source.Object, description string, meta BuildMeta) string {
@@ -477,7 +532,7 @@ func (tb TableBuilder) getDescription(obj source.Object, description string, met
 	}
 	// if alternative description source is defined
 	if tb.descriptionSource != nil {
-		parts := append(meta.FieldParts, obj.Name())
+		parts := append(meta.FieldParts, obj.Name()) //nolint
 		d, err := tb.descriptionSource.FindDescription(parts...)
 		if err != nil {
 			return ""
@@ -488,4 +543,11 @@ func (tb TableBuilder) getDescription(obj source.Object, description string, met
 		return d
 	}
 	return obj.Description()
+}
+
+func (tb TableBuilder) parseDescription(description string) string {
+	for _, dp := range tb.descriptionParsers {
+		description = dp.Parse(description)
+	}
+	return description
 }

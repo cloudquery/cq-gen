@@ -2,9 +2,24 @@ package template
 
 import (
 	"go/types"
+	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/modern-go/reflect2"
 )
+
+func IsNil(i interface{}) bool {
+	return reflect2.IsNil(i)
+}
+
+func JoinQuotes(ss []string) string {
+	ns := make([]string, len(ss))
+	for i, s := range ss {
+		ns[i] = strconv.Quote(s)
+	}
+	return strings.Join(ns, ",")
+}
 
 func UcFirst(s string) string {
 	if s == "" {

@@ -8,25 +8,29 @@
 CloudQuery Provider Generator
 =======================
 
-*CQ-Gen* allows creating providers resources fast and from a client source.
+*CQ-Gen* allows creating providers resources fast by generating all the boring bits and allow you to focus on the logic!
 
-For rewriter to work correctly, use "replace" in go.mod to point to your local provider code
+The main goal of cq-gen is to easily generate tables from an existing source including reading their descriptions and relations, 
+by defining our generation once in a configuration we can re-generate when new fields are added and our resolver functions can stay the same.
+
+## Key features
+- We generate most of the boring table bits and all fields including descriptions, so you can focus on defining the resolver logic and add more resources faster!
+- Configurable, cq-gen allows you to define your own columns, relations and even transform existing columns
+- Read from one or more sources, openAPI? Golang? some other source? we got you covered we can support reading from any source as long as it supports the interface.
 
 Usage 
 =====
 
 ### introduction
-To use cq-gen you first must add the provider as a submodule (future release will change this to //go:generate).
-Currently, all providers reside in the provider directory.
-
-After the submodule is created add a config file for cq-gen to know how to 
-generate. You can look at [cq-provider-aws](providers/cq-provider-aws.hcl) as an example.
+To use cq-gen you first must add it as a tool to your provider module [see](https://marcofranssen.nl/manage-go-tools-via-go-modules) for how to set it up.
+After we set up our cq-gen tool we can start configuring our resources and create them.
 
 ### Execution
-To execute cq-gen all you need to do is execute the main.go which has 3 main flags:
+To execute cq-gen all you need to do is execute which has four main flags:
   - **config**: where the hcl configuration file to generate exists
   - **domain**: what domain we want to generate from.
   - **resource**: what specific resource in given domain we want to generate.
+  - **output**: which directory to output resources go files.
 
 #### Example
 `./cq-gen --config=providers/cq-provider-aws.hcl --domain=ecs --resource=clusters`
