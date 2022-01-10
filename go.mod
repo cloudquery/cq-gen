@@ -3,8 +3,7 @@ module github.com/cloudquery/cq-gen
 go 1.16
 
 require (
-	github.com/cloudquery/cq-provider-aws v0.0.0-00010101000000-000000000000
-	github.com/cloudquery/cq-provider-sdk v0.5.7
+	github.com/cloudquery/cq-provider-sdk v0.5.4
 	github.com/creasty/defaults v1.5.2
 	github.com/getkin/kin-openapi v0.83.0
 	github.com/hashicorp/go-hclog v1.0.0
@@ -16,5 +15,3 @@ require (
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/tools v0.1.5
 )
-
-replace github.com/cloudquery/cq-provider-aws => ../cq-provider-aws

@@ -7305,3 +7305,541 @@ resource "aws" "sagemaker" "training_jobs" {
     description       = "The tags associated with the model."
   }
 }
+
+resource "aws" "sagemaker" "notebook_instances" {
+  path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.NotebookInstanceSummary"
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type        = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+
+  options {
+    primary_keys = [
+      "arn"
+    ]
+  }
+
+  column "notebook_instance_arn" {
+    rename = "arn"
+  }
+  column "notebook_instance_name" {
+    rename = "name"
+  }
+
+  userDefinedColumn "network_interface_id" {
+    type              = "string"
+    generate_resolver = false
+    description       = "The network interface IDs that Amazon SageMaker created at the time of creating the instance."
+  }
+
+  userDefinedColumn "kms_key_id" {
+    type              = "string"
+    generate_resolver = false
+    description       = "The Amazon Web Services KMS key ID Amazon SageMaker uses to encrypt data when storing it on the ML storage volume attached to the instance."
+  }
+
+  userDefinedColumn "subnet_id" {
+    type              = "string"
+    generate_resolver = false
+    description       = "The ID of the VPC subnet."
+  }
+
+  userDefinedColumn "volume_size_in_gb" {
+    type              = "int"
+    generate_resolver = false
+    description       = "The size, in GB, of the ML storage volume attached to the notebook instance."
+  }
+
+  userDefinedColumn "accelerator_types" {
+    type              = "stringarray"
+    generate_resolver = false
+    description       = "A list of the Elastic Inference (EI) instance types associated with this notebook instance."
+  }
+
+  userDefinedColumn "security_groups" {
+    type              = "json"
+    generate_resolver = false
+    description       = "The IDs of the VPC security groups."
+  }
+
+  userDefinedColumn "direct_internet_access" {
+    type              = "bool"
+    generate_resolver = true
+    description       = "Describes whether Amazon SageMaker provides internet access to the notebook instance."
+  }
+
+  userDefinedColumn "tags" {
+    type              = "json"
+    generate_resolver = true
+    description       = "The tags associated with the notebook instance."
+  }
+}
+
+resource "aws" "sagemaker" "models" {
+  path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.ModelSummary"
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type        = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  options {
+    primary_keys = [
+      "arn"
+    ]
+  }
+
+  column "model_arn" {
+    rename = "arn"
+    description = "The Amazon Resource Name (ARN) of the model."
+  }
+  column "model_name" {
+    rename = "name"
+    description = "The name of the model."
+  }
+
+  column "creation_time" {
+    description = "A timestamp that indicates when the model was created."
+  }
+
+  userDefinedColumn "enable_network_isolation" {
+    type              = "bool"
+    generate_resolver = false
+    description       = "If True, no inbound or outbound network calls can be made to or from the model container."
+  }
+
+  userDefinedColumn "execution_role_arn" {
+    type              = "string"
+    generate_resolver = false
+    description       = "The Amazon Resource Name (ARN) of the IAM role that you specified for the model."
+  }
+
+  relation "aws" "sagemaker" "model_containers" {
+    path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.ContainerDefinition"
+  }
+
+  userDefinedColumn "inference_execution_config" {
+    type              = "json"
+    generate_resolver = false
+    description       = "Specifies details of how containers in a multi-container endpoint are called."
+  }
+
+  userDefinedColumn "primary_container" {
+    type              = "json"
+    generate_resolver = false
+    description       = "The location of the primary inference code, associated artifacts, and custom environment map that the inference code uses when it is deployed in production."
+  }
+
+  relation "aws" "sagemaker" "model_vpc_config" {
+    path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.VpcConfig"
+  }
+
+  userDefinedColumn "tags" {
+    type              = "json"
+    generate_resolver = true
+    description       = "The tags associated with the model."
+  }
+}
+
+resource "aws" "sagemaker" "endpoint_configurations" {
+  path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.EndpointConfigSummary"
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type        = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  options {
+    primary_keys = [
+      "arn"
+    ]
+  }
+
+  column "endpoint_config_arn" {
+    rename = "arn"
+    description = "The Amazon Resource Name (ARN) of the endpoint configuration."
+  }
+  column "endpoint_config_name" {
+    rename = "name"
+    description = "Name of the Amazon SageMaker endpoint configuration."
+  }
+
+  column "creation_time" {
+    description = "A timestamp that indicates when the endpoint configuration was created."
+  }
+
+  userDefinedColumn "kms_key_id" {
+    type              = "string"
+    generate_resolver = false
+    description       = "Amazon Web Services KMS key ID Amazon SageMaker uses to encrypt data when storing it on the ML storage volume attached to the instance."
+  }
+
+  userDefinedColumn "data_capture_config" {
+    type              = "json"
+    generate_resolver = false
+    description       = ""
+  }
+
+  relation "aws" "sagemaker" "endpoint_configuration_production_variants" {
+    path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.ProductionVariant"
+  }
+
+  userDefinedColumn "tags" {
+    type              = "json"
+    generate_resolver = true
+    description       = "The tags associated with the model."
+  }
+}
+
+resource "aws" "sagemaker" "training_jobs" {
+  path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.TrainingJobSummary"
+
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type        = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  options {
+    primary_keys = [
+      "arn"
+    ]
+  }
+
+  column "training_job_arn" {
+    rename = "arn"
+    description = "The Amazon Resource Name (ARN) of the training job."
+  }
+
+  column "training_job_name" {
+    rename = "name"
+    description = "The name of the training job."
+  }
+
+  column "creation_time" {
+    description = "A timestamp that shows when the training job was created."
+  }
+
+  column "training_job_status" {
+    description       = "The status of the training job."
+  }
+
+  column "last_modified_time" {
+    description       = "A timestamp that indicates when the status of the training job was last modified."
+  }
+
+  userDefinedColumn "auto_ml_job_arn" {
+    type              = "string"
+    generate_resolver = false
+    description       = "The Amazon Resource Name (ARN) of an AutoML job."
+  }
+
+  userDefinedColumn "billable_time_in_seconds" {
+    type              = "int"
+    generate_resolver = false
+    description       = "The billable time in seconds. Billable time refers to the absolute wall-clock time."
+  }
+
+  userDefinedColumn "enable_managed_spot_training" {
+    type              = "bool"
+    generate_resolver = false
+    description       = "A Boolean indicating whether managed spot training is enabled (True) or not (False)."
+  }
+
+  userDefinedColumn "enable_network_isolation" {
+    type              = "bool"
+    generate_resolver = false
+    description       = "If you want to allow inbound or outbound network calls, except for calls between peers within a training cluster for distributed training, choose True. If you enable network isolation for training jobs that are configured to use a VPC, Amazon SageMaker downloads and uploads customer data and model artifacts through the specified VPC, but the training container does not have network access."
+  }
+
+  userDefinedColumn "enable_inter_container_traffic_encryption" {
+    type              = "bool"
+    generate_resolver = false
+    description       = "To encrypt all communications between ML compute instances in distributed training, choose True. Encryption provides greater security for distributed training, but training might take longer. How long it takes depends on the amount of communication between compute instances, especially if you use a deep learning algorithms in distributed training."
+  }
+
+  userDefinedColumn "failure_reason" {
+    type              = "string"
+    generate_resolver = false
+    description       = "If the training job failed, the reason it failed."
+  }
+
+  userDefinedColumn "labeling_job_arn" {
+    type              = "string"
+    generate_resolver = false
+    description       = "The Amazon Resource Name (ARN) of the Amazon SageMaker Ground Truth labeling job that created the transform or training job."
+  }
+
+  userDefinedColumn "profiling_status" {
+    type              = "string"
+    generate_resolver = false
+    description       = "Profiling status of a training job."
+  }
+
+  userDefinedColumn "role_arn" {
+    type              = "string"
+    generate_resolver = false
+    description       = "The Amazon Web Services Identity and Access Management (IAM) role configured for the training job."
+  }
+
+  userDefinedColumn "secondary_status" {
+    type              = "string"
+    generate_resolver = false
+    description       = "Provides detailed information about the state of the training job."
+  }
+
+  column "training_end_time" {
+    description       = "Indicates the time when the training job ends on training instances."
+  }
+
+  userDefinedColumn "training_start_time" {
+    type              = "timestamp"
+    generate_resolver = false
+    description       = "Indicates the time when the training job starts on training instances."
+  }
+
+  userDefinedColumn "training_time_in_seconds" {
+    type              = "int"
+    generate_resolver = false
+    description       = "The training time in seconds."
+  }
+
+  userDefinedColumn "tuning_job_arn" {
+    type              = "string"
+    generate_resolver = false
+    description       = "The Amazon Resource Name (ARN) of the associated hyperparameter tuning job if the training job was launched by a hyperparameter tuning job."
+  }
+
+  relation "aws" "sagemaker" "training_job_algorithm_specification" {
+    path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.AlgorithmSpecification"
+
+    column "metric_definitions" {
+      type              = "json"
+      generate_resolver = true
+    }
+  }
+
+  userDefinedColumn "checkpoint_config" {
+    type              = "json"
+    generate_resolver = true
+    description       = "Contains information about the output location for managed spot training checkpoint data."
+  }
+
+  relation "aws" "sagemaker" "training_job_debug_hook_config" {
+    path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.DebugHookConfig"
+
+    column "collection_configurations" {
+      type              = "json"
+      generate_resolver = true
+    }
+  }
+
+  relation "aws" "sagemaker" "training_job_debug_rule_configurations" {
+    path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.DebugRuleConfiguration"
+  }
+
+  relation "aws" "sagemaker" "training_job_debug_rule_evaluation_statuses" {
+    path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.DebugRuleEvaluationStatus"
+  }
+
+  userDefinedColumn "environment" {
+    type              = "json"
+    generate_resolver = false
+    description       = "The environment variables to set in the Docker container."
+  }
+
+  userDefinedColumn "experiment_config" {
+    type              = "json"
+    generate_resolver = true
+    description       = "Associates a SageMaker job as a trial component with an experiment and trial."
+  }
+
+  userDefinedColumn "final_metric_data_list" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  userDefinedColumn "hyper_parameters" {
+    type              = "json"
+    generate_resolver = false
+    description       = "Algorithm-specific parameters."
+  }
+
+  relation "aws" "sagemaker" "training_job_input_data_config" {
+    path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.Channel"
+
+    column "data_source_file_system_data_source_directory_path" {
+      rename = "data_source_file_directory_path"
+    }
+
+    column "data_source_file_system_data_source_file_system_access_mode" {
+      rename = "data_source_file_system_access_mode"
+    }
+
+    column "data_source_file_system_data_source_file_system_id" {
+      rename = "data_source_file_system_id"
+    }
+
+    column "data_source_file_system_data_source_file_system_type" {
+      rename = "data_source_file_system_type"
+    }
+
+    column "data_source_s3_data_source_s3_data_type" {
+      rename = "data_source_s3_data_type"
+    }
+
+    column "data_source_s3_data_source_s3_uri" {
+      rename = "data_source_s3_uri"
+    }
+
+    column "data_source_s3_data_source_attribute_names" {
+      rename = "data_source_attribute_names"
+    }
+
+    column "data_source_s3_data_source_s3_data_distribution_type" {
+      rename = "data_source_s3_data_distribution_type"
+    }
+  }
+
+  userDefinedColumn "model_artifacts" {
+    type              = "json"
+    generate_resolver = true
+    description       = "Information about the Amazon S3 location that is configured for storing model artifacts."
+  }
+
+  userDefinedColumn "output_data_config" {
+    type              = "json"
+    generate_resolver = true
+    description       = "The S3 path where model artifacts that you configured when creating the job are stored."
+  }
+
+  userDefinedColumn "profiler_config" {
+    type              = "json"
+    generate_resolver = true
+    description       = "Configuration information for Debugger system monitoring, framework profiling, and storage paths."
+  }
+
+  relation "aws" "sagemaker" "training_job_profiler_rule_configurations" {
+    path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.ProfilerRuleConfiguration"
+  }
+
+  relation "aws" "sagemaker" "training_job_profiler_rule_evaluation_statuses" {
+    path = "github.com/aws/aws-sdk-go-v2/service/sagemaker/types.ProfilerRuleEvaluationStatus"
+  }
+
+  userDefinedColumn "resource_config" {
+    type              = "json"
+    generate_resolver = true
+    description       = "Resources, including ML compute instances and ML storage volumes, that are configured for model training."
+  }
+
+  userDefinedColumn "secondary_status_transitions" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  userDefinedColumn "stopping_condition" {
+    type              = "json"
+    generate_resolver = true
+    description       = "Specifies a limit to how long a model training job can run."
+  }
+
+  userDefinedColumn "tensor_board_output_config" {
+    type              = "json"
+    generate_resolver = true
+    description       = "Configuration of storage locations for the Debugger TensorBoard output data."
+  }
+
+  userDefinedColumn "vpc_config" {
+    type              = "json"
+    generate_resolver = true
+    description       = "A VpcConfig object that specifies the VPC that this training job has access to."
+  }
+
+  userDefinedColumn "tags" {
+    type              = "json"
+    generate_resolver = true
+    description       = "The tags associated with the model."
+  }
+}
