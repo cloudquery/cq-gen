@@ -4,7 +4,7 @@ output_directory = "../cq-provider-aws/resources"
 
 resource "aws" "applicationautoscaling" "policies" {
   path        = "github.com/aws/aws-sdk-go-v2/service/applicationautoscaling/types.ScalingPolicy"
-  description =  "Information about a scaling policy to use with Application Auto Scaling"
+  description = "Information about a scaling policy to use with Application Auto Scaling"
 
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
@@ -247,7 +247,7 @@ resource "aws" "dynamodb" "tables" {
 }
 
 resource "aws" "dax" "clusters" {
-  path = "github.com/aws/aws-sdk-go-v2/service/dax/types.Cluster"
+  path        = "github.com/aws/aws-sdk-go-v2/service/dax/types.Cluster"
   description = "Information about a DAX cluster."
 
   userDefinedColumn "account_id" {
@@ -267,7 +267,7 @@ resource "aws" "dax" "clusters" {
   userDefinedColumn "tags" {
     type              = "json"
     generate_resolver = true
-    description = "The tags associated with the cluster."
+    description       = "The tags associated with the cluster."
   }
   multiplex "AwsAccountRegion" {
     path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
@@ -1502,26 +1502,26 @@ resource "aws" "dms" "replication_instances" {
   column "replication_instance_private_ip_address" {
     type = "inet"
     resolver "Resolver" {
-      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.IPAddressResolver"
+      path          = "github.com/cloudquery/cq-provider-sdk/provider/schema.IPAddressResolver"
       path_resolver = true
     }
   }
 
   column "replication_instance_private_ip_addresses" {
-    type = "inetrarray"
+    type              = "inetrarray"
     generate_resolver = true
   }
 
   column "replication_instance_public_ip_address" {
     type = "inet"
     resolver "Resolver" {
-      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.IPAddressResolver"
+      path          = "github.com/cloudquery/cq-provider-sdk/provider/schema.IPAddressResolver"
       path_resolver = true
     }
   }
 
   column "replication_instance_public_ip_addresses" {
-    type = "inetrarray"
+    type              = "inetrarray"
     generate_resolver = true
   }
 
@@ -2909,7 +2909,7 @@ resource "aws" "elbv2" "listeners" {
   relation "aws" "elbv2" "default_actions" {
     path = "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types.Action"
     column "authenticate_cognito_config" {
-      rename = "cognito"
+      rename      = "cognito"
       skip_prefix = true
     }
 
@@ -2924,7 +2924,6 @@ resource "aws" "elbv2" "listeners" {
     generate_resolver = true
   }
 }
-
 
 
 resource "aws" "elbv2" "target_groups" {
@@ -4264,9 +4263,9 @@ resource "aws" "s3" "buckets" {
     }
   }
   relation "aws" "s3" "public_access_block" {
-    path              = "github.com/aws/aws-sdk-go-v2/service/s3/types.PublicAccessBlockConfiguration"
-    embed             = true
-    embed_skip_prefix = true
+    path  = "github.com/aws/aws-sdk-go-v2/service/s3/types.PublicAccessBlockConfiguration"
+    embed = true
+    #    embed_skip_prefix = true
   }
 
   relation "aws" "s3" "encryption_rules" {
@@ -6104,7 +6103,7 @@ resource "aws" "iot" "things" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
   }
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
@@ -6125,9 +6124,7 @@ resource "aws" "iot" "things" {
   }
 
   options {
-    primary_keys = [
-      "arn"
-    ]
+    primary_keys = ["account_id", "arn"]
   }
 
   column "thing_name" {
@@ -6139,7 +6136,6 @@ resource "aws" "iot" "things" {
   column "thing_type_name" {
     rename = "type_name"
   }
-
   userDefinedColumn "principals" {
     generate_resolver = true
     type              = "stringarray"
@@ -6152,7 +6148,7 @@ resource "aws" "iot" "thing_types" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
   }
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
@@ -6207,12 +6203,12 @@ resource "aws" "iot" "thing_types" {
 
 
 resource "aws" "iot" "thing_groups" {
-  path = "github.com/aws/aws-sdk-go-v2/service/iot.DescribeThingGroupOutput"
+  path        = "github.com/aws/aws-sdk-go-v2/service/iot.DescribeThingGroupOutput"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
   }
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
@@ -6232,6 +6228,8 @@ resource "aws" "iot" "thing_groups" {
     }
   }
 
+  #  description = "Groups allow you to manage several things at once by categorizing them into groups"
+
   options {
     primary_keys = [
       "arn"
@@ -6247,7 +6245,6 @@ resource "aws" "iot" "thing_groups" {
   column "thing_group_arn" {
     rename = "arn"
   }
-
 
   column "thing_group_id" {
     rename = "id"
@@ -6285,11 +6282,12 @@ resource "aws" "iot" "thing_groups" {
 
 resource "aws" "iot" "billing_groups" {
   path = "github.com/aws/aws-sdk-go-v2/service/iot.DescribeBillingGroupOutput"
+  description = "Billing groups are groups of things created for billing purposes that collect billable information for the things."
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
   }
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
@@ -6363,7 +6361,7 @@ resource "aws" "iot" "streams" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
   }
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
@@ -6408,7 +6406,7 @@ resource "aws" "iot" "security_profiles" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
   }
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
@@ -6428,6 +6426,7 @@ resource "aws" "iot" "security_profiles" {
     }
   }
 
+  description = "A security profile defines a set of expected behaviors for devices in your account and specifies the actions to take when an anomaly is detected."
 
   options {
     primary_keys = [
@@ -6457,7 +6456,7 @@ resource "aws" "iot" "security_profiles" {
     generate_resolver = true
   }
 
-  relation "aws" "iot" "security_profile_behaviors" {
+  relation "aws" "iot" "behaviors" {
     path = "github.com/aws/aws-sdk-go-v2/service/iot/types.Behavior"
 
     column "criteria_value" {
@@ -6466,12 +6465,17 @@ resource "aws" "iot" "security_profiles" {
     }
   }
 
-  relation "aws" "iot" "security_profile_additional_metrics_to_retain_v2" {
+  relation "aws" "iot" "additional_metrics_to_retain_v2" {
     path = "github.com/aws/aws-sdk-go-v2/service/iot/types.MetricToRetain"
 
     column "metric_dimension_dimension_name" {
       rename = "metric_dimension_name"
     }
+  }
+
+  userDefinedColumn "tags" {
+    type              = "json"
+    generate_resolver = true
   }
 }
 
@@ -6482,7 +6486,7 @@ resource "aws" "iot" "ca_certificates" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
   }
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
@@ -6533,7 +6537,7 @@ resource "aws" "iot" "certificates" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+    path = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
   }
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
@@ -6594,36 +6598,29 @@ resource "aws" "sso_admin" "instances" {
   }
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     description = "The AWS Region of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
 
   options {
-    primary_keys = [
-      "account_id",
-      "arn"]
+    primary_keys = ["account_id", "arn"]
   }
+
 
   column "instance_arn" {
     rename = "arn"
   }
 
-  userDefinedColumn "tags" {
-    description = "tags of the instance"
-    type = "json"
-    generate_resolver = true
-  }
-
-  relation "aws" "sso_admin" "instance_groups" {
+  user_relation "aws" "sso_admin" "groups" {
     path = "github.com/aws/aws-sdk-go-v2/service/identitystore/types.Group"
 
     column "group_id" {
@@ -6635,7 +6632,7 @@ resource "aws" "sso_admin" "instances" {
     }
   }
 
-  relation "aws" "sso_admin" "instance_users" {
+  user_relation "aws" "sso_admin" "users" {
     path = "github.com/aws/aws-sdk-go-v2/service/identitystore/types.User"
 
     column "user_id" {
@@ -6647,19 +6644,28 @@ resource "aws" "sso_admin" "instances" {
     }
   }
 
-  relation "aws" "sso_admin" "instance_permission_sets" {
+  user_relation "aws" "sso_admin" "permission_sets" {
     path = "github.com/aws/aws-sdk-go-v2/service/ssoadmin/types.PermissionSet"
 
     userDefinedColumn "inline_policy" {
-      type = "json"
+      type              = "json"
       generate_resolver = true
     }
 
     column "permission_set_arn" {
       rename = "arn"
     }
-    relation "aws" "sso_admin" "instance_permission_set_account_assignments" {
+    user_relation "aws" "sso_admin" "account_assignments" {
       path = "github.com/aws/aws-sdk-go-v2/service/ssoadmin/types.AccountAssignment"
+    }
+    userDefinedColumn "tags" {
+      description       = "tags of the instance"
+      type              = "json"
+      generate_resolver = true
+    }
+    userDefinedColumn "managed_policies" {
+      type              = "json"
+      generate_resolver = true
     }
   }
 }
@@ -6678,14 +6684,14 @@ resource "aws" "elasticbeanstalk" "applications" {
   }
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     description = "The AWS Region of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -6703,7 +6709,6 @@ resource "aws" "elasticbeanstalk" "applications" {
 }
 
 
-
 resource "aws" "elasticbeanstalk" "configuration_settings" {
   path = "github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk/types.ConfigurationSettingsDescription"
   ignoreError "IgnoreAccessDenied" {
@@ -6717,20 +6722,20 @@ resource "aws" "elasticbeanstalk" "configuration_settings" {
   }
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     description = "The AWS Region of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
   }
   options {
-    primary_keys = ["application_name","date_created"]
+    primary_keys = ["application_name", "date_created"]
   }
 
 }
@@ -6749,14 +6754,14 @@ resource "aws" "elasticbeanstalk" "configuration_options" {
   }
   userDefinedColumn "account_id" {
     description = "The AWS Account ID of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSAccount" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
     }
   }
   userDefinedColumn "region" {
     description = "The AWS Region of the resource."
-    type = "string"
+    type        = "string"
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
@@ -6889,11 +6894,11 @@ resource "aws" "sagemaker" "models" {
   }
 
   column "model_arn" {
-    rename = "arn"
+    rename      = "arn"
     description = "The Amazon Resource Name (ARN) of the model."
   }
   column "model_name" {
-    rename = "name"
+    rename      = "name"
     description = "The name of the model."
   }
 
@@ -6975,11 +6980,11 @@ resource "aws" "sagemaker" "endpoint_configurations" {
   }
 
   column "endpoint_config_arn" {
-    rename = "arn"
+    rename      = "arn"
     description = "The Amazon Resource Name (ARN) of the endpoint configuration."
   }
   column "endpoint_config_name" {
-    rename = "name"
+    rename      = "name"
     description = "Name of the Amazon SageMaker endpoint configuration."
   }
 
@@ -7045,12 +7050,12 @@ resource "aws" "sagemaker" "training_jobs" {
   }
 
   column "training_job_arn" {
-    rename = "arn"
+    rename      = "arn"
     description = "The Amazon Resource Name (ARN) of the training job."
   }
 
   column "training_job_name" {
-    rename = "name"
+    rename      = "name"
     description = "The name of the training job."
   }
 
@@ -7059,11 +7064,11 @@ resource "aws" "sagemaker" "training_jobs" {
   }
 
   column "training_job_status" {
-    description       = "The status of the training job."
+    description = "The status of the training job."
   }
 
   column "last_modified_time" {
-    description       = "A timestamp that indicates when the status of the training job was last modified."
+    description = "A timestamp that indicates when the status of the training job was last modified."
   }
 
   userDefinedColumn "auto_ml_job_arn" {
@@ -7127,7 +7132,7 @@ resource "aws" "sagemaker" "training_jobs" {
   }
 
   column "training_end_time" {
-    description       = "Indicates the time when the training job ends on training instances."
+    description = "Indicates the time when the training job ends on training instances."
   }
 
   userDefinedColumn "training_start_time" {
