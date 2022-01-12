@@ -39,10 +39,10 @@ func Generate(configPath, domain, resourceName, outputDir string) error {
 
 	for _, resource := range resources {
 		err = template.Render(template.Options{
-			Template:          tableTemplate,
-			Filename:          path.Join(outputDir, resource.Table.FileName),
-			PackageName:       filepath.Base(absPath),
-			Data:              resource,
+			Template:    tableTemplate,
+			Filename:    path.Join(outputDir, resource.Table.FileName),
+			PackageName: filepath.Base(absPath),
+			Data:        resource,
 			Funcs: map[string]interface{}{
 				"call": Call,
 			},

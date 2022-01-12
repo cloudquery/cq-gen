@@ -2,9 +2,10 @@ package codegen
 
 import (
 	"fmt"
-	"github.com/cloudquery/cq-gen/codegen/source/graphql"
 	"log"
 	"path"
+
+	"github.com/cloudquery/cq-gen/codegen/source/graphql"
 
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/codegen/source"

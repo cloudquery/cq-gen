@@ -2,10 +2,11 @@ package graphql
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/spf13/afero"
 	"github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
-	"strings"
 )
 
 type DescriptionSource struct {
@@ -17,11 +18,14 @@ func NewDescriptionSource(path string) (*DescriptionSource, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to read schema file: %w", err)
 	}
-	s, err := gqlparser.LoadSchema(&ast.Source{
+	s, gqlErr := gqlparser.LoadSchema(&ast.Source{
 		Name:    "schema",
 		Input:   string(f),
 		BuiltIn: false,
 	})
+	if gqlErr != nil {
+		return nil, err
+	}
 	return &DescriptionSource{schema: s}, nil
 }
 

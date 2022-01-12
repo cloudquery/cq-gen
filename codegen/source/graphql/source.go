@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"fmt"
+
 	"github.com/cloudquery/cq-gen/codegen/source"
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 	"github.com/spf13/afero"
@@ -20,11 +21,14 @@ func NewGraphQLSource(path string) (*DataSource, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to read schema file: %w", err)
 	}
-	s, err := gqlparser.LoadSchema(&ast.Source{
+	s, gqlErr := gqlparser.LoadSchema(&ast.Source{
 		Name:    "schema",
 		Input:   string(f),
 		BuiltIn: false,
 	})
+	if gqlErr != nil {
+		return nil, err
+	}
 	return &DataSource{schema: s}, nil
 }
 
@@ -38,9 +42,9 @@ func (d DataSource) Find(path string) (source.Object, error) {
 }
 
 type Object struct {
-	name string
+	name   string
 	schema *ast.Schema
-	def *ast.Definition
+	def    *ast.Definition
 
 	parent *Object
 }
@@ -54,19 +58,7 @@ func (o Object) Description() string {
 }
 
 func (o Object) Fields() []source.Object {
-	objs := make([]source.Object, len(o.def.Fields))
-	for i, f := range  o.def.Fields {
-		// TODO: check types
-		fdef, _ := o.schema.Types[GetType(f.Type).Name()]
-
-		objs[i] = &Object{
-			name:   f.Name,
-			schema: o.schema,
-			def:    fdef,
-			parent: &o,
-		}
-	}
-	return objs
+	return nil
 }
 
 func (o Object) Type() schema.ValueType {
