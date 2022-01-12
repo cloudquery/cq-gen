@@ -2,6 +2,8 @@ package codegen
 
 import (
 	"fmt"
+	"github.com/cloudquery/cq-gen/codegen/source/graphql"
+	"log"
 	"path"
 
 	"github.com/cloudquery/cq-gen/codegen/config"
@@ -15,6 +17,7 @@ type ResourceDefinition struct {
 	Config          config.ResourceConfig
 	Table           *TableDefinition
 	RemainingSource string
+	GenerateHeader  string
 }
 
 func buildResources(cfg *config.Config, domain string, resourceName string) ([]*ResourceDefinition, error) {
@@ -49,9 +52,18 @@ func buildResources(cfg *config.Config, domain string, resourceName string) ([]*
 
 	var dsrc source.DescriptionSource
 	if cfg.DescriptionSource != nil {
-		dsrc, err = openapi.NewDescriptionSource(cfg.DescriptionSource.Path)
-		if err != nil {
-			return nil, err
+
+		switch cfg.DescriptionSource.Type {
+		case "openapi":
+			dsrc, err = openapi.NewDescriptionSource(cfg.DescriptionSource.Path)
+			if err != nil {
+				return nil, err
+			}
+		case "graphql":
+			dsrc, err = graphql.NewDescriptionSource(cfg.DescriptionSource.Path)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -69,14 +81,21 @@ func buildResources(cfg *config.Config, domain string, resourceName string) ([]*
 		if resourceName != "" && resource.Name != resourceName {
 			continue
 		}
+		log.Printf("building table for resource %s", resource.Name)
 		t, err := tb.BuildTable(nil, &resource, BuildMeta{})
 		if err != nil {
 			return nil, err
 		}
+		generateHeader := ""
+		if cfg.AddGenerate {
+			generateHeader = fmt.Sprintf("//go:generate cq-gen --resource %s --config %s --output .", resourceName, cfg.Path)
+		}
+
 		resources = append(resources, &ResourceDefinition{
 			Config:          resource,
 			Table:           t,
 			RemainingSource: tb.rewriter.RemainingSource(path.Join(cfg.OutputDirectory, t.FileName)),
+			GenerateHeader:  generateHeader,
 		})
 	}
 	return resources, nil

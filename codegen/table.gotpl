@@ -62,7 +62,7 @@
     {{- end }}
 {{- end }}
 
-
+{{- .GenerateHeader}}
 func {{.Table.TableFuncName|go}}() *schema.Table {
 return &schema.Table{
 {{- template "BuildTable" .Table }}

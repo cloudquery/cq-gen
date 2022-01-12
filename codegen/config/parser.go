@@ -12,7 +12,12 @@ func ParseConfiguration(configPath string) (*Config, hcl.Diagnostics) {
 	if f == nil {
 		return nil, diags
 	}
-	return decodeConfig(f.Body, diags)
+	cfg, diags := decodeConfig(f.Body, diags)
+	if diags.HasErrors() {
+		return nil, diags
+	}
+	cfg.Path = configPath
+	return cfg, diags
 }
 
 func decodeConfig(body hcl.Body, diags hcl.Diagnostics) (*Config, hcl.Diagnostics) {
@@ -22,9 +27,16 @@ func decodeConfig(body hcl.Body, diags hcl.Diagnostics) (*Config, hcl.Diagnostic
 	if attr, exists := content.Attributes["service"]; exists {
 		diags = append(diags, gohcl.DecodeExpression(attr.Expr, nil, &config.Service)...)
 	}
-	if attr, exists := content.Attributes["output_directory"]; exists {
-		diags = append(diags, gohcl.DecodeExpression(attr.Expr, nil, &config.OutputDirectory)...)
+	if outputDirAttr, ok := content.Attributes["output_directory"]; ok {
+		diags = append(diags, gohcl.DecodeExpression(outputDirAttr.Expr, nil, &config.OutputDirectory)...)
 	}
+	if attr, ok := content.Attributes["service"]; ok {
+		diags = append(diags, gohcl.DecodeExpression(attr.Expr, nil, &config.Service)...)
+	}
+	if attr, ok := content.Attributes["add_generate"]; ok {
+		diags = append(diags, gohcl.DecodeExpression(attr.Expr, nil, &config.AddGenerate)...)
+	}
+
 	for _, block := range content.Blocks {
 		switch block.Type {
 		case "resource":
@@ -73,11 +85,23 @@ var configFileSchema = &hcl.BodySchema{
 			Name:     "output_directory",
 			Required: false,
 		},
+		{
+			Name:     "add_generate",
+			Required: false,
+		},
 	},
 	Blocks: []hcl.BlockHeaderSchema{
 		{
 			Type:       "resource",
 			LabelNames: []string{"service", "domain", "name"},
+		},
+		{
+			Type:       "data_source",
+			LabelNames: []string{"type"},
+		},
+		{
+			Type:       "description_source",
+			LabelNames: []string{"type"},
 		},
 	},
 }

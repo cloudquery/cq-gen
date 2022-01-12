@@ -102,6 +102,14 @@ func decodeResourceBody(ctx *hcl.EvalContext, body hcl.Body, labels []string) (*
 				continue
 			}
 			resource.UserRelations = append(resource.UserRelations, *rel)
+
+		case "options":
+			f := TableOptionsConfig{}
+			diags = append(diags, gohcl.DecodeBody(b.Body, ctx, &f)...)
+			if diags.HasErrors() {
+				continue
+			}
+			resource.TableOptions = &f
 		default:
 			// Should never happen because the above cases should be exhaustive
 			// for all block type names in our schema.

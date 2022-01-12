@@ -10,11 +10,14 @@ import (
 
 type Config struct {
 	Service            string              `hcl:"service"`
+	AddGenerate        bool                `hcl:"add_generate"`
 	OutputDirectory    string              `hcl:"output_directory"`
 	DataSource         *DataSource         `hcl:"data_source,block"`
 	DescriptionSource  *DescriptionSource  `hcl:"description_source,block"`
 	DescriptionParsers []DescriptionParser `hcl:"description_parser,block"`
 	Resources          []ResourceConfig    `hcl:"resource,block"`
+
+	Path string
 }
 
 type DataSource struct {
