@@ -38,7 +38,7 @@ func Test_Generate(t *testing.T) {
 		{Name: "relations_rename", Config: "./tests/relations.hcl", Domain: "relations", ResourceName: "rename", ExpectedOutput: "./tests/expected/relations_rename.go"},
 		{Name: "relations_user_relations", Config: "./tests/relations.hcl", Domain: "relations", ResourceName: "user_relation", ExpectedOutput: "./tests/expected/relations_user_relation.go"},
 		// Bad configurations
-		{Name: "bad_duplicate_resource", Config: "./tests/bad_config.hcl", Domain: "bad", ResourceName: "duplicate", ExpectError: fmt.Errorf("duplicate resource found. Domain: bad Resource: duplicate")},
+		{Name: "bad_duplicate_resource", Config: "./tests/bad_config.hcl", Domain: "bad", ResourceName: "duplicate", ExpectError: fmt.Errorf("failed to build resources: duplicate resource found. Domain: bad Resource: duplicate")},
 	}
 	t.Parallel()
 	for _, tc := range generatorTests {
