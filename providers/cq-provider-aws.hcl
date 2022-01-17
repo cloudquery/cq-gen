@@ -1,6 +1,6 @@
 service = "aws"
 
-output_directory = "../cq-provider-aws/resources"
+output_directory = "../cq-provider-aws/resources/services/iot"
 
 resource "aws" "applicationautoscaling" "policies" {
   path        = "github.com/aws/aws-sdk-go-v2/service/applicationautoscaling/types.ScalingPolicy"
@@ -6123,6 +6123,10 @@ resource "aws" "iot" "things" {
     }
   }
 
+  column "principals" {
+    description = "Principals associated with the thing"
+  }
+
   options {
     primary_keys = ["account_id", "arn"]
   }
@@ -6196,6 +6200,7 @@ resource "aws" "iot" "thing_types" {
   }
 
   userDefinedColumn "tags" {
+    description       = "Tags of the resource"
     generate_resolver = true
     type              = "json"
   }
@@ -6203,7 +6208,7 @@ resource "aws" "iot" "thing_types" {
 
 
 resource "aws" "iot" "thing_groups" {
-  path        = "github.com/aws/aws-sdk-go-v2/service/iot.DescribeThingGroupOutput"
+  path = "github.com/aws/aws-sdk-go-v2/service/iot.DescribeThingGroupOutput"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
@@ -6229,7 +6234,9 @@ resource "aws" "iot" "thing_groups" {
   }
 
   #  description = "Groups allow you to manage several things at once by categorizing them into groups"
-
+  column "policies" {
+    description = "Policies associated with the thing group"
+  }
   options {
     primary_keys = [
       "arn"
@@ -6274,6 +6281,7 @@ resource "aws" "iot" "thing_groups" {
   }
 
   userDefinedColumn "tags" {
+    description       = "Tags of the resource"
     generate_resolver = true
     type              = "json"
   }
@@ -6281,7 +6289,7 @@ resource "aws" "iot" "thing_groups" {
 
 
 resource "aws" "iot" "billing_groups" {
-  path = "github.com/aws/aws-sdk-go-v2/service/iot.DescribeBillingGroupOutput"
+  path        = "github.com/aws/aws-sdk-go-v2/service/iot.DescribeBillingGroupOutput"
   description = "Billing groups are groups of things created for billing purposes that collect billable information for the things."
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
@@ -6347,6 +6355,7 @@ resource "aws" "iot" "billing_groups" {
 
 
   userDefinedColumn "tags" {
+    description       = "Tags of the resource"
     generate_resolver = true
     type              = "json"
   }
@@ -6401,6 +6410,8 @@ resource "aws" "iot" "streams" {
 
 
 resource "aws" "iot" "security_profiles" {
+  #  description = "A security profile defines a set of expected behaviors for devices in your account and specifies the actions to take when an anomaly is detected."
+
   path = "github.com/aws/aws-sdk-go-v2/service/iot.DescribeSecurityProfileOutput"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
@@ -6426,19 +6437,15 @@ resource "aws" "iot" "security_profiles" {
     }
   }
 
-  description = "A security profile defines a set of expected behaviors for devices in your account and specifies the actions to take when an anomaly is detected."
+  column "targets" {
+    description = "Targets associated with the security profile"
+  }
 
   options {
     primary_keys = [
       "arn"
     ]
   }
-
-  //  userDefinedColumn "tags" {
-  //    generate_resolver = true
-  //    type = "json"
-  //  }
-
   column "security_profile_name" {
     rename = "name"
   }
@@ -6465,15 +6472,13 @@ resource "aws" "iot" "security_profiles" {
     }
   }
 
-  relation "aws" "iot" "additional_metrics_to_retain_v2" {
-    path = "github.com/aws/aws-sdk-go-v2/service/iot/types.MetricToRetain"
-
-    column "metric_dimension_dimension_name" {
-      rename = "metric_dimension_name"
-    }
+  column "additional_metrics_to_retain_v2" {
+    type              = "json"
+    generate_resolver = true
   }
 
   userDefinedColumn "tags" {
+    description       = "Tags of the resource"
     type              = "json"
     generate_resolver = true
   }
@@ -6506,6 +6511,10 @@ resource "aws" "iot" "ca_certificates" {
     }
   }
 
+  column "certificates" {
+    description = "Certificates of the ca certificate"
+  }
+
   options {
     primary_keys = [
       "arn"
@@ -6527,6 +6536,219 @@ resource "aws" "iot" "ca_certificates" {
   userDefinedColumn "certificates" {
     type              = "stringarray"
     generate_resolver = true
+  }
+}
+
+
+resource "aws" "iot" "jobs" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iot/types.Job"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type        = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  userDefinedColumn "tags" {
+    description       = "Tags of the resource"
+    type              = "json"
+    generate_resolver = true
+  }
+
+
+  //todo fix it rate_increase_criteria_number_of_notified_things
+  column "job_executions_rollout_config" {
+    skip_prefix = true
+  }
+  column "exponential_rate" {
+    skip_prefix = true
+  }
+  column "rate_increase_criteria_number_of_notified_things" {
+    rename = "rollout_config_rate_increase_criteria_number_of_notified_things"
+  }
+
+  column "job_process_details" {
+    rename = "process_details"
+  }
+
+  column "job_arn" {
+    rename = "arn"
+  }
+  column "job_id" {
+    rename = "id"
+  }
+  #  column "policy_document" {
+  #    rename = "document"
+  #  }
+  options {
+    primary_keys = [
+      "arn"
+    ]
+  }
+}
+
+
+resource "aws" "iot" "topic_rules" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iot.GetTopicRuleOutput"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type        = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  column "rule" {
+    skip_prefix = true
+  }
+
+  column "error_action_cloudwatch_alarm_alarm_name" {
+    rename = "error_action_cloudwatch_alarm_name"
+  }
+
+  column "error_action_cloudwatch_metric_metric_unit" {
+    rename = "error_action_cloudwatch_metric_unit"
+  }
+
+  column "error_action_cloudwatch_metric_metric_value" {
+    rename = "error_action_cloudwatch_metric_value"
+  }
+
+  column "error_action_cloudwatch_metric_metric_timestamp" {
+    rename = "error_action_cloudwatch_metric_timestamp"
+  }
+
+  column "rule_arn" {
+    rename = "arn"
+  }
+
+  userDefinedColumn "tags" {
+
+    description       = "Tags of the resource"
+    type              = "json"
+    generate_resolver = true
+  }
+
+  relation "aws" "iot" "actions" {
+    column "iot_site_wise" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+    column "http_headers" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "timestream_dimensions" {
+      type              = "json"
+      generate_resolver = true
+    }
+  }
+
+  column "error_action_iot_site_wise" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "error_action_http_headers" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "error_action_timestream_dimensions" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  options {
+    primary_keys = [
+      "arn"
+    ]
+  }
+}
+
+
+resource "aws" "iot" "policies" {
+  path = "github.com/aws/aws-sdk-go-v2/service/iot.GetPolicyOutput"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  userDefinedColumn "account_id" {
+    description = "The AWS Account ID of the resource."
+    type        = "string"
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    description = "The AWS Region of the resource."
+    type        = "string"
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+
+  userDefinedColumn "tags" {
+
+    description       = "Tags of the resource"
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "policy_arn" {
+    rename = "arn"
+  }
+  column "policy_name" {
+    rename = "name"
+  }
+  column "policy_document" {
+    rename = "document"
+  }
+  options {
+    primary_keys = [
+      "arn"
+    ]
   }
 }
 
@@ -6555,6 +6777,10 @@ resource "aws" "iot" "certificates" {
     resolver "resolveAWSRegion" {
       path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
     }
+  }
+
+  column "policies" {
+    description = "Policies of the certificate"
   }
 
 
@@ -7432,11 +7658,11 @@ resource "aws" "sagemaker" "models" {
   }
 
   column "model_arn" {
-    rename = "arn"
+    rename      = "arn"
     description = "The Amazon Resource Name (ARN) of the model."
   }
   column "model_name" {
-    rename = "name"
+    rename      = "name"
     description = "The name of the model."
   }
 
@@ -7518,11 +7744,11 @@ resource "aws" "sagemaker" "endpoint_configurations" {
   }
 
   column "endpoint_config_arn" {
-    rename = "arn"
+    rename      = "arn"
     description = "The Amazon Resource Name (ARN) of the endpoint configuration."
   }
   column "endpoint_config_name" {
-    rename = "name"
+    rename      = "name"
     description = "Name of the Amazon SageMaker endpoint configuration."
   }
 
@@ -7588,12 +7814,12 @@ resource "aws" "sagemaker" "training_jobs" {
   }
 
   column "training_job_arn" {
-    rename = "arn"
+    rename      = "arn"
     description = "The Amazon Resource Name (ARN) of the training job."
   }
 
   column "training_job_name" {
-    rename = "name"
+    rename      = "name"
     description = "The name of the training job."
   }
 
@@ -7602,11 +7828,11 @@ resource "aws" "sagemaker" "training_jobs" {
   }
 
   column "training_job_status" {
-    description       = "The status of the training job."
+    description = "The status of the training job."
   }
 
   column "last_modified_time" {
-    description       = "A timestamp that indicates when the status of the training job was last modified."
+    description = "A timestamp that indicates when the status of the training job was last modified."
   }
 
   userDefinedColumn "auto_ml_job_arn" {
@@ -7670,7 +7896,7 @@ resource "aws" "sagemaker" "training_jobs" {
   }
 
   column "training_end_time" {
-    description       = "Indicates the time when the training job ends on training instances."
+    description = "Indicates the time when the training job ends on training instances."
   }
 
   userDefinedColumn "training_start_time" {
