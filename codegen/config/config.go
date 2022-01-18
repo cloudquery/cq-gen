@@ -58,8 +58,10 @@ type ResourceConfig struct {
 	Name string `hcl:"name,label"`
 	// Description of the table
 	Description string `hcl:"description,optional"`
-	// Path to the struct we are generating from
+	// Path to the struct/source we are generating from
 	Path string `hcl:"path,optional"`
+	// Allow unexported fields in struct/source we are generating from to be added as well
+	AllowUnexported bool `hcl:"allow_unexported,optional"`
 	// Table options in the config
 	TableOptions *TableOptionsConfig `hcl:"options,block"`
 

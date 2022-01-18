@@ -26,6 +26,7 @@ type Object interface {
 	Type() schema.ValueType
 	Parent() Object
 	Path() string
+	Exported() bool
 }
 
 // DescriptionSource allows finding descriptions for given types based on pathing

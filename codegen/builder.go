@@ -194,6 +194,9 @@ func (tb TableBuilder) buildColumns(table *TableDefinition, object source.Object
 	fields := object.Fields()
 	for _, f := range fields {
 		name := f.Name()
+		if !f.Exported() && !resourceCfg.AllowUnexported {
+			tb.log.Debug("skipping unexported field", "field", name, "object", object.Name(), "table", table.Name)
+		}
 		tb.log.Debug("building column", "field", name, "object", object.Name(), "table", table.Name)
 		if err := tb.buildColumn(table, f, resourceCfg, meta); err != nil {
 			return err
