@@ -88,7 +88,6 @@ func (n NamedObject) Path() string {
 	return fmt.Sprintf("%s.%s", n.named.Obj().Pkg().Path(), n.named.Obj().Name())
 }
 
-
 type FieldObject struct {
 	originalPath string
 	source       DataSource

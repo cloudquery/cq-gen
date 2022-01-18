@@ -194,7 +194,7 @@ var (
 				Required: false,
 			},
 			{
-				Name:"allow_unexported",
+				Name:     "allow_unexported",
 				Required: false,
 			},
 		},
