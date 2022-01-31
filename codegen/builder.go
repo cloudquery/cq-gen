@@ -52,7 +52,7 @@ func BuildColumnMeta(field source.Object, parentMeta BuildMeta, cfg config.Colum
 		meta.ColumnPath = cfg.Rename
 	}
 	if parentMeta.ColumnPath != "" {
-		meta.ColumnPath = fmt.Sprintf("%s_%s", parentMeta.ColumnPath, meta.ColumnPath)
+		meta.ColumnPath = fmt.Sprintf("%s%s", parentMeta.ColumnPath, meta.ColumnPath)
 	}
 	if cfg.SkipPrefix {
 		meta.ColumnPath = parentMeta.ColumnPath
