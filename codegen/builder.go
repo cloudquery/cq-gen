@@ -46,7 +46,7 @@ func BuildColumnMeta(field source.Object, parentMeta BuildMeta, cfg config.Colum
 		ColumnPath:     field.Name(),
 		FieldPath:      field.Name(),
 		FieldParts:     make([]string, len(parentMeta.FieldParts)),
-		fullColumnPath: fmt.Sprintf("%s_%s", parentMeta.fullColumnPath, field.Name()),
+		fullColumnPath: fmt.Sprintf("%s%s", parentMeta.fullColumnPath, field.Name()),
 	}
 	if cfg.Rename != "" {
 		meta.ColumnPath = cfg.Rename
