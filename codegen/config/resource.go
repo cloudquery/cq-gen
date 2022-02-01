@@ -22,6 +22,9 @@ func decodeResourceBody(ctx *hcl.EvalContext, body hcl.Body, labels []string) (*
 	if attr, exists := content.Attributes["path"]; exists {
 		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &resource.Path)...)
 	}
+	if attr, exists := content.Attributes["allow_unexported"]; exists {
+		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &resource.AllowUnexported)...)
+	}
 	if attr, exists := content.Attributes["description"]; exists {
 		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &resource.Path)...)
 	}
@@ -188,6 +191,10 @@ var (
 			},
 			{
 				Name:     "description_path_parts",
+				Required: false,
+			},
+			{
+				Name:     "allow_unexported",
 				Required: false,
 			},
 		},

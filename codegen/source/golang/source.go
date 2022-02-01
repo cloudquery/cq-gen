@@ -56,13 +56,17 @@ func (n NamedObject) Description() string {
 	return n.description
 }
 
+func (n NamedObject) Exported() bool {
+	return true
+}
+
 func (n NamedObject) Fields() []source.Object {
 	st := n.named.Underlying().(*types.Struct)
 	fields := make([]source.Object, 0)
 	for i := 0; i < st.NumFields(); i++ {
 		field, tag := st.Field(i), st.Tag(i)
 		// Skip unexported, if the original field has a "-" tag or the field was requested to be skipped via config.
-		if !field.Exported() || strings.Contains(tag, "-") {
+		if strings.Contains(tag, "-") {
 			hclog.L().Debug("skipping column", "column", field.Name())
 			continue
 		}
@@ -94,6 +98,10 @@ type FieldObject struct {
 
 func (f FieldObject) Name() string {
 	return f.v.Name()
+}
+
+func (f FieldObject) Exported() bool {
+	return f.v.Exported()
 }
 
 func (f FieldObject) Description() string {

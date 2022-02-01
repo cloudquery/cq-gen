@@ -73,6 +73,10 @@ func (o Object) Path() string {
 	return o.def.Name
 }
 
+func (o Object) Exported() bool {
+	return true
+}
+
 func GetType(a *ast.Type) *ast.Type {
 	if a.Elem != nil {
 		return GetType(a.Elem)

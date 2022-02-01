@@ -1,6 +1,6 @@
-service          = "azure"
-output_directory = "../cq-provider-azure/resources/services/sql"
-#description_parser = "azure"
+service            = "azure"
+output_directory   = "../cq-provider-azure/resources"
+description_parser = "azure"
 
 resource "azure" "compute" "disks" {
   path        = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-01/compute.Disk"
@@ -244,7 +244,7 @@ resource "azure" "storage" "accounts" {
 }
 
 resource "azure" "sql" "servers" {
-#  description = "Azure sql server"
+  description = "Azure sql server"
   path        = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.Server"
 
   userDefinedColumn "subscription_id" {
@@ -373,6 +373,17 @@ resource "azure" "network" "virtual_networks" {
   path        = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.VirtualNetwork"
   limit_depth = 1
 
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"
+    ]
+  }
+  column "dhcp_options_dns_servers" {
+    type              = "inetArray"
+    generate_resolver = true
+  }
+
   userDefinedColumn "subscription_id" {
     type        = "string"
     description = "Azure subscription id"
@@ -391,27 +402,29 @@ resource "azure" "network" "virtual_networks" {
     skip_prefix = true
   }
 
-  column "id" {
-    rename = "resource_id"
+  column "ip_allocations" {
+    type              = "stringArray"
+    generate_resolver = true
   }
 
   relation "azure" "networks" "subnets" {
     path        = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.Subnet"
     description = "Azure virtual network subnet"
+    options {
+      primary_keys = [
+        "virtual_network_cq_id",
+        "id"
+      ]
+    }
     column "subnet_properties_format" {
       skip_prefix = true
     }
     column "route_table_properties_format" {
       skip_prefix = true
     }
-    column "id" {
-      rename = "resource_id"
-    }
-
     column "network_security_group_security_group_properties_format_resource_guid" {
       rename = "security_group_properties_format_resource_guid"
     }
-
     column "network_security_group_security_group_properties_format_provisioning_state" {
       rename = "security_group_properties_format_provisioning_state"
     }
@@ -420,6 +433,12 @@ resource "azure" "network" "virtual_networks" {
   relation "azure" "networks" "peerings" {
     path        = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.VirtualNetworkPeering"
     description = "Azure virtual network peering"
+    options {
+      primary_keys = [
+        "virtual_network_cq_id",
+        "id"
+      ]
+    }
     column "virtual_network_peering_properties_format" {
       skip_prefix = true
     }
@@ -429,7 +448,7 @@ resource "azure" "network" "virtual_networks" {
   }
 
   relation "azure" "networks" "ip_allocations" {
-    path        = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.SubResource"
+    path = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.SubResource"
     description = "Azure virtual network ip allocation"
     column "virtual_network_ip_allocations_properties_format" {
       skip_prefix = true
@@ -996,21 +1015,49 @@ resource "azure" "network" "public_ip_addresses" {
     skip_prefix = true
   }
 
+  column "nat_gateway_nat_gateway_properties_format_idle_timeout_in_minutes" {
+    rename = "nat_gateway_idle_timeout_in_minutes"
+  }
+
+  column "nat_gateway_nat_gateway_properties_format_idle_timeout_in_minutes" {
+    rename = "nat_gateway_idle_timeout_in_minutes"
+  }
+
+  column "nat_gateway_nat_gateway_properties_format_resource_guid" {
+    rename = "nat_gateway_resource_guid"
+  }
+
+  column "nat_gateway_nat_gateway_properties_format_provisioning_state" {
+    rename = "nat_gateway_provisioning_state"
+  }
+
+  column "service_public_ip_address" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  column "linked_public_ip_address" {
+    type              = "json"
+    generate_resolver = true
+  }
+
   column "ip_configuration" {
-    skip_prefix = true
+    type              = "json"
+    generate_resolver = true
   }
 
-  column "ip_configuration_properties_format" {
-    skip_prefix = true
+  column "ip_address" {
+    type              = "inet"
+    generate_resolver = true
   }
 
-  column "public_ip_address" {
+  column "ip_tags" {
     type              = "json"
     generate_resolver = true
   }
 
   column "subnet" {
-    type              = "json"
+    type = "json"
     generate_resolver = true
   }
 }

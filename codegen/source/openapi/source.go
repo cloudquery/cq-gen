@@ -59,6 +59,10 @@ func (o Object) Parent() source.Object {
 	return o.parent
 }
 
+func (o Object) Exported() bool {
+	return true
+}
+
 func (o Object) Path() string {
 	return o.name
 }
