@@ -1,6 +1,6 @@
-service            = "azure"
-output_directory   = "../cq-provider-azure/resources"
-description_parser = "azure"
+service          = "azure"
+output_directory = "../cq-provider-azure/resources/services/sql"
+#description_parser = "azure"
 
 resource "azure" "compute" "disks" {
   path        = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-01/compute.Disk"
@@ -272,30 +272,30 @@ resource "azure" "sql" "servers" {
 }
 
 resource "azure" "sql" "databases" {
-  description = "Azure sql database"
-  path        = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.Database"
+  #  description = "Azure sql database"
+  path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.Database"
 
-  userDefinedColumn "subscription_id" {
-    description = "Azure subscription id"
-    type        = "string"
-    resolver "resolveAzureSubscription" {
-      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+  userDefinedColumn "server_cq_id" {
+    description = "Azure sql server cloudquery id"
+    type        = "uuid"
+    resolver "parentIdResolver" {
+      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentIdResolver"
     }
   }
-  deleteFilter "AzureSubscription" {
-    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
-  }
 
-  multiplex "AzureSubscription" {
-    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+
+  options {
+    primary_keys = [
+      "server_cq_id", "id"
+    ]
   }
   column "database_properties" {
     skip_prefix = true
   }
 
-  column "id" {
-    rename = "resource_id"
-  }
+  #  column "id" {
+  #    rename = "resource_id"
+  #  }
 
   column "creation_date_time" {
     extract_description_from_parent_field = true
@@ -320,14 +320,36 @@ resource "azure" "sql" "databases" {
     skip = true
   }
 
-  relation "azure" "sql" "transparent_data_encryptions" {
-    description = "Azure sql database encryption"
-    path        = "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2014-04-01/sql.TransparentDataEncryption"
-    column "transparent_data_encryption_properties" {
+  userDefinedColumn "transparent_data_encryption" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  user_relation "azure" "sql" "db_blob_auditing_policies" {
+    path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.DatabaseBlobAuditingPolicy"
+    column "database_blob_auditing_policy_properties" {
       skip_prefix = true
     }
-    column "id" {
-      rename = "resource_id"
+  }
+
+  user_relation "azure" "sql" "db_vulnerability_assessments" {
+    path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.DatabaseVulnerabilityAssessment"
+    column "database_vulnerability_assessment_properties" {
+      skip_prefix = true
+    }
+  }
+
+  user_relation "azure" "sql" "db_vulnerability_assessment_scans" {
+    path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.VulnerabilityAssessmentScanRecord"
+    column "vulnerability_assessment_scan_record_properties" {
+      skip_prefix = true
+    }
+  }
+
+  user_relation "azure" "sql" "db_threat_detection_policies" {
+    path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.DatabaseSecurityAlertPolicy"
+    column "database_security_alert_policy_properties" {
+      skip_prefix = true
     }
   }
 }

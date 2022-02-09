@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/cloudquery/cq-provider-azure v0.4.0 // indirect
-	github.com/cloudquery/cq-provider-sdk v0.7.0
+	github.com/cloudquery/cq-provider-sdk v0.7.6
 	github.com/creasty/defaults v1.5.2
 	github.com/getkin/kin-openapi v0.83.0
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -24,6 +24,4 @@ require (
 	golang.org/x/tools v0.1.5
 )
 
-replace (
-		github.com/cloudquery/cq-provider-azure => ../cq-provider-azure
-)
+replace github.com/cloudquery/cq-provider-azure => ../cq-provider-azure
