@@ -268,7 +268,111 @@ resource "azure" "sql" "servers" {
   column "id" {
     rename = "resource_id"
   }
+}
 
+
+resource "azure" "sql" "managed_instances" {
+  #  description = "SQL Managed Instance"
+  path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.ManagedInstance"
+
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"
+    ]
+  }
+
+  userDefinedColumn "subscription_id" {
+    type        = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+  column "managed_instance_properties" {
+    skip_prefix = true
+  }
+
+
+  relation "azure" "sql" "private_endpoint_connections" {
+    column "properties" {
+      skip_prefix = true
+    }
+  }
+
+  user_relation "azure" "sql" "vulnerability_assessments" {
+    path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.ManagedInstanceVulnerabilityAssessment"
+    column "managed_instance_vulnerability_assessment_properties" {
+      skip_prefix = true
+    }
+  }
+
+  user_relation "azure" "sql" "encryption_protectors" {
+    path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.ManagedInstanceEncryptionProtector"
+    column "managed_instance_encryption_protector_properties" {
+      skip_prefix = true
+    }
+  }
+}
+
+
+resource "azure" "sql" "managed_databases" {
+  #  description = "SQL Managed Instance"
+  path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.ManagedDatabase"
+
+  userDefinedColumn "subscription_id" {
+    type        = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+  column "managed_database_properties" {
+    skip_prefix = true
+  }
+
+
+  relation "azure" "sql" "private_endpoint_connections" {
+    column "properties" {
+      skip_prefix = true
+    }
+  }
+
+  user_relation "azure" "sql" "vulnerability_assessments" {
+    path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.DatabaseVulnerabilityAssessment"
+    column "database_vulnerability_assessment_properties" {
+      skip_prefix = true
+    }
+  }
+
+
+
+
+
+  user_relation "azure" "sql" "vulnerability_assessment_scans" {
+    path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.VulnerabilityAssessmentScanRecord"
+    column "vulnerability_assessment_scan_record_properties" {
+      skip_prefix = true
+    }
+
+    column "errors" {
+      type = "json"
+    }
+  }
 }
 
 resource "azure" "sql" "databases" {
@@ -455,6 +559,20 @@ resource "azure" "network" "virtual_networks" {
     }
     column "virtual_network_peering_properties_format" {
       skip_prefix = true
+    }
+    column "id" {
+      rename = "resource_id"
+    }
+  }
+
+  relation "azure" "networks" "ip_allocations" {
+    path        = "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-08-01/network.SubResource"
+    description = "Azure virtual network ip allocation"
+    column "virtual_network_ip_allocations_properties_format" {
+      skip_prefix = true
+    }
+    column "id" {
+      rename = "resource_id"
     }
   }
 }
@@ -745,7 +863,6 @@ resource "azure" "compute" "virtual_machines" {
   multiplex "AzureSubscription" {
     path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
   }
-  limit_depth = 0
 
   column "virtual_machine_properties" {
     skip_prefix = true
@@ -755,7 +872,7 @@ resource "azure" "compute" "virtual_machines" {
     rename = "additional_capabilities_ultra_ssd_enabled"
   }
 
-  column "virtual_machine_properties_instance_view_patch_status" {
+  column "instance_view_patch_status" {
     type = "json"
   }
 
@@ -791,10 +908,16 @@ resource "azure" "compute" "virtual_machines" {
     generate_resolver = true
   }
 
+  column "network_profile_network_interface_configurations" {
+    type              = "json"
+    generate_resolver = true
+  }
+
   column "network_profile_network_interfaces" {
     type              = "json"
     generate_resolver = true
   }
+
 
   column "windows_configuration_win_r_m_listeners" {
     rename = "win_config_rm_listeners"
@@ -817,37 +940,57 @@ resource "azure" "compute" "virtual_machines" {
     generate_resolver = true
   }
 
-
-  relation "azure" "compute" "virtual_machine_network_interfaces" {
-    path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.NetworkInterfaceReference"
+  column "scheduled_events_profile" {
+    type              = "json"
+    generate_resolver = true
   }
 
+  relation "azure" "compute" "secrets" {
+    options {
+      primary_keys = [
+        "virtual_machine_cq_id",
+        "source_vault_id"
+      ]
+    }
 
-  relation "azure" "compute" "virtual_machine_resources" {
-    path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.VirtualMachineExtension"
+    relation "azure" "compute" "vault_certificates" {
+      options {
+        primary_keys = [
+          "virtual_machine_secret_cq_id",
+          "certificate_url"
+        ]
+      }
+    }
 
+  }
+
+  relation "azure" "compute" "resources" {
+    options {
+      primary_keys = [
+        "virtual_machine_cq_id",
+        "id"
+      ]
+    }
     column "virtual_machine_extension_properties" {
-      type              = "json"
-      generate_resolver = true
+      skip_prefix = true
     }
     column "settings" {
       type              = "json"
       generate_resolver = true
     }
-
-    column "instance_view_substatuses" {
-      rename = "substatuses"
-    }
-
-    column "instance_view_statuses" {
-      rename = "statuses"
-    }
-
     column "protected_settings" {
       type              = "json"
       generate_resolver = true
     }
-
+    column "instance_view" {
+      type              = "json"
+      generate_resolver = true
+    }
+    userDefinedColumn "extension_type" {
+      description = "Type of the extension"
+      type        = "string"
+      //path resolver "VirtualMachineExtensionProperties.Type"x
+    }
   }
 }
 
@@ -1056,7 +1199,7 @@ resource "azure" "network" "public_ip_addresses" {
     generate_resolver = true
   }
 
-  column "nat_gateway" {
+  column "subnet" {
     type              = "json"
     generate_resolver = true
   }
@@ -1065,8 +1208,6 @@ resource "azure" "network" "public_ip_addresses" {
 
 resource "azure" "monitor" "diagnostic_settings" {
   path = "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-11-01-preview/insights.DiagnosticSettingsResource"
-
-
 
   deleteFilter "AzureSubscription" {
     path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
@@ -1100,5 +1241,47 @@ resource "azure" "monitor" "activity_logs" {
 
   deleteFilter "AzureSubscription" {
     path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+}
+
+resource "azure" "security" "jit_network_access_policies" {
+  path = "github.com/Azure/azure-sdk-for-go/services/preview/security/mgmt/v3.0/security.JitNetworkAccessPolicy"
+  #  description = "Azure security jit network access policy"
+
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"
+    ]
+  }
+
+  userDefinedColumn "subscription_id" {
+    type        = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+  column "jit_network_access_policy_properties" {
+    skip_prefix = true
+  }
+
+  relation "azure" "security" "requests" {
+    column "virtual_machines" {
+      type              = "stringArray"
+      generate_resolver = true
+    }
+
+    column "start_time_utc_time" {
+      rename = "start_time_utc"
+    }
   }
 }
