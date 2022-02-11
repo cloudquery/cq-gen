@@ -103,5 +103,9 @@ var configFileSchema = &hcl.BodySchema{
 			Type:       "description_source",
 			LabelNames: []string{"type"},
 		},
+		{
+			Type:       "description_parser",
+			LabelNames: []string{"name"},
+		},
 	},
 }

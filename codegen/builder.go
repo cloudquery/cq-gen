@@ -496,11 +496,12 @@ func (tb TableBuilder) buildTableRelation(parentTable *TableDefinition, cfg *con
 	}
 
 	innerBuilder := TableBuilder{
-		finder:            tb.finder,
-		source:            tb.source,
-		descriptionSource: tb.descriptionSource,
-		rewriter:          tb.rewriter,
-		log:               tb.log,
+		finder:             tb.finder,
+		source:             tb.source,
+		descriptionSource:  tb.descriptionSource,
+		rewriter:           tb.rewriter,
+		log:                tb.log,
+		descriptionParsers: tb.descriptionParsers,
 	}
 
 	rel, err := innerBuilder.BuildTable(parentTable, &cfg.ResourceConfig, BuildMeta{Depth: meta.Depth, ColumnPath: "", FieldPath: "", FieldParts: meta.FieldParts})
@@ -531,7 +532,7 @@ func (tb TableBuilder) buildEmbeddedRelation(parentTable *TableDefinition, cfg *
 
 func (tb TableBuilder) getDescription(obj source.Object, description string, meta BuildMeta) string {
 	if description != "" {
-		return description
+		return tb.parseDescription(description)
 	}
 	// if alternative description source is defined
 	if tb.descriptionSource != nil {
@@ -545,7 +546,7 @@ func (tb TableBuilder) getDescription(obj source.Object, description string, met
 		}
 		return d
 	}
-	return obj.Description()
+	return tb.parseDescription(obj.Description())
 }
 
 func (tb TableBuilder) parseDescription(description string) string {

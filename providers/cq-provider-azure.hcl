@@ -1,6 +1,14 @@
 service          = "azure"
-output_directory = "../cq-provider-azure/resources/services/sql"
+output_directory = "../cq-provider-azure/resources/services/datalake"
 #description_parser = "azure"
+
+description_parser "remove_read_only" {
+  words = ["READ-ONLY; "]
+}
+
+description_parser "remove_field_name" {
+  regex = ".+- "
+}
 
 resource "azure" "compute" "disks" {
   path        = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-01/compute.Disk"
@@ -327,19 +335,6 @@ resource "azure" "sql" "managed_databases" {
   #  description = "SQL Managed Instance"
   path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.ManagedDatabase"
 
-  userDefinedColumn "subscription_id" {
-    type        = "string"
-    description = "Azure subscription id"
-    resolver "resolveAzureSubscription" {
-      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
-    }
-  }
-  deleteFilter "AzureSubscription" {
-    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
-  }
-  multiplex "AzureSubscription" {
-    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
-  }
 
   column "managed_database_properties" {
     skip_prefix = true
@@ -358,9 +353,6 @@ resource "azure" "sql" "managed_databases" {
       skip_prefix = true
     }
   }
-
-
-
 
 
   user_relation "azure" "sql" "vulnerability_assessment_scans" {
@@ -447,6 +439,10 @@ resource "azure" "sql" "databases" {
     path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.VulnerabilityAssessmentScanRecord"
     column "vulnerability_assessment_scan_record_properties" {
       skip_prefix = true
+    }
+    column "errors" {
+      type              = "json"
+      generate_resolver = true
     }
   }
 
@@ -838,6 +834,116 @@ resource "azure" "monitor" "diagnostic_settings" {
 }
 
 
+resource "azure" "compute" "virtual_machine_scale_sets" {
+  path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.VirtualMachineScaleSet"
+
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"
+    ]
+  }
+
+  userDefinedColumn "subscription_id" {
+    type        = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+  column "virtual_machine_scale_set_properties" {
+    skip_prefix = true
+  }
+  column "upgrade_policy" {
+    type = "json"
+  }
+
+  column "virtual_machine_profile" {
+    skip_prefix = true
+  }
+  column "os_profile_windows_configuration" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "os_profile_linux_configuration" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "storage_profile" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "network_profile" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "security_profile" {
+    type              = "json"
+    generate_resolver = true
+  }
+  column "diagnostics_profile" {
+    type              = "json"
+    generate_resolver = true
+  }
+  #  column "extension_profile" {
+  #    type = "json"
+  #    generate_resolver = true
+  #  }
+
+  column "scheduled_events_profile" {
+    type              = "json"
+    generate_resolver = true
+  }
+
+  relation "azure" "compute" "os_profile_secrets" {
+    column "vault_certificates" {
+      type = "json"
+    }
+  }
+
+
+  relation "azure" "compute" "extension_profile_extensions" {
+    rename = "extensions"
+
+
+    column "virtual_machine_scale_set_extension_properties" {
+      skip_prefix = true
+    }
+
+    column "type" {
+      skip = true
+    }
+
+    userDefinedColumn "type" {
+      type = "string"
+      #      path_resolver = "Type"
+    }
+
+    userDefinedColumn "extension_type" {
+      type = "string"
+      #      Resolver:    schema.PathResolver("VirtualMachineScaleSetExtensionProperties.Type"),
+    }
+
+    column "settings" {
+      type              = "json"
+      generate_resolver = true
+    }
+
+    column "protected_settings" {
+      type              = "json"
+      generate_resolver = true
+    }
+  }
+}
+
 resource "azure" "compute" "virtual_machines" {
   path = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute.VirtualMachine"
 
@@ -989,7 +1095,7 @@ resource "azure" "compute" "virtual_machines" {
     userDefinedColumn "extension_type" {
       description = "Type of the extension"
       type        = "string"
-      //path resolver "VirtualMachineExtensionProperties.Type"x
+      //path resolver "VirtualMachineExtensionProperties.Type"
     }
   }
 }
@@ -1274,6 +1380,17 @@ resource "azure" "security" "jit_network_access_policies" {
     skip_prefix = true
   }
 
+  relation "azure" "security" "virtual_machines" {
+    column "ports" {
+      type = "json"
+    }
+
+    column "public_ip_address" {
+      type              = "inet"
+      generate_resolver = true
+    }
+  }
+
   relation "azure" "security" "requests" {
     column "virtual_machines" {
       type              = "stringArray"
@@ -1284,4 +1401,113 @@ resource "azure" "security" "jit_network_access_policies" {
       rename = "start_time_utc"
     }
   }
+}
+
+
+resource "azure" "datalake" "storage_accounts" {
+  path = "github.com/Azure/azure-sdk-for-go/profiles/latest/datalake/store/mgmt/account.DataLakeStoreAccount"
+
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"
+    ]
+  }
+
+  userDefinedColumn "subscription_id" {
+    type        = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+
+  column "data_lake_store_account_properties" {
+    skip_prefix = true
+  }
+
+
+  relation "azure" "datalake" "virtual_network_rules" {
+    column "virtual_network_rule_properties" {
+      skip_prefix = true
+    }
+  }
+
+  relation "azure" "datalake" "trusted_id_providers" {
+    column "trusted_id_provider_properties" {
+      skip_prefix = true
+    }
+  }
+
+  relation "azure" "datalake" "firewall_rules" {
+    column "firewall_rule_properties" {
+      skip_prefix = true
+    }
+  }
+}
+
+
+resource "azure" "datalake" "analytics_accounts" {
+  path = "github.com/Azure/azure-sdk-for-go/profiles/latest/datalake/analytics/mgmt/account.DataLakeAnalyticsAccount"
+
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"
+    ]
+  }
+
+  userDefinedColumn "subscription_id" {
+    type        = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+
+  column "data_lake_analytics_account_properties" {
+    skip_prefix = true
+  }
+
+
+  relation "azure" "datalake" "data_lake_store_accounts" {
+    column "data_lake_store_account_information_properties" {
+      skip_prefix = true
+    }
+  }
+
+  relation "azure" "datalake" "storage_accounts" {
+    column "storage_account_information_properties" {
+      skip_prefix = true
+    }
+  }
+
+  relation "azure" "datalake" "compute_policies" {
+    column "compute_policy_properties" {
+      skip_prefix = true
+    }
+  }
+
+  relation "azure" "datalake" "firewall_rules" {
+    column "firewall_rule_properties" {
+      skip_prefix = true
+    }
+  }
+
 }

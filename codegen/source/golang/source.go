@@ -144,7 +144,10 @@ func (f FieldObject) Path() string {
 }
 
 func getSpecColumnDescription(parser source.DescriptionParser, spec *ast.TypeSpec, columnName string) string {
-	s := spec.Type.(*ast.StructType)
+	s, ok := spec.Type.(*ast.StructType)
+	if !ok {
+		return ""
+	}
 	for _, f := range s.Fields.List {
 		if f.Names == nil {
 			continue

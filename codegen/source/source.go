@@ -52,27 +52,20 @@ type UserDescriptionParser struct {
 }
 
 func NewUserDescriptionParser(regex string, words []string) *UserDescriptionParser {
-	return &UserDescriptionParser{
-		regex:        regexp.MustCompile(regex),
+	parser := &UserDescriptionParser{
 		replaceWords: words,
 	}
+	if regex != "" {
+		parser.regex = regexp.MustCompile(regex)
+	}
+	return parser
 }
 
 func (p *UserDescriptionParser) Parse(description string) string {
-	match := p.regex.FindStringSubmatch(description)
-	if len(match) == 0 {
-		return description
+	if p.regex != nil {
+		description = p.regex.ReplaceAllString(description, "")
 	}
-	paramsMap := make(map[string]string)
-	for i, name := range p.regex.SubexpNames() {
-		if i > 0 && i <= len(match) {
-			paramsMap[name] = match[i]
-		}
-	}
-	description, ok := paramsMap["description"]
-	if !ok {
-		return description
-	}
+
 	// remove possible values
 	for _, replace := range p.replaceWords {
 		description = strings.ReplaceAll(description, replace, "")
