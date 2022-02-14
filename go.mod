@@ -23,5 +23,3 @@ require (
 	github.com/vektah/gqlparser/v2 v2.2.0
 	golang.org/x/tools v0.1.5
 )
-
-replace github.com/cloudquery/cq-provider-azure => ../cq-provider-azure
