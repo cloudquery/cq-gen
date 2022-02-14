@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/cloudquery/cq-gen/codegen"
-	_ "github.com/cloudquery/cq-provider-azure/resources/services/sql"
 )
 
 func main() {
