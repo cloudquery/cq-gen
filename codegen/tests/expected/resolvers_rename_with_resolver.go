@@ -34,6 +34,6 @@ func ResolversRenameWithResolvers() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchResolversRenameWithResolvers(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchResolversRenameWithResolvers(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }

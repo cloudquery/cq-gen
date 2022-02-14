@@ -37,7 +37,7 @@ func ResolversResolvers() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchResolversResolvers(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchResolversResolvers(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
 func GeneratedPostResolver(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource) error {

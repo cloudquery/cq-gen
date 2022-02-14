@@ -31,7 +31,7 @@ func ColumnsColumns() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchColumnsColumns(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchColumnsColumns(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
 func resolveColumnsColumnsRenameIntValue(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource, c schema.Column) error {

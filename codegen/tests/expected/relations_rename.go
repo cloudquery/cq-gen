@@ -50,9 +50,9 @@ func RelationsRename() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchRelationsRename(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchRelationsRename(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
-func fetchBaseRenamed(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchBaseRenamed(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }

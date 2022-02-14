@@ -45,12 +45,12 @@ func decodeConfig(body hcl.Body, diags hcl.Diagnostics) (*Config, hcl.Diagnostic
 			if resource != nil {
 				config.Resources = append(config.Resources, *resource)
 			}
-		case "description_parser":
-			dp := DescriptionParser{
+		case "description_modifier":
+			dp := DescriptionModifier{
 				Name: block.Labels[0],
 			}
 			diags = append(diags, gohcl.DecodeBody(block.Body, nil, &dp)...)
-			config.DescriptionParsers = append(config.DescriptionParsers, dp)
+			config.DescriptionModifiers = append(config.DescriptionModifiers, dp)
 		case "description_source":
 			ds := DescriptionSource{
 				Type: block.Labels[0],
@@ -104,7 +104,7 @@ var configFileSchema = &hcl.BodySchema{
 			LabelNames: []string{"type"},
 		},
 		{
-			Type:       "description_parser",
+			Type:       "description_modifier",
 			LabelNames: []string{"name"},
 		},
 	},

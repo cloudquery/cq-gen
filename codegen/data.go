@@ -68,8 +68,8 @@ func buildResources(cfg *config.Config, domain string, resourceName string) ([]*
 		}
 	}
 
-	parsers := make([]source.DescriptionParser, len(cfg.DescriptionParsers))
-	for i, p := range cfg.DescriptionParsers {
+	parsers := make([]source.DescriptionParser, len(cfg.DescriptionModifiers))
+	for i, p := range cfg.DescriptionModifiers {
 		parsers[i] = source.NewUserDescriptionParser(p.Regex, p.RemoveWords)
 	}
 

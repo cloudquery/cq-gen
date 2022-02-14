@@ -38,7 +38,7 @@ func UserDefinedSimples() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchUserDefinedSimples(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchUserDefinedSimples(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
 func ResolveUserDefinedSimpleTestColumn(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource, c schema.Column) error {

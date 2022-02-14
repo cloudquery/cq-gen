@@ -32,6 +32,6 @@ func ColumnsEmbeddedPrefixSkips() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchColumnsEmbeddedPrefixSkips(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchColumnsEmbeddedPrefixSkips(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }

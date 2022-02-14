@@ -84,16 +84,16 @@ func RelationsUserRelations() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchRelationsUserRelations(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchRelationsUserRelations(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
-func fetchRelationsUserRelationRelations(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchRelationsUserRelationRelations(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
-func fetchBaseUserRelationUser(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchBaseUserRelationUser(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
-func fetchBaseUserRelationCustoms(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchBaseUserRelationCustoms(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
 func ResolveBaseUserRelationCustomTestColumn(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource, c schema.Column) error {

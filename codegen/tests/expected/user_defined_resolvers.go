@@ -51,7 +51,7 @@ func UserDefinedResolvers() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchUserDefinedResolvers(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchUserDefinedResolvers(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
 func ResolveUserDefinedResolverTestColumnTemplated(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource, c schema.Column) error {

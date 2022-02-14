@@ -57,6 +57,6 @@ func BaseComplexes() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchBaseComplexes(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchBaseComplexes(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }

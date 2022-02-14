@@ -32,6 +32,6 @@ func ColumnsEmbeddedRenames() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchColumnsEmbeddedRenames(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchColumnsEmbeddedRenames(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }

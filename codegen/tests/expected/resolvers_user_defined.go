@@ -18,6 +18,6 @@ func ResolversUserDefineds() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchUserDefined(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchUserDefined(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("my fetch implementation")
 }

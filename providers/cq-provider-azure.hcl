@@ -1,12 +1,12 @@
 service          = "azure"
 output_directory = "../cq-provider-azure/resources/services/datalake"
-#description_parser = "azure"
 
-description_parser "remove_read_only" {
+
+description_modifier "remove_read_only" {
   words = ["READ-ONLY; "]
 }
 
-description_parser "remove_field_name" {
+description_modifier "remove_field_name" {
   regex = ".+- "
 }
 
@@ -308,7 +308,9 @@ resource "azure" "sql" "managed_instances" {
     skip_prefix = true
   }
 
-
+column "managed_instance_create_mode"{
+  description = "Specifies the mode of database creation"
+}
   relation "azure" "sql" "private_endpoint_connections" {
     column "properties" {
       skip_prefix = true
@@ -338,6 +340,10 @@ resource "azure" "sql" "managed_databases" {
 
   column "managed_database_properties" {
     skip_prefix = true
+  }
+
+  column "storage_container_sas_token"{
+    description = "SAS token used to access resources"
   }
 
 

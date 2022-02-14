@@ -32,6 +32,6 @@ func BaseSimples() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchBaseSimples(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan interface{}) error {
+func fetchBaseSimples(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
