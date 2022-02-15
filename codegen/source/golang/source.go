@@ -37,7 +37,7 @@ func (d DataSource) Find(path string) (source.Object, error) {
 	docs := rw.GetStructDocs(named.Obj().Name())
 	spec := rw.GetStructSpec(named.Obj().Name())
 	if spec == nil {
-		return nil, fmt.Errorf("failed to fin structure named %s named.Obj().Name() in package %s", named.Obj().Name(), path)
+		return nil, fmt.Errorf("failed to find structure named %s named.Obj().Name() in package %s", named.Obj().Name(), path)
 	}
 	return &NamedObject{path, d, named, nil, spec, d.parser.Parse(docs.Text())}, nil
 }
