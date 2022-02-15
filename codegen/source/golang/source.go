@@ -68,10 +68,9 @@ func (n NamedObject) Fields() []source.Object {
 	fields := make([]source.Object, 0)
 	for i := 0; i < st.NumFields(); i++ {
 		field, tag := st.Field(i), st.Tag(i)
-		name := field.Name()
 		// Skip unexported, if the original field has a "-" tag or the field was requested to be skipped via config.
 		if strings.Contains(tag, "-") {
-			hclog.L().Debug("skipping column", "column", name)
+			hclog.L().Debug("skipping column", "column", field.Name())
 			continue
 		}
 		fd := getSpecColumnDescription(n.source.parser, n.spec, field.Name())
