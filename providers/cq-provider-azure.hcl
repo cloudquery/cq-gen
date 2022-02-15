@@ -1,5 +1,5 @@
 service          = "azure"
-output_directory = "../cq-provider-azure/resources/services/datalake"
+output_directory = "../cq-provider-azure/resources/services/compute"
 
 
 description_modifier "remove_read_only" {
@@ -308,9 +308,20 @@ resource "azure" "sql" "managed_instances" {
     skip_prefix = true
   }
 
-column "managed_instance_create_mode"{
-  description = "Specifies the mode of database creation"
-}
+  column "managed_instance_create_mode" {
+    description = "Specifies the mode of database creation"
+  }
+
+  column "private_link_service_connection_state_status" {
+    rename = "connection_status"
+  }
+  column "private_link_service_connection_state_description" {
+    rename = "connection_description"
+  }
+  column "private_link_service_connection_state_actions_required" {
+    rename = "connection_actions_required"
+  }
+
   relation "azure" "sql" "private_endpoint_connections" {
     column "properties" {
       skip_prefix = true
@@ -342,7 +353,7 @@ resource "azure" "sql" "managed_databases" {
     skip_prefix = true
   }
 
-  column "storage_container_sas_token"{
+  column "storage_container_sas_token" {
     description = "SAS token used to access resources"
   }
 
@@ -374,8 +385,8 @@ resource "azure" "sql" "managed_databases" {
 }
 
 resource "azure" "sql" "databases" {
-  #  description = "Azure sql database"
-  path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.Database"
+  description = "Azure sql database"
+  path        = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.Database"
 
   userDefinedColumn "server_cq_id" {
     description = "Azure sql server cloudquery id"
@@ -423,15 +434,30 @@ resource "azure" "sql" "databases" {
   }
 
   userDefinedColumn "transparent_data_encryption" {
+    description       = "TransparentDataEncryption represents a database transparent data encryption configuration"
     type              = "json"
     generate_resolver = true
   }
+
+  column "source_database_deletion_date_time" {
+    description = "Specifies the time that the database was deleted"
+  }
+
+  column "restore_point_in_time" {
+    description = "Specifies the point in time (ISO8601 format) of the source database that will be restored to create the new database."
+  }
+
 
   user_relation "azure" "sql" "db_blob_auditing_policies" {
     path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.DatabaseBlobAuditingPolicy"
     column "database_blob_auditing_policy_properties" {
       skip_prefix = true
     }
+
+    column "is_azure_monitor_target_enabled" {
+      description = "Specifies whether audit events are sent to Azure Monitor."
+    }
+
   }
 
   user_relation "azure" "sql" "db_vulnerability_assessments" {
@@ -929,12 +955,14 @@ resource "azure" "compute" "virtual_machine_scale_sets" {
     }
 
     userDefinedColumn "type" {
-      type = "string"
+      type        = "string"
+      description = "The type of the resource"
       #      path_resolver = "Type"
     }
 
     userDefinedColumn "extension_type" {
-      type = "string"
+      type        = "string"
+      description = "The type of the extension"
       #      Resolver:    schema.PathResolver("VirtualMachineScaleSetExtensionProperties.Type"),
     }
 
@@ -1411,7 +1439,8 @@ resource "azure" "security" "jit_network_access_policies" {
 
 
 resource "azure" "datalake" "storage_accounts" {
-  path = "github.com/Azure/azure-sdk-for-go/profiles/latest/datalake/store/mgmt/account.DataLakeStoreAccount"
+  description = "Data Lake Store account"
+  path        = "github.com/Azure/azure-sdk-for-go/services/datalake/store/mgmt/2016-11-01/account.DataLakeStoreAccount"
 
   options {
     primary_keys = [
@@ -1435,7 +1464,6 @@ resource "azure" "datalake" "storage_accounts" {
     path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
   }
 
-
   column "data_lake_store_account_properties" {
     skip_prefix = true
   }
@@ -1457,12 +1485,21 @@ resource "azure" "datalake" "storage_accounts" {
     column "firewall_rule_properties" {
       skip_prefix = true
     }
+    column "start_ip_address" {
+      type              = "inet"
+      generate_resolver = true
+    }
+    column "end_ip_address" {
+      type              = "inet"
+      generate_resolver = true
+    }
   }
 }
 
 
 resource "azure" "datalake" "analytics_accounts" {
-  path = "github.com/Azure/azure-sdk-for-go/profiles/latest/datalake/analytics/mgmt/account.DataLakeAnalyticsAccount"
+  description = "Data Lake Analytics account"
+  path        = "github.com/Azure/azure-sdk-for-go/services/datalake/analytics/mgmt/2016-11-01/account.DataLakeAnalyticsAccount"
 
   options {
     primary_keys = [
@@ -1491,6 +1528,10 @@ resource "azure" "datalake" "analytics_accounts" {
     skip_prefix = true
   }
 
+  column "id" {
+    description = "The resource identifier"
+  }
+
 
   relation "azure" "datalake" "data_lake_store_accounts" {
     column "data_lake_store_account_information_properties" {
@@ -1514,6 +1555,16 @@ resource "azure" "datalake" "analytics_accounts" {
     column "firewall_rule_properties" {
       skip_prefix = true
     }
+
+    column "start_ip_address" {
+      type              = "inet"
+      generate_resolver = true
+    }
+    column "end_ip_address" {
+      type              = "inet"
+      generate_resolver = true
+    }
   }
+
 
 }
