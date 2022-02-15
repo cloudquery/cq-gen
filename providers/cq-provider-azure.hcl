@@ -1,5 +1,5 @@
 service          = "azure"
-output_directory = "../cq-provider-azure/resources/services/compute"
+output_directory = "../cq-provider-azure/resources/services/datalake"
 
 
 description_modifier "remove_read_only" {
@@ -351,10 +351,6 @@ resource "azure" "sql" "managed_databases" {
 
   column "managed_database_properties" {
     skip_prefix = true
-  }
-
-  column "storage_container_sas_token" {
-    description = "SAS token used to access resources"
   }
 
 
