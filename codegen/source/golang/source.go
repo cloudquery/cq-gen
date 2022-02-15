@@ -36,6 +36,9 @@ func (d DataSource) Find(path string) (source.Object, error) {
 	}
 	docs := rw.GetStructDocs(named.Obj().Name())
 	spec := rw.GetStructSpec(named.Obj().Name())
+	if spec == nil {
+		return nil, fmt.Errorf("failed to fin structure named %s named.Obj().Name() in package %s", named.Obj().Name(), path)
+	}
 	return &NamedObject{path, d, named, nil, spec, d.parser.Parse(docs.Text())}, nil
 }
 
@@ -65,9 +68,10 @@ func (n NamedObject) Fields() []source.Object {
 	fields := make([]source.Object, 0)
 	for i := 0; i < st.NumFields(); i++ {
 		field, tag := st.Field(i), st.Tag(i)
+		name := field.Name()
 		// Skip unexported, if the original field has a "-" tag or the field was requested to be skipped via config.
 		if strings.Contains(tag, "-") {
-			hclog.L().Debug("skipping column", "column", field.Name())
+			hclog.L().Debug("skipping column", "column", name)
 			continue
 		}
 		fd := getSpecColumnDescription(n.source.parser, n.spec, field.Name())

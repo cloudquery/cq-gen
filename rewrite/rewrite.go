@@ -111,6 +111,11 @@ func (r *Rewriter) GetStructSpec(name string) *ast.TypeSpec {
 				continue
 			}
 
+			_, isStruct := spec.Type.(*ast.StructType)
+			if !isStruct {
+				continue
+			}
+
 			if spec.Name.Name != name {
 				continue
 			}

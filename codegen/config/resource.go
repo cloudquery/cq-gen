@@ -26,7 +26,7 @@ func decodeResourceBody(ctx *hcl.EvalContext, body hcl.Body, labels []string) (*
 		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &resource.AllowUnexported)...)
 	}
 	if attr, exists := content.Attributes["description"]; exists {
-		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &resource.Path)...)
+		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &resource.Description)...)
 	}
 	if attr, exists := content.Attributes["limit_depth"]; exists {
 		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &resource.LimitDepth)...)
