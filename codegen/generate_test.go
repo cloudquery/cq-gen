@@ -52,8 +52,9 @@ func Test_Generate(t *testing.T) {
 			}
 			filename := fmt.Sprintf("./tests/output/%s.go", tc.ResourceName)
 			if tc.Domain != "" {
-				filename = fmt.Sprintf("./tests/output/%s_%s.go", tc.Domain, tc.ResourceName)
+				filename = fmt.Sprintf("./tests/output/%s.go", tc.ResourceName)
 			}
+
 			result, err := ioutil.ReadFile(filename)
 			assert.NoError(t, err)
 			expected, err := ioutil.ReadFile(tc.ExpectedOutput)
