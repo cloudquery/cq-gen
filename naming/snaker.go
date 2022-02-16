@@ -1,47 +1,61 @@
 package naming
 
 import (
+	"github.com/iancoleman/strcase"
 	"strings"
+	"sync"
 	"unicode"
 )
 
+var initAcronyms sync.Once
+
 // CamelToSnake converts a given string to snake case
 func CamelToSnake(s string) string {
-	var result string
-	var words []string
-	var lastPos int
-	rs := []rune(s)
-
-	for i := 0; i < len(rs); i++ {
-		if i > 0 && unicode.IsUpper(rs[i]) {
-			if initialism := startsWithInitialism(s[lastPos:]); initialism != "" {
-				words = append(words, initialism)
-
-				i += len(initialism) - 1
-				lastPos = i
-				continue
-			}
-
-			words = append(words, s[lastPos:i])
-			lastPos = i
+	initAcronyms.Do(func() {
+		for k, _ := range commonInitialisms {
+			strcase.ConfigureAcronym(k, k)
 		}
-	}
-
-	// append the last word
-	if s[lastPos:] != "" {
-		words = append(words, s[lastPos:])
-	}
-
-	for k, word := range words {
-		if k > 0 {
-			result += "_"
-		}
-
-		result += strings.ToLower(word)
-	}
-
-	return result
+	})
+	return strcase.ToSnake(s)
 }
+
+//// CamelToSnake converts a given string to snake case
+//func CamelToSnake(s string) string {
+//	var result string
+//	var words []string
+//	var lastPos int
+//	rs := []rune(s)
+//
+//	for i := 0; i < len(rs); i++ {
+//		if i > 0 && unicode.IsUpper(rs[i]) {
+//			if initialism := startsWithInitialism(s[lastPos:]); initialism != "" {
+//				words = append(words, initialism)
+//
+//				i += len(initialism) - 1
+//				lastPos = i
+//				continue
+//			}
+//
+//			words = append(words, s[lastPos:i])
+//			lastPos = i
+//		}
+//	}
+//
+//	// append the last word
+//	if s[lastPos:] != "" {
+//		words = append(words, s[lastPos:])
+//	}
+//
+//	for k, word := range words {
+//		if k > 0 {
+//			result += "_"
+//		}
+//
+//		result += strings.ToLower(word)
+//	}
+//
+//	return result
+//}
 
 func snakeToCamel(s string, upperCase bool) string {
 	var result string

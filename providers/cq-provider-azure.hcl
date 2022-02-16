@@ -312,15 +312,10 @@ resource "azure" "sql" "managed_instances" {
     description = "Specifies the mode of database creation"
   }
 
-  column "private_link_service_connection_state_status" {
-    rename = "connection_status"
+  column "administrator_login_password" {
+    skip = true
   }
-  column "private_link_service_connection_state_description" {
-    rename = "connection_description"
-  }
-  column "private_link_service_connection_state_actions_required" {
-    rename = "connection_actions_required"
-  }
+
 
   relation "azure" "sql" "private_endpoint_connections" {
     column "properties" {
@@ -332,6 +327,16 @@ resource "azure" "sql" "managed_instances" {
     path = "github.com/Azure/azure-sdk-for-go/services/preview/sql/mgmt/v4.0/sql.ManagedInstanceVulnerabilityAssessment"
     column "managed_instance_vulnerability_assessment_properties" {
       skip_prefix = true
+    }
+
+    column "private_link_service_connection_state_status" {
+      rename = "connection_status"
+    }
+    column "private_link_service_connection_state_description" {
+      rename = "connection_description"
+    }
+    column "private_link_service_connection_state_actions_required" {
+      rename = "connection_actions_required"
     }
   }
 
@@ -951,14 +956,16 @@ resource "azure" "compute" "virtual_machine_scale_sets" {
     }
 
     userDefinedColumn "type" {
-      type        = "string"
-      description = "The type of the resource"
+      type              = "string"
+      description       = "The type of the resource"
+      generate_resolver = true
       #      path_resolver = "Type"
     }
 
     userDefinedColumn "extension_type" {
-      type        = "string"
-      description = "The type of the extension"
+      type              = "string"
+      description       = "The type of the extension"
+      generate_resolver = true
       #      Resolver:    schema.PathResolver("VirtualMachineScaleSetExtensionProperties.Type"),
     }
 
@@ -1435,8 +1442,8 @@ resource "azure" "security" "jit_network_access_policies" {
 
 
 resource "azure" "datalake" "storage_accounts" {
-  description = "Data Lake Store account"
-  path        = "github.com/Azure/azure-sdk-for-go/services/datalake/store/mgmt/2016-11-01/account.DataLakeStoreAccount"
+  description         = "Data Lake Store account"
+  path                = "github.com/Azure/azure-sdk-for-go/services/datalake/store/mgmt/2016-11-01/account.DataLakeStoreAccount"
 
   options {
     primary_keys = [
@@ -1528,6 +1535,17 @@ resource "azure" "datalake" "analytics_accounts" {
     description = "The resource identifier"
   }
 
+  column "encryption_config_key_vault_meta_info_key_vault_resource_id"{
+    rename = "encryption_key_vault_resource_id"
+  }
+
+  column "encryption_config_key_vault_meta_info_encryption_key_name"{
+    rename = "encryption_key_vault_key_name"
+  }
+
+  column "encryption_config_key_vault_meta_info_encryption_key_version"{
+    rename = "encryption_key_vault_key_version"
+  }
 
   relation "azure" "datalake" "data_lake_store_accounts" {
     column "data_lake_store_account_information_properties" {

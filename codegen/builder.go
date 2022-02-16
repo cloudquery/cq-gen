@@ -91,7 +91,7 @@ func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *con
 	table := &TableDefinition{
 		Name:          fullName,
 		FileName:      GetFileName(resourceCfg),
-		TableFuncName: template.ToGo(resourceCfg.Domain + strings.Title(fullName)),
+		TableFuncName: template.ToGo(strings.Title(fullName)),
 		TableName:     GetTableName(parentTable, resourceCfg.Service, resourceCfg.Domain, resourceCfg.Name),
 		parentTable:   parentTable,
 		Options:       resourceCfg.TableOptions,
