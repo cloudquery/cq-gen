@@ -6,7 +6,7 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func ColumnsEmbeddedPrefixSkips() *schema.Table {
+func EmbeddedPrefixSkips() *schema.Table {
 	return &schema.Table{
 		Name:     "test_columns_embedded_prefix_skip",
 		Resolver: fetchColumnsEmbeddedPrefixSkips,

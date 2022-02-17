@@ -6,7 +6,7 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func RelationsRename() *schema.Table {
+func Rename() *schema.Table {
 	return &schema.Table{
 		Name:     "test_relations_rename",
 		Resolver: fetchRelationsRename,

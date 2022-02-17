@@ -6,7 +6,7 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func BaseSimples() *schema.Table {
+func Simples() *schema.Table {
 	return &schema.Table{
 		Name:     "test_base_simple",
 		Resolver: fetchBaseSimples,

@@ -6,7 +6,7 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func ColumnsColumns() *schema.Table {
+func Columns() *schema.Table {
 	return &schema.Table{
 		Name:     "test_columns_columns",
 		Resolver: fetchColumnsColumns,

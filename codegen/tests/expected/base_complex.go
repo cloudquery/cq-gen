@@ -6,7 +6,7 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func BaseComplexes() *schema.Table {
+func Complexes() *schema.Table {
 	return &schema.Table{
 		Name:        "test_base_complex",
 		Description: "ComplexStruct written descriptions on structs are show as descriptions in the table",

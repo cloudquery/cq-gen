@@ -17,7 +17,6 @@ func Test_CamelToSnake(t *testing.T) {
 		{Camel: "TestCamelCase", Snake: "test_camel_case"},
 		{Camel: "AccountID", Snake: "account_id"},
 		{Camel: "PostgreSSL", Snake: "postgre_ssl"},
-		{Camel: "PostgreSQL", Snake: "postgre_sql"},
 		{Camel: "CNAME", Snake: "cname"},
 		{Camel: "CNAMEBuilder", Snake: "cname_builder"},
 		{Camel: "TestCNAMEBuilder", Snake: "test_cname_builder"},

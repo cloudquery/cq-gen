@@ -7,7 +7,7 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func ResolversRenameWithResolvers() *schema.Table {
+func RenameWithResolvers() *schema.Table {
 	return &schema.Table{
 		Name:     "test_resolvers_rename_with_resolver",
 		Resolver: fetchResolversRenameWithResolvers,

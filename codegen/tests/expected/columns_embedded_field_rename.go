@@ -6,7 +6,7 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func ColumnsEmbeddedFieldRenames() *schema.Table {
+func EmbeddedFieldRenames() *schema.Table {
 	return &schema.Table{
 		Name:     "test_columns_embedded_field_rename",
 		Resolver: fetchColumnsEmbeddedFieldRenames,

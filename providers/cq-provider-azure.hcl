@@ -1,5 +1,5 @@
 service          = "azure"
-output_directory = "../cq-provider-azure/resources/services/datalake"
+output_directory = "../cq-provider-azure/resources/services/compute"
 
 
 description_modifier "remove_read_only" {
@@ -899,6 +899,18 @@ resource "azure" "compute" "virtual_machine_scale_sets" {
     type = "json"
   }
 
+  column "proximity_placement_group_id" {
+    description = "Proximity placement group resource id"
+  }
+
+  column "host_group_id" {
+    description = "Host group resource id"
+  }
+
+  column "do_not_run_extensions_on_overprovisioned_v_ms" {
+    rename = "do_not_run_extensions_on_overprovisioned_vms"
+  }
+
   column "virtual_machine_profile" {
     skip_prefix = true
   }
@@ -1442,8 +1454,8 @@ resource "azure" "security" "jit_network_access_policies" {
 
 
 resource "azure" "datalake" "storage_accounts" {
-  description         = "Data Lake Store account"
-  path                = "github.com/Azure/azure-sdk-for-go/services/datalake/store/mgmt/2016-11-01/account.DataLakeStoreAccount"
+  description = "Data Lake Store account"
+  path        = "github.com/Azure/azure-sdk-for-go/services/datalake/store/mgmt/2016-11-01/account.DataLakeStoreAccount"
 
   options {
     primary_keys = [
@@ -1535,15 +1547,15 @@ resource "azure" "datalake" "analytics_accounts" {
     description = "The resource identifier"
   }
 
-  column "encryption_config_key_vault_meta_info_key_vault_resource_id"{
+  column "encryption_config_key_vault_meta_info_key_vault_resource_id" {
     rename = "encryption_key_vault_resource_id"
   }
 
-  column "encryption_config_key_vault_meta_info_encryption_key_name"{
+  column "encryption_config_key_vault_meta_info_encryption_key_name" {
     rename = "encryption_key_vault_key_name"
   }
 
-  column "encryption_config_key_vault_meta_info_encryption_key_version"{
+  column "encryption_config_key_vault_meta_info_encryption_key_version" {
     rename = "encryption_key_vault_key_version"
   }
 

@@ -6,7 +6,7 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func UserDefinedSimples() *schema.Table {
+func Simples() *schema.Table {
 	return &schema.Table{
 		Name:     "test_user_defined_simple",
 		Resolver: fetchUserDefinedSimples,
