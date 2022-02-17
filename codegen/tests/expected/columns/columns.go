@@ -1,4 +1,4 @@
-package output
+package columns
 
 import (
 	"context"
@@ -15,7 +15,7 @@ func Columns() *schema.Table {
 				Name:        "rename_int_value",
 				Description: "change description to whatever you want",
 				Type:        schema.TypeString,
-				Resolver:    resolveColumnsColumnsRenameIntValue,
+				Resolver:    resolveColumnsRenameIntValue,
 			},
 			{
 				Name:        "embedded_field_a",
@@ -34,6 +34,6 @@ func Columns() *schema.Table {
 func fetchColumnsColumns(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
-func resolveColumnsColumnsRenameIntValue(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource, c schema.Column) error {
+func resolveColumnsRenameIntValue(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource, c schema.Column) error {
 	panic("not implemented")
 }

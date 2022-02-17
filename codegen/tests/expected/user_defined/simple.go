@@ -1,21 +1,22 @@
-package output
+package user_defined
 
 import (
 	"context"
 
-	"github.com/cloudquery/cq-gen/codegen/tests"
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func Resolvers() *schema.Table {
+func Simples() *schema.Table {
 	return &schema.Table{
-		Name:                 "test_resolvers_resolvers",
-		Resolver:             fetchResolversResolvers,
-		Multiplex:            tests.TestMultiplex,
-		IgnoreError:          tests.IgnoreErrorFunc,
-		DeleteFilter:         tests.TestDeleteFilter,
-		PostResourceResolver: GeneratedPostResolver,
+		Name:     "test_user_defined_simple",
+		Resolver: fetchUserDefinedSimples,
 		Columns: []schema.Column{
+			{
+				Name:        "test_column",
+				Description: "user defined column test",
+				Type:        schema.TypeJSON,
+				Resolver:    ResolveUserDefinedSimpleTestColumn,
+			},
 			{
 				Name: "int_value",
 				Type: schema.TypeBigInt,
@@ -37,9 +38,9 @@ func Resolvers() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchResolversResolvers(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
+func fetchUserDefinedSimples(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
-func GeneratedPostResolver(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource) error {
+func ResolveUserDefinedSimpleTestColumn(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource, c schema.Column) error {
 	panic("not implemented")
 }

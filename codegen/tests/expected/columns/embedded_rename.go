@@ -1,4 +1,4 @@
-package output
+package columns
 
 import (
 	"context"
@@ -6,10 +6,10 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func EmbeddedPrefixSkips() *schema.Table {
+func EmbeddedRenames() *schema.Table {
 	return &schema.Table{
-		Name:     "test_columns_embedded_prefix_skip",
-		Resolver: fetchColumnsEmbeddedPrefixSkips,
+		Name:     "test_columns_embedded_rename",
+		Resolver: fetchColumnsEmbeddedRenames,
 		Columns: []schema.Column{
 			{
 				Name: "int_value",
@@ -20,7 +20,7 @@ func EmbeddedPrefixSkips() *schema.Table {
 				Type: schema.TypeBool,
 			},
 			{
-				Name:     "rename_field",
+				Name:     "rename_prefix_field_a",
 				Type:     schema.TypeBigInt,
 				Resolver: schema.PathResolver("Embedded.FieldA"),
 			},
@@ -32,6 +32,6 @@ func EmbeddedPrefixSkips() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchColumnsEmbeddedPrefixSkips(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
+func fetchColumnsEmbeddedRenames(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }

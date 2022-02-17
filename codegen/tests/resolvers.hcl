@@ -1,5 +1,5 @@
 service          = "test"
-output_directory = "./tests/output"
+output_directory = "./tests/output/resolvers/"
 
 
 // CloudQuery tables have some functions, we can control the function to be added in the template like so:

@@ -1,4 +1,4 @@
-package output
+package columns
 
 import (
 	"context"
@@ -6,10 +6,10 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func EmbeddedRenames() *schema.Table {
+func EmbeddedFieldRenames() *schema.Table {
 	return &schema.Table{
-		Name:     "test_columns_embedded_rename",
-		Resolver: fetchColumnsEmbeddedRenames,
+		Name:     "test_columns_embedded_field_rename",
+		Resolver: fetchColumnsEmbeddedFieldRenames,
 		Columns: []schema.Column{
 			{
 				Name: "int_value",
@@ -20,7 +20,7 @@ func EmbeddedRenames() *schema.Table {
 				Type: schema.TypeBool,
 			},
 			{
-				Name:     "rename_prefix_field_a",
+				Name:     "rename_field",
 				Type:     schema.TypeBigInt,
 				Resolver: schema.PathResolver("Embedded.FieldA"),
 			},
@@ -32,6 +32,6 @@ func EmbeddedRenames() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchColumnsEmbeddedRenames(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
+func fetchColumnsEmbeddedFieldRenames(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }

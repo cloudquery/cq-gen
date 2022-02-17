@@ -1,4 +1,4 @@
-package output
+package base
 
 import (
 	"context"
@@ -8,15 +8,9 @@ import (
 
 func Simples() *schema.Table {
 	return &schema.Table{
-		Name:     "test_user_defined_simple",
-		Resolver: fetchUserDefinedSimples,
+		Name:     "test_base_simple",
+		Resolver: fetchBaseSimples,
 		Columns: []schema.Column{
-			{
-				Name:        "test_column",
-				Description: "user defined column test",
-				Type:        schema.TypeJSON,
-				Resolver:    ResolveUserDefinedSimpleTestColumn,
-			},
 			{
 				Name: "int_value",
 				Type: schema.TypeBigInt,
@@ -38,9 +32,6 @@ func Simples() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchUserDefinedSimples(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
-	panic("not implemented")
-}
-func ResolveUserDefinedSimpleTestColumn(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource, c schema.Column) error {
+func fetchBaseSimples(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }

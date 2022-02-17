@@ -1,4 +1,4 @@
-package output
+package resolvers
 
 import (
 	"context"
@@ -7,15 +7,18 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func RenameWithResolvers() *schema.Table {
+func Resolvers() *schema.Table {
 	return &schema.Table{
-		Name:     "test_resolvers_rename_with_resolver",
-		Resolver: fetchResolversRenameWithResolvers,
+		Name:                 "test_resolvers_resolvers",
+		Resolver:             fetchResolversResolvers,
+		Multiplex:            tests.TestMultiplex,
+		IgnoreError:          tests.IgnoreErrorFunc,
+		DeleteFilter:         tests.TestDeleteFilter,
+		PostResourceResolver: GeneratedPostResolver,
 		Columns: []schema.Column{
 			{
-				Name:     "other_value",
-				Type:     schema.TypeBigInt,
-				Resolver: tests.TestResolver,
+				Name: "int_value",
+				Type: schema.TypeBigInt,
 			},
 			{
 				Name: "bool_value",
@@ -34,6 +37,9 @@ func RenameWithResolvers() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchResolversRenameWithResolvers(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
+func fetchResolversResolvers(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
+	panic("not implemented")
+}
+func GeneratedPostResolver(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource) error {
 	panic("not implemented")
 }

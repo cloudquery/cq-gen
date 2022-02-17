@@ -1,5 +1,5 @@
 service          = "test"
-output_directory = "./tests/output"
+output_directory = "./tests/output/base/"
 
 resource "test" "base" "simple" {
   path = "github.com/cloudquery/cq-gen/codegen/tests.BaseStruct"

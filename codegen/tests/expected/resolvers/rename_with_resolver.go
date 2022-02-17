@@ -1,26 +1,28 @@
-package output
+package resolvers
 
 import (
 	"context"
 
+	"github.com/cloudquery/cq-gen/codegen/tests"
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func EmbeddedFieldRenames() *schema.Table {
+func RenameWithResolvers() *schema.Table {
 	return &schema.Table{
-		Name:     "test_columns_embedded_field_rename",
-		Resolver: fetchColumnsEmbeddedFieldRenames,
+		Name:     "test_resolvers_rename_with_resolver",
+		Resolver: fetchResolversRenameWithResolvers,
 		Columns: []schema.Column{
 			{
-				Name: "int_value",
-				Type: schema.TypeBigInt,
+				Name:     "other_value",
+				Type:     schema.TypeBigInt,
+				Resolver: tests.TestResolver,
 			},
 			{
 				Name: "bool_value",
 				Type: schema.TypeBool,
 			},
 			{
-				Name:     "rename_field",
+				Name:     "embedded_field_a",
 				Type:     schema.TypeBigInt,
 				Resolver: schema.PathResolver("Embedded.FieldA"),
 			},
@@ -32,6 +34,6 @@ func EmbeddedFieldRenames() *schema.Table {
 //                                               Table Resolver Functions
 // ====================================================================================================================
 
-func fetchColumnsEmbeddedFieldRenames(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
+func fetchResolversRenameWithResolvers(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }

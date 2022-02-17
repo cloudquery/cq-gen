@@ -2,7 +2,7 @@
 
 
 service          = "test"
-output_directory = "./tests/output"
+output_directory = "./tests/output/user_defined/"
 
 // Simple use case of defining user columns that aren't part of the original structure
 // user defined columns are added first before any structure
