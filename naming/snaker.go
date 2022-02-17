@@ -2,11 +2,8 @@ package naming
 
 import (
 	"strings"
-	"sync"
 	"unicode"
 )
-
-var initAcronyms sync.Once
 
 // CamelToSnake converts a given string to snake case
 func CamelToSnake(s string) string {
