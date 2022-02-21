@@ -17,7 +17,7 @@ func CamelToSnake(s string) string {
 			if initialism := startsWithInitialism(s[lastPos:]); initialism != "" {
 				words = append(words, initialism)
 
-				i += len(initialism) - 1
+				i = lastPos + len(initialism)
 				lastPos = i
 				continue
 			}
@@ -172,6 +172,7 @@ var commonInitialisms = map[string]bool{
 	"ISCSI":     true,
 	"GigaBytes": true,
 	"SSE":       true,
+	"SSD":       true,
 }
 
 // add exceptions here for things that are not automatically convertable
