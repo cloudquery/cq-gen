@@ -1,5 +1,5 @@
 service          = "azure"
-output_directory = "../cq-provider-azure/resources/services/datalake"
+output_directory = "../cq-provider-azure/resources/services/container"
 
 
 description_modifier "remove_read_only" {
@@ -1561,6 +1561,87 @@ resource "azure" "datalake" "analytics_accounts" {
       generate_resolver = true
     }
   }
+}
 
+
+resource "azure" "container" "registries" {
+  path        = "github.com/Azure/azure-sdk-for-go/services/containerregistry/mgmt/2019-05-01/containerregistry.Registry"
+  description = "Azure compute disk"
+
+  userDefinedColumn "subscription_id" {
+    type        = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
+
+  column "registry_properties" {
+    skip_prefix = true
+  }
+
+  column "policies" {
+    skip_prefix = true
+  }
+
+
+  column "creation_date_time" {
+    rename      = "creation_date"
+    description = "The creation date of the container registry"
+  }
+
+  column "status_timestamp_time" {
+    rename      = "status_timestamp"
+    description = "The timestamp when the status was changed to the current value"
+  }
+
+
+  column "status_display_status" {
+    rename = "status"
+  }
+
+  column "retention_policy_last_updated_time" {
+    description = "The timestamp when the policy was last updated"
+  }
+
+  relation "azure" "container" "network_rule_set_ip_rules" {
+    column "ip_address_or_range" {
+      type              = "cidr"
+      generate_resolver = true
+    }
+  }
+
+  relation "azure" "container" "network_rule_set_virtual_network_rules" {
+    column "virtual_network_resource_id" {
+      rename      = "virtual_network_id"
+      description = "Resource ID of a subnet"
+    }
+  }
+
+
+  user_relation "azure" "container" "replications" {
+    path = "github.com/Azure/azure-sdk-for-go/services/containerregistry/mgmt/2019-05-01/containerregistry.Replication"
+
+    column "replication_properties" {
+      skip_prefix = true
+    }
+    column "status_display_status" {
+      rename = "status"
+    }
+
+    column "status_timestamp_time" {
+      rename      = "status_timestamp"
+      description = "The timestamp when the status was changed to the current value"
+    }
+  }
 
 }
+
