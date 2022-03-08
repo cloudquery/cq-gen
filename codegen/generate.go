@@ -82,11 +82,11 @@ func Call(p *ResolverDefinition) string {
 			switch v.Type() {
 			case cty.String:
 				var newVal string
-				gocty.FromCtyValue(v, &newVal)
+				_ = gocty.FromCtyValue(v, &newVal)
 				params[i] = strconv.Quote(newVal)
 			case cty.Number:
 				var newVal int
-				gocty.FromCtyValue(v, &newVal)
+				_ = gocty.FromCtyValue(v, &newVal)
 				params[i] = strconv.Itoa(newVal)
 			case cty.NilType:
 				params[i] = "nil"
