@@ -1,5 +1,5 @@
 service          = "azure"
-output_directory = "../cq-provider-azure/resources/services/container"
+output_directory = "../cq-provider-azure/resources/services/sql"
 
 
 description_modifier "remove_read_only" {
@@ -441,6 +441,11 @@ resource "azure" "sql" "databases" {
 
   column "restore_point_in_time" {
     description = "Specifies the point in time (ISO8601 format) of the source database that will be restored to create the new database."
+  }
+
+  userDefinedColumn "long_term_retention_policy" {
+    type              = "json"
+    generate_resolver = true
   }
 
 
@@ -1565,8 +1570,7 @@ resource "azure" "datalake" "analytics_accounts" {
 
 
 resource "azure" "container" "registries" {
-  path        = "github.com/Azure/azure-sdk-for-go/services/containerregistry/mgmt/2019-05-01/containerregistry.Registry"
-  description = "Azure compute disk"
+  path = "github.com/Azure/azure-sdk-for-go/services/containerregistry/mgmt/2019-05-01/containerregistry.Registry"
 
   userDefinedColumn "subscription_id" {
     type        = "string"
@@ -1574,6 +1578,13 @@ resource "azure" "container" "registries" {
     resolver "resolveAzureSubscription" {
       path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
     }
+  }
+
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"
+    ]
   }
 
   multiplex "AzureSubscription" {
@@ -1643,5 +1654,36 @@ resource "azure" "container" "registries" {
     }
   }
 
+}
+
+
+resource "azure" "account" "locations" {
+  path        = "github.com/Azure/azure-sdk-for-go/services/subscription/mgmt/2020-09-01/subscription.Location"
+  description = "Azure location information"
+
+  userDefinedColumn "subscription_id" {
+    type        = "string"
+    description = "Azure subscription id"
+    resolver "resolveAzureSubscription" {
+      path = "github.com/cloudquery/cq-provider-azure/client.ResolveAzureSubscription"
+    }
+  }
+  column "subscription_id" {
+    skip = true
+  }
+  options {
+    primary_keys = [
+      "subscription_id",
+      "id"
+    ]
+  }
+
+  multiplex "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.SubscriptionMultiplex"
+  }
+
+  deleteFilter "AzureSubscription" {
+    path = "github.com/cloudquery/cq-provider-azure/client.DeleteSubscriptionFilter"
+  }
 }
 
