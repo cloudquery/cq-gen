@@ -4,6 +4,8 @@ import (
 	"go/types"
 	"strings"
 
+	"github.com/zclconf/go-cty/cty"
+
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
@@ -97,4 +99,5 @@ type ResolverDefinition struct {
 	Type      types.Object
 	Arguments string
 	Generate  bool
+	Params    []cty.Value
 }

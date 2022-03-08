@@ -382,6 +382,7 @@ func (tb TableBuilder) buildResolverDefinition(table *TableDefinition, cfg *conf
 		Type:      ro,
 		Arguments: GetFunctionParams(signature),
 		Generate:  cfg.Generate,
+		Params:    cfg.Params,
 	}
 	// if user requested to generate or gave us a body in the configuration
 	if cfg.Generate || (cfg.Body != "") {

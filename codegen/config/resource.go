@@ -64,12 +64,12 @@ func decodeResourceBody(ctx *hcl.EvalContext, body hcl.Body, labels []string) (*
 			}
 			resource.IgnoreError = &f
 		case "multiplex":
-			f := FunctionConfig{Name: b.Labels[0]}
-			diags = append(diags, gohcl.DecodeBody(b.Body, ctx, &f)...)
-			if diags.HasErrors() {
+			f, ddiags := decodeFunctionBlock(ctx, b)
+			if ddiags.HasErrors() {
+				diags = append(diags, ddiags...)
 				continue
 			}
-			resource.Multiplex = &f
+			resource.Multiplex = f
 		case "postResourceResolver":
 			f := FunctionConfig{Name: b.Labels[0]}
 			diags = append(diags, gohcl.DecodeBody(b.Body, ctx, &f)...)
@@ -150,7 +150,66 @@ func decodeRelationBlock(ctx *hcl.EvalContext, block *hcl.Block) (*RelationConfi
 	return rel, diags
 }
 
+func decodeFunctionBlock(ctx *hcl.EvalContext, block *hcl.Block) (*FunctionConfig, hcl.Diagnostics) {
+	content, _, diags := block.Body.PartialContent(functionBlockSchema)
+	if diags.HasErrors() {
+		return nil, diags
+	}
+
+	rel := &FunctionConfig{
+		Name: block.Labels[0],
+	}
+
+	if attr, exists := content.Attributes["body"]; exists {
+		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &rel.Body)...)
+	}
+	if attr, exists := content.Attributes["path"]; exists {
+		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &rel.Path)...)
+	}
+	if attr, exists := content.Attributes["generate"]; exists {
+		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &rel.Generate)...)
+	}
+	if attr, exists := content.Attributes["path_resolver"]; exists {
+		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &rel.PathResolver)...)
+	}
+
+	if attr, exists := content.Attributes["params"]; exists {
+		value, diags := attr.Expr.Value(ctx)
+		if diags.HasErrors() {
+			return nil, diags
+		}
+		rel.Params = value.AsValueSlice()
+	}
+
+	return rel, diags
+}
+
 var (
+	functionBlockSchema = &hcl.BodySchema{
+		Attributes: []hcl.AttributeSchema{
+			{
+				Name:     "body",
+				Required: false,
+			},
+			{
+				Name:     "path",
+				Required: false,
+			},
+			{
+				Name:     "generate",
+				Required: false,
+			},
+			{
+				Name:     "path_resolver",
+				Required: false,
+			},
+			{
+				Name:     "params",
+				Required: false,
+			},
+		},
+	}
+
 	relationBlockSchema = &hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
 			{
