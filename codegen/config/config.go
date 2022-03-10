@@ -76,7 +76,7 @@ type ResourceConfig struct {
 	// UserDefinedColumns are a list of columns we add that aren't part of the original struct
 	UserDefinedColumn []ColumnConfig `hcl:"userDefinedColumn,block"`
 
-	// Function configurations will be omitted if not givien
+	// Function configurations will be omitted if not set
 	IgnoreError          *FunctionConfig `hcl:"ignoreError,block"`
 	Multiplex            *FunctionConfig `hcl:"multiplex,block"`
 	DeleteFilter         *FunctionConfig `hcl:"deleteFilter,block"`
