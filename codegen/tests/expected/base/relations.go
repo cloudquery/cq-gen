@@ -1,4 +1,4 @@
-package output
+package base
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func BaseRelations() *schema.Table {
+func Relations() *schema.Table {
 	return &schema.Table{
 		Name:     "test_base_relations",
 		Resolver: fetchBaseRelations,

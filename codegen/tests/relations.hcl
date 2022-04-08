@@ -1,5 +1,5 @@
 service          = "test"
-output_directory = "./tests/output"
+output_directory = "./tests/output/relations/"
 
 resource "test" "relations" "rename" {
   path = "github.com/cloudquery/cq-gen/codegen/tests.SimpleRelation"

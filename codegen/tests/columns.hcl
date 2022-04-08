@@ -1,5 +1,5 @@
 service          = "test"
-output_directory = "./tests/output"
+output_directory = "./tests/output/columns/"
 
 
 resource "test" "columns" "columns" {

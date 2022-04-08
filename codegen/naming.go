@@ -36,9 +36,6 @@ func GetResourceName(parentTable *TableDefinition, resourceCfg *config.ResourceC
 
 // GetFileName returns the fully qualified file name {domain}_{resource_name}.go or {resource_name}.go
 func GetFileName(resourceCfg *config.ResourceConfig) string {
-	if resourceCfg.Domain != "" {
-		return fmt.Sprintf("%s_%s.go", resourceCfg.Domain, resourceCfg.Name)
-	}
 	return fmt.Sprintf("%s.go", resourceCfg.Name)
 }
 

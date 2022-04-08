@@ -6,6 +6,7 @@ import (
 
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/creasty/defaults"
+	"github.com/zclconf/go-cty/cty"
 )
 
 type Config struct {
@@ -75,7 +76,7 @@ type ResourceConfig struct {
 	// UserDefinedColumns are a list of columns we add that aren't part of the original struct
 	UserDefinedColumn []ColumnConfig `hcl:"userDefinedColumn,block"`
 
-	// Function configurations will be omitted if not givien
+	// Function configurations will be omitted if not set
 	IgnoreError          *FunctionConfig `hcl:"ignoreError,block"`
 	Multiplex            *FunctionConfig `hcl:"multiplex,block"`
 	DeleteFilter         *FunctionConfig `hcl:"deleteFilter,block"`
@@ -114,6 +115,8 @@ type FunctionConfig struct {
 	Generate bool `hcl:"generate,optional"`
 	// PathResolver defines this function to be called the FieldPath traversed, this is used by generic functions
 	PathResolver bool `hcl:"path_resolver,optional"`
+	// Parameters to pass
+	Params []cty.Value `hcl:"params,optional"`
 }
 
 func (r ResourceConfig) GetRelationConfig(name string) *RelationConfig {

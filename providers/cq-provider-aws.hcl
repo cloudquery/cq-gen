@@ -1,6 +1,6 @@
 service = "aws"
 
-output_directory = "../cq-provider-aws/resources/services/iot"
+output_directory = "../cq-provider-aws/resources/services/ec2"
 
 resource "aws" "applicationautoscaling" "policies" {
   path        = "github.com/aws/aws-sdk-go-v2/service/applicationautoscaling/types.ScalingPolicy"
@@ -1753,6 +1753,72 @@ resource "aws" "ec2" "instances" {
     generate_resolver = true
   }
 
+}
+
+
+resource "aws" "ec2" "eips" {
+  path = "github.com/aws/aws-sdk-go-v2/service/ec2/types.Address"
+  ignoreError "IgnoreAccessDenied" {
+    path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
+  }
+  multiplex "AwsAccountRegion" {
+    path = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
+  }
+  deleteFilter "AccountRegionFilter" {
+    path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+  userDefinedColumn "account_id" {
+    type        = "string"
+    description = "The AWS Account ID of the resource."
+    resolver "resolveAWSAccount" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSAccount"
+    }
+  }
+  userDefinedColumn "region" {
+    type        = "string"
+    description = "The AWS Region of the resource."
+    resolver "resolveAWSRegion" {
+      path = "github.com/cloudquery/cq-provider-aws/client.ResolveAWSRegion"
+    }
+  }
+  options {
+    primary_keys = [
+      "account_id", "allocation_id"
+    ]
+  }
+
+  column "carrier_ip" {
+    type = "inet"
+    resolver "IPAddressResolver" {
+      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.IPAddressResolver"
+    }
+  }
+
+  column "customer_owned_ip" {
+    type = "inet"
+    resolver "IPAddressResolver" {
+      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.IPAddressResolver"
+    }
+  }
+
+  column "private_ip_address" {
+    type = "inet"
+    resolver "IPAddressResolver" {
+      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.IPAddressResolver"
+    }
+  }
+
+  column "public_ip" {
+    type = "inet"
+    resolver "IPAddressResolver" {
+      path = "github.com/cloudquery/cq-provider-sdk/provider/schema.IPAddressResolver"
+    }
+  }
+  column "tags" {
+    // TypeJson
+    type              = "json"
+    generate_resolver = true
+  }
 }
 
 resource "aws" "ec2" "customer_gateways" {

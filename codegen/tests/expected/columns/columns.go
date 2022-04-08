@@ -1,4 +1,4 @@
-package output
+package columns
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func ColumnsColumns() *schema.Table {
+func Columns() *schema.Table {
 	return &schema.Table{
 		Name:     "test_columns_columns",
 		Resolver: fetchColumnsColumns,
@@ -15,7 +15,7 @@ func ColumnsColumns() *schema.Table {
 				Name:        "rename_int_value",
 				Description: "change description to whatever you want",
 				Type:        schema.TypeString,
-				Resolver:    resolveColumnsColumnsRenameIntValue,
+				Resolver:    resolveColumnsRenameIntValue,
 			},
 			{
 				Name:        "embedded_field_a",
@@ -34,6 +34,6 @@ func ColumnsColumns() *schema.Table {
 func fetchColumnsColumns(ctx context.Context, meta schema.ClientMeta, parent *schema.Resource, res chan<- interface{}) error {
 	panic("not implemented")
 }
-func resolveColumnsColumnsRenameIntValue(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource, c schema.Column) error {
+func resolveColumnsRenameIntValue(ctx context.Context, meta schema.ClientMeta, resource *schema.Resource, c schema.Column) error {
 	panic("not implemented")
 }

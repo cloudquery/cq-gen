@@ -1,4 +1,4 @@
-package output
+package resolvers
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
 
-func ResolversUserDefineds() *schema.Table {
+func UserDefineds() *schema.Table {
 	return &schema.Table{
 		Name:     "test_resolvers_user_defined",
 		Resolver: fetchUserDefined,

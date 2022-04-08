@@ -91,7 +91,7 @@ func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *con
 	table := &TableDefinition{
 		Name:          fullName,
 		FileName:      GetFileName(resourceCfg),
-		TableFuncName: template.ToGo(resourceCfg.Domain + strings.Title(fullName)),
+		TableFuncName: template.ToGo(strings.Title(fullName)),
 		TableName:     GetTableName(parentTable, resourceCfg.Service, resourceCfg.Domain, resourceCfg.Name),
 		parentTable:   parentTable,
 		Options:       resourceCfg.TableOptions,
@@ -382,6 +382,7 @@ func (tb TableBuilder) buildResolverDefinition(table *TableDefinition, cfg *conf
 		Type:      ro,
 		Arguments: GetFunctionParams(signature),
 		Generate:  cfg.Generate,
+		Params:    cfg.Params,
 	}
 	// if user requested to generate or gave us a body in the configuration
 	if cfg.Generate || (cfg.Body != "") {

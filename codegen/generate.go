@@ -7,6 +7,11 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
+	"strings"
+
+	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/gocty"
 
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/codegen/template"
@@ -69,6 +74,25 @@ func Call(p *ResolverDefinition) string {
 	}
 	if p.Signature != "" {
 		return p.Signature
+	}
+
+	if p.Params != nil {
+		params := make([]string, len(p.Params))
+		for i, v := range p.Params {
+			switch v.Type() {
+			case cty.String:
+				var newVal string
+				_ = gocty.FromCtyValue(v, &newVal)
+				params[i] = strconv.Quote(newVal)
+			case cty.Number:
+				var newVal int
+				_ = gocty.FromCtyValue(v, &newVal)
+				params[i] = strconv.Itoa(newVal)
+			case cty.NilType:
+				params[i] = "nil"
+			}
+		}
+		return fmt.Sprintf("%s(%s)", pkg+p.Type.Name(), strings.Join(params, ","))
 	}
 	return pkg + p.Type.Name()
 }
