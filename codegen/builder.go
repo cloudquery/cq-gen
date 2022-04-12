@@ -7,6 +7,9 @@ import (
 	"path"
 	"strings"
 
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/codegen/config"
 	"github.com/cloudquery/cq-gen/codegen/source"
@@ -73,6 +76,8 @@ type TableBuilder struct {
 	descriptionParsers []source.DescriptionParser
 }
 
+var titler = cases.Title(language.English, cases.NoLower)
+
 func NewTableBuilder(source source.DataSource, descriptionSource source.DescriptionSource, rewriter *rewrite.Rewriter, parsers []source.DescriptionParser) TableBuilder {
 	return TableBuilder{
 		source:            source,
@@ -88,10 +93,11 @@ func NewTableBuilder(source source.DataSource, descriptionSource source.Descript
 
 func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *config.ResourceConfig, meta BuildMeta) (*TableDefinition, error) {
 	fullName := GetResourceName(parentTable, resourceCfg)
+
 	table := &TableDefinition{
 		Name:          fullName,
 		FileName:      GetFileName(resourceCfg),
-		TableFuncName: template.ToGo(strings.Title(fullName)),
+		TableFuncName: template.ToGo(titler.String(fullName)),
 		TableName:     GetTableName(parentTable, resourceCfg.Service, resourceCfg.Domain, resourceCfg.Name),
 		parentTable:   parentTable,
 		Options:       resourceCfg.TableOptions,
@@ -145,12 +151,11 @@ func (tb TableBuilder) BuildTable(parentTable *TableDefinition, resourceCfg *con
 
 func (tb TableBuilder) buildTableFunctions(table *TableDefinition, resource *config.ResourceConfig) error {
 	var err error
-
 	if resource.Resolver != nil {
 		table.Resolver, err = tb.buildResolverDefinition(table, resource.Resolver)
 	} else {
 		table.Resolver, err = tb.buildResolverDefinition(table, &config.FunctionConfig{
-			Name:     strcase.ToLowerCamel(fmt.Sprintf("fetch%s%s", strings.Title(resource.Domain), strings.Title(table.Name))),
+			Name:     strcase.ToLowerCamel(fmt.Sprintf("fetch%s%s", titler.String(resource.Domain), titler.String(table.Name))),
 			Body:     defaultImplementation,
 			Path:     path.Join(sdkPath, "provider/schema.TableResolver"),
 			Generate: true, // Table functions are always generated, setting this to true will cause duplicates
@@ -303,7 +308,7 @@ func (tb TableBuilder) addUserDefinedColumns(table *TableDefinition, resource *c
 		// if we were requested to generate a resolver we create the resolver with the implementation
 		if uc.GenerateResolver {
 			columnResolver, err := tb.buildResolverDefinition(table, &config.FunctionConfig{
-				Name:     template.ToGo(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strcase.ToCamel(uc.Name))),
+				Name:     template.ToGo(fmt.Sprintf("resolve%s%s%s", titler.String(resource.Domain), titler.String(inflection.Singular(table.Name)), strcase.ToCamel(uc.Name))),
 				Body:     defaultImplementation,
 				Path:     path.Join(sdkPath, "provider/schema.ColumnResolver"),
 				Generate: true,
@@ -323,7 +328,7 @@ func (tb TableBuilder) addUserDefinedColumns(table *TableDefinition, resource *c
 		}
 		if uc.Resolver.Body != "" {
 			columnResolver, err := tb.buildResolverDefinition(table, &config.FunctionConfig{
-				Name:     template.ToGo(fmt.Sprintf("resolve%s%s%s", strings.Title(resource.Domain), strings.Title(inflection.Singular(table.Name)), strings.Title(uc.Name))),
+				Name:     template.ToGo(fmt.Sprintf("resolve%s%s%s", titler.String(resource.Domain), titler.String(inflection.Singular(table.Name)), titler.String(uc.Name))),
 				Body:     uc.Resolver.Body,
 				Path:     path.Join(sdkPath, "provider/schema.ColumnResolver"),
 				Generate: true,
@@ -417,7 +422,7 @@ func (tb TableBuilder) SetColumnResolver(tableDef *TableDefinition, field source
 			tb.log.Warn("overriding already defined column resolver", "column", colDef.Name, "resolver", colDef.Resolver.Name)
 		}
 		columnResolver, err := tb.buildResolverDefinition(tableDef, &config.FunctionConfig{
-			Name:     fmt.Sprintf("resolve%s%s", strings.Title(tableDef.TableFuncName), strings.Title(strcase.ToCamel(colDef.Name))),
+			Name:     fmt.Sprintf("resolve%s%s", titler.String(tableDef.TableFuncName), titler.String(strcase.ToCamel(colDef.Name))),
 			Body:     defaultImplementation,
 			Path:     path.Join(sdkPath, "provider/schema.ColumnResolver"),
 			Generate: true,
