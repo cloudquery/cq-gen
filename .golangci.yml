@@ -5,15 +5,24 @@ run:
     - docs
     - codegen/tests/expected
   timeout: 3m
+  build-tags:
+    - all
 
 linters-settings:
   errcheck:
     check-blank: false
     ignore: fmt:.*,[rR]ead|[wW]rite|[cC]lose,io:Copy
+  gocritic:
+    disabled-checks:
+      - commentFormatting
+  dupl:
+    # tokens count to trigger issue, 150 by default
+    threshold: 500
 
 linters:
   disable-all: true
   enable:
+    - asciicheck
     - bodyclose
     - deadcode
     - depguard
