@@ -346,7 +346,7 @@ func (tb TableBuilder) addUserDefinedColumns(table *TableDefinition, resource *c
 			if uc.Resolver.PathResolver {
 				tb.addPathResolver(template.ToGo(uc.Name), &colDef, ro, BuildMeta{})
 			} else {
-				colDef.Resolver = &ResolverDefinition{Type: ro}
+				colDef.Resolver = &ResolverDefinition{Type: ro, Params: uc.Resolver.Params}
 			}
 		}
 		table.Columns = append(table.Columns, colDef)

@@ -1,6 +1,6 @@
 service = "aws"
 
-output_directory = "../cq-provider-aws/resources/services/ec2"
+output_directory = "../cq-provider-aws/resources/services/lambda"
 
 resource "aws" "applicationautoscaling" "policies" {
   path        = "github.com/aws/aws-sdk-go-v2/service/applicationautoscaling/types.ScalingPolicy"
@@ -4956,16 +4956,23 @@ resource "aws" "wafv2" "managed_rule_groups" {
 }
 
 resource "aws" "lambda" "functions" {
-  path        = "github.com/aws/aws-sdk-go-v2/service/lambda.GetFunctionOutput"
+  path        = "github.com/cloudquery/cq-provider-aws/resources/services/lambda.FunctionWrapper"
   description = "AWS Lambda is a serverless compute service that lets you run code without provisioning or managing servers, creating workload-aware cluster scaling logic, maintaining event integrations, or managing runtimes"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
+    path   = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
+    params = ["lambda"]
   }
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
+  }
+
+  options {
+    primary_keys = [
+      "arn"
+    ]
   }
   userDefinedColumn "account_id" {
     type        = "string"
@@ -4997,8 +5004,9 @@ resource "aws" "lambda" "functions" {
   }
 
   userDefinedColumn "code_signing_allowed_publishers_version_arns" {
-    type        = "stringarray"
-    description = "The Amazon Resource Name (ARN) for each of the signing profiles. A signing profile defines a trusted user who can sign a code package."
+    ignore_in_tests = true
+    type            = "stringarray"
+    description     = "The Amazon Resource Name (ARN) for each of the signing profiles. A signing profile defines a trusted user who can sign a code package."
   }
   userDefinedColumn "code_signing_config_arn" {
     description = "The Amazon Resource Name (ARN) of the Code signing configuration."
@@ -5021,8 +5029,34 @@ resource "aws" "lambda" "functions" {
 
     type = "timestamp"
   }
+
+  column "function_arn" {
+    rename = "arn"
+  }
+
+  column "function_name" {
+    rename = "name"
+  }
   column "configuration" {
     skip_prefix = true
+  }
+
+  column "url_config_result_metadata_values" {
+    skip = true
+  }
+
+  column "result_metadata_values" {
+    skip = true
+  }
+
+  column "get_function_output" {
+    skip_prefix = true
+  }
+
+
+  column "url_config_cors" {
+    type              = "json"
+    generate_resolver = true
   }
 
   column "image_config_response" {
@@ -5033,41 +5067,134 @@ resource "aws" "lambda" "functions" {
     rename = "environment_error_code"
   }
 
-
-  relation "aws" "lambda" "function_aliases" {
-    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.AliasConfiguration"
-  }
-
-  relation "aws" "lambda" "function_event_invoke_configs" {
-    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.FunctionEventInvokeConfig"
-
+  user_relation "aws" "lambda" "event_invoke_configs" {
+    path        = "github.com/aws/aws-sdk-go-v2/service/lambda/types.FunctionEventInvokeConfig"
+    description = "A configuration object that specifies the destination of an event after Lambda processes it. "
     column "destination_config" {
       skip_prefix = true
     }
   }
 
-  relation "aws" "lambda" "function_versions" {
-    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.FunctionConfiguration"
-    column "image_config_response" {
-      skip_prefix = true
+
+  user_relation "aws" "lambda" "aliases" {
+    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.AliasConfiguration"
+
+    options {
+      primary_keys = [
+        "function_cq_id",
+        "arn"
+      ]
+    }
+
+    column "alias_arn" {
+      rename = "arn"
+    }
+    userDefinedColumn "function_arn" {
+      type = "string"
+      resolver "resolveArn" {
+        //argument arn
+        description = "The Amazon Resource Name (ARN) of the lambda function"
+        path        = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
+        params      = ["arn"]
+      }
     }
   }
 
-  relation "aws" "lambda" "function_concurrency_configs" {
+  user_relation "aws" "lambda" "versions" {
+    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.FunctionConfiguration"
+
+    options {
+      primary_keys = [
+        "function_cq_id",
+        "version"
+      ]
+    }
+
+    column "image_config_response" {
+      skip_prefix = true
+    }
+    relation "aws" "lambda" "layers" {
+      options {
+        primary_keys = [
+          "function_version_cq_id", "arn"
+        ]
+      }
+    }
+  }
+
+  relation "aws" "lambda" "layers" {
+    options {
+      primary_keys = [
+        "function_cq_id",
+        "arn"
+      ]
+    }
+    userDefinedColumn "function_arn" {
+      type = "string"
+      resolver "resolveArn" {
+        //argument arn
+        description = "The Amazon Resource Name (ARN) of the lambda function"
+        path        = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
+        params      = ["arn"]
+      }
+    }
+    relation "aws" "lambda" "file_system_configs" {
+      options {
+        primary_keys = [
+          "function_version_cq_id",
+          "arn"
+        ]
+      }
+    }
+  }
+
+  relation "aws" "lambda" "file_system_configs" {
+    description = "Details about the connection between a Lambda function and an Amazon EFS file system. "
+    options {
+      primary_keys = [
+        "function_cq_id",
+        "arn"
+      ]
+    }
+
+    userDefinedColumn "function_arn" {
+      type = "string"
+      resolver "resolveArn" {
+        //argument arn
+        description = "The Amazon Resource Name (ARN) of the lambda function"
+        path        = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
+        params      = ["arn"]
+      }
+    }
+  }
+
+  user_relation "aws" "lambda" "function_concurrency_configs" {
     path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.ProvisionedConcurrencyConfigListItem"
     column "image_config_response" {
       skip_prefix = true
     }
   }
 
-  relation "aws" "lambda" "function_event_source_mappings" {
+  user_relation "aws" "lambda" "function_event_source_mappings" {
     path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.EventSourceMappingConfiguration"
     column "image_config_response" {
       skip_prefix = true
     }
 
+    options {
+      primary_keys = [
+        "function_cq_id", "uuid"
+      ]
+    }
     column "source_access_configurations" {
-      rename = "access_configurations"
+      type              = "json"
+      generate_resolver = true
+    }
+
+    column "filter_criteria_filters" {
+      rename            = "criteria_filters"
+      type              = "stringarray"
+      generate_resolver = true
     }
 
     column "destination_config" {

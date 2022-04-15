@@ -72,9 +72,6 @@ func (t TableDefinition) RelationExists(cfg config.RelationConfig) bool {
 		if rel.Name == cfg.Rename {
 			return true
 		}
-		if rel.path == cfg.Path && cfg.Name != rel.Name {
-			return true
-		}
 		if strings.HasSuffix(rel.TableFuncName, cfg.Name) {
 			return true
 		}
