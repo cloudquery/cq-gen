@@ -4956,7 +4956,7 @@ resource "aws" "wafv2" "managed_rule_groups" {
 }
 
 resource "aws" "lambda" "functions" {
-  path        = "github.com/cloudquery/cq-provider-aws/resources/services/lambda.FunctionWrapper"
+  path        = "github.com/aws/aws-sdk-go-v2/service/lambda.GetFunctionOutput"
   description = "AWS Lambda is a serverless compute service that lets you run code without provisioning or managing servers, creating workload-aware cluster scaling logic, maintaining event integrations, or managing runtimes"
   ignoreError "IgnoreAccessDenied" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
@@ -5004,9 +5004,8 @@ resource "aws" "lambda" "functions" {
   }
 
   userDefinedColumn "code_signing_allowed_publishers_version_arns" {
-    ignore_in_tests = true
-    type            = "stringarray"
-    description     = "The Amazon Resource Name (ARN) for each of the signing profiles. A signing profile defines a trusted user who can sign a code package."
+    type        = "stringarray"
+    description = "The Amazon Resource Name (ARN) for each of the signing profiles. A signing profile defines a trusted user who can sign a code package."
   }
   userDefinedColumn "code_signing_config_arn" {
     description = "The Amazon Resource Name (ARN) of the Code signing configuration."
@@ -5041,9 +5040,6 @@ resource "aws" "lambda" "functions" {
     skip_prefix = true
   }
 
-  column "url_config_result_metadata_values" {
-    skip = true
-  }
 
   column "result_metadata_values" {
     skip = true
@@ -5053,11 +5049,6 @@ resource "aws" "lambda" "functions" {
     skip_prefix = true
   }
 
-
-  column "url_config_cors" {
-    type              = "json"
-    generate_resolver = true
-  }
 
   column "image_config_response" {
     skip_prefix = true
@@ -5077,7 +5068,7 @@ resource "aws" "lambda" "functions" {
 
 
   user_relation "aws" "lambda" "aliases" {
-    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.AliasConfiguration"
+    path = "github.com/cloudquery/cq-provider-aws/resources/services/lambda.AliasWrapper"
 
     options {
       primary_keys = [
@@ -5085,17 +5076,43 @@ resource "aws" "lambda" "functions" {
         "arn"
       ]
     }
+    column "url_config_result_metadata_values" {
+      skip = true
+    }
 
+    column "url_config_last_modified_time" {
+      type = "timestamp"
+      resolver "dateResolver" {
+        path   = "github.com/cloudquery/cq-provider-aws/client.ISODateResolver"
+        params = ["UrlConfig.LastModifiedTime"]
+      }
+    }
+
+    column "url_config_creation_time" {
+      type = "timestamp"
+      resolver "dateResolver" {
+        path   = "github.com/cloudquery/cq-provider-aws/client.ISODateResolver"
+        params = ["UrlConfig.CreationTime"]
+      }
+    }
+
+    column "url_config_cors" {
+      type              = "json"
+      generate_resolver = true
+    }
+    column "alias_configuration" {
+      skip_prefix = true
+    }
     column "alias_arn" {
       rename = "arn"
     }
     userDefinedColumn "function_arn" {
-      type = "string"
+      type        = "string"
+      description = "The Amazon Resource Name (ARN) of the lambda function"
       resolver "resolveArn" {
         //argument arn
-        description = "The Amazon Resource Name (ARN) of the lambda function"
-        path        = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
-        params      = ["arn"]
+        path   = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
+        params = ["arn"]
       }
     }
   }
@@ -5130,12 +5147,12 @@ resource "aws" "lambda" "functions" {
       ]
     }
     userDefinedColumn "function_arn" {
-      type = "string"
+      type        = "string"
+      description = "The Amazon Resource Name (ARN) of the lambda function"
       resolver "resolveArn" {
         //argument arn
-        description = "The Amazon Resource Name (ARN) of the lambda function"
-        path        = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
-        params      = ["arn"]
+        path   = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
+        params = ["arn"]
       }
     }
     relation "aws" "lambda" "file_system_configs" {
@@ -5158,12 +5175,12 @@ resource "aws" "lambda" "functions" {
     }
 
     userDefinedColumn "function_arn" {
-      type = "string"
+      type        = "string"
+      description = "The Amazon Resource Name (ARN) of the lambda function"
       resolver "resolveArn" {
         //argument arn
-        description = "The Amazon Resource Name (ARN) of the lambda function"
-        path        = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
-        params      = ["arn"]
+        path   = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
+        params = ["arn"]
       }
     }
   }
