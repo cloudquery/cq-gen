@@ -1,6 +1,6 @@
 service = "aws"
 
-output_directory = "../cq-provider-aws/resources/services/lambda"
+output_directory = "../cq-provider-aws/resources/services/ec2"
 
 resource "aws" "applicationautoscaling" "policies" {
   path        = "github.com/aws/aws-sdk-go-v2/service/applicationautoscaling/types.ScalingPolicy"
@@ -4962,17 +4962,10 @@ resource "aws" "lambda" "functions" {
     path = "github.com/cloudquery/cq-provider-aws/client.IgnoreAccessDeniedServiceDisabled"
   }
   multiplex "AwsAccountRegion" {
-    path   = "github.com/cloudquery/cq-provider-aws/client.ServiceAccountRegionMultiplexer"
-    params = ["lambda"]
+    path = "github.com/cloudquery/cq-provider-aws/client.AccountRegionMultiplex"
   }
   deleteFilter "AccountRegionFilter" {
     path = "github.com/cloudquery/cq-provider-aws/client.DeleteAccountRegionFilter"
-  }
-
-  options {
-    primary_keys = [
-      "arn"
-    ]
   }
   userDefinedColumn "account_id" {
     type        = "string"
@@ -5028,27 +5021,9 @@ resource "aws" "lambda" "functions" {
 
     type = "timestamp"
   }
-
-  column "function_arn" {
-    rename = "arn"
-  }
-
-  column "function_name" {
-    rename = "name"
-  }
   column "configuration" {
     skip_prefix = true
   }
-
-
-  column "result_metadata_values" {
-    skip = true
-  }
-
-  column "get_function_output" {
-    skip_prefix = true
-  }
-
 
   column "image_config_response" {
     skip_prefix = true
@@ -5058,160 +5033,41 @@ resource "aws" "lambda" "functions" {
     rename = "environment_error_code"
   }
 
-  user_relation "aws" "lambda" "event_invoke_configs" {
-    path        = "github.com/aws/aws-sdk-go-v2/service/lambda/types.FunctionEventInvokeConfig"
-    description = "A configuration object that specifies the destination of an event after Lambda processes it. "
+
+  relation "aws" "lambda" "function_aliases" {
+    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.AliasConfiguration"
+  }
+
+  relation "aws" "lambda" "function_event_invoke_configs" {
+    path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.FunctionEventInvokeConfig"
+
     column "destination_config" {
       skip_prefix = true
     }
   }
 
-
-  user_relation "aws" "lambda" "aliases" {
-    path = "github.com/cloudquery/cq-provider-aws/resources/services/lambda.AliasWrapper"
-
-    options {
-      primary_keys = [
-        "function_cq_id",
-        "arn"
-      ]
-    }
-    column "url_config_result_metadata_values" {
-      skip = true
-    }
-
-    column "url_config_last_modified_time" {
-      type = "timestamp"
-      resolver "dateResolver" {
-        path   = "github.com/cloudquery/cq-provider-aws/client.ISODateResolver"
-        params = ["UrlConfig.LastModifiedTime"]
-      }
-    }
-
-    column "url_config_creation_time" {
-      type = "timestamp"
-      resolver "dateResolver" {
-        path   = "github.com/cloudquery/cq-provider-aws/client.ISODateResolver"
-        params = ["UrlConfig.CreationTime"]
-      }
-    }
-
-    column "url_config_cors" {
-      type              = "json"
-      generate_resolver = true
-    }
-    column "alias_configuration" {
-      skip_prefix = true
-    }
-    column "alias_arn" {
-      rename = "arn"
-    }
-    userDefinedColumn "function_arn" {
-      type        = "string"
-      description = "The Amazon Resource Name (ARN) of the lambda function"
-      resolver "resolveArn" {
-        //argument arn
-        path   = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
-        params = ["arn"]
-      }
-    }
-  }
-
-  user_relation "aws" "lambda" "versions" {
+  relation "aws" "lambda" "function_versions" {
     path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.FunctionConfiguration"
-
-    options {
-      primary_keys = [
-        "function_cq_id",
-        "version"
-      ]
-    }
-
     column "image_config_response" {
       skip_prefix = true
     }
-    relation "aws" "lambda" "layers" {
-      options {
-        primary_keys = [
-          "function_version_cq_id", "arn"
-        ]
-      }
-    }
   }
 
-  relation "aws" "lambda" "layers" {
-    options {
-      primary_keys = [
-        "function_cq_id",
-        "arn"
-      ]
-    }
-    userDefinedColumn "function_arn" {
-      type        = "string"
-      description = "The Amazon Resource Name (ARN) of the lambda function"
-      resolver "resolveArn" {
-        //argument arn
-        path   = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
-        params = ["arn"]
-      }
-    }
-    relation "aws" "lambda" "file_system_configs" {
-      options {
-        primary_keys = [
-          "function_version_cq_id",
-          "arn"
-        ]
-      }
-    }
-  }
-
-  relation "aws" "lambda" "file_system_configs" {
-    description = "Details about the connection between a Lambda function and an Amazon EFS file system. "
-    options {
-      primary_keys = [
-        "function_cq_id",
-        "arn"
-      ]
-    }
-
-    userDefinedColumn "function_arn" {
-      type        = "string"
-      description = "The Amazon Resource Name (ARN) of the lambda function"
-      resolver "resolveArn" {
-        //argument arn
-        path   = "github.com/cloudquery/cq-provider-sdk/provider/schema.ParentResourceFieldResolver"
-        params = ["arn"]
-      }
-    }
-  }
-
-  user_relation "aws" "lambda" "function_concurrency_configs" {
+  relation "aws" "lambda" "function_concurrency_configs" {
     path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.ProvisionedConcurrencyConfigListItem"
     column "image_config_response" {
       skip_prefix = true
     }
   }
 
-  user_relation "aws" "lambda" "function_event_source_mappings" {
+  relation "aws" "lambda" "function_event_source_mappings" {
     path = "github.com/aws/aws-sdk-go-v2/service/lambda/types.EventSourceMappingConfiguration"
     column "image_config_response" {
       skip_prefix = true
     }
 
-    options {
-      primary_keys = [
-        "function_cq_id", "uuid"
-      ]
-    }
     column "source_access_configurations" {
-      type              = "json"
-      generate_resolver = true
-    }
-
-    column "filter_criteria_filters" {
-      rename            = "criteria_filters"
-      type              = "stringarray"
-      generate_resolver = true
+      rename = "access_configurations"
     }
 
     column "destination_config" {
