@@ -201,6 +201,7 @@ func (tb TableBuilder) buildColumns(table *TableDefinition, object source.Object
 		name := f.Name()
 		if !f.Exported() && !resourceCfg.AllowUnexported {
 			tb.log.Debug("skipping unexported field", "field", name, "object", object.Name(), "table", table.Name)
+			continue
 		}
 		tb.log.Debug("building column", "field", name, "object", object.Name(), "table", table.Name)
 		if err := tb.buildColumn(table, f, resourceCfg, meta); err != nil {
@@ -218,10 +219,7 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 		Type:     0,
 		Resolver: nil,
 	}
-	// limit max column length, this is because of postgres, we can make this configurable in the future.
-	if len(colDef.Name) > MaxColumnLength {
-		return fmt.Errorf("column %s name length is too long, max allowed is %d chars, consider renaming/skip_prefix", colDef.Name, MaxColumnLength)
-	}
+
 	// check if configuration wants column to be skipped
 	cfg := resourceCfg.GetColumnConfig(colDef.Name, meta.fullColumnPath)
 	if cfg.Skip {
@@ -236,6 +234,11 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 	// Set Resolver
 	if err := tb.SetColumnResolver(table, field, &colDef, cfg, meta); err != nil {
 		return err
+	}
+
+	// limit max column length, this is because of postgres, we can make this configurable in the future.
+	if len(colDef.Name) > MaxColumnLength {
+		return fmt.Errorf("column %s name length is too long, max allowed is %d chars, consider renaming/skip_prefix", colDef.Name, MaxColumnLength)
 	}
 
 	valueType := field.Type()
