@@ -287,6 +287,7 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 	case source.TypeUserDefined:
 		tb.log.Debug("Changing column to user defined", "table", table.TableName, "column", field.Name(), "valueType", valueType, "userDefinedType", cfg.Type)
 		colDef.Type = schema.ValueTypeFromString(cfg.Type)
+		tb.addPathResolver(field.Name(), &colDef, nil, meta)
 		table.Columns = append(table.Columns, colDef)
 	default:
 		colDef.Type = valueType

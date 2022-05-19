@@ -9,14 +9,14 @@ resource "test" "columns" "columns" {
   // We also generate a resolver so we can do the casting and set it ourselves.
   // if we had a generic cast resolver we could have used the resolver block, see commented out
   column "int_value" {
-    description = "change description to whatever you want"
-    rename = "rename_int_value"
-    type = "string"
+    description       = "change description to whatever you want"
+    rename            = "rename_int_value"
+    type              = "string"
     generate_resolver = true
-#    // we don't need to force generate_resolver if we define this block
-#    resolver "castToString" {
-#      path =  "github.com/cloudquery/cq-gen/codegen/tests.CastToString"
-#    }
+    #    // we don't need to force generate_resolver if we define this block
+    #    resolver "castToString" {
+    #      path =  "github.com/cloudquery/cq-gen/codegen/tests.CastToString"
+    #    }
   }
 
   column "bool_value" {
@@ -51,13 +51,21 @@ resource "test" "columns" "embedded_rename" {
 }
 
 
-
 resource "test" "columns" "embedded_field_rename" {
   path = "github.com/cloudquery/cq-gen/codegen/tests.BaseStruct"
 
   // we want to rename the "embedded_field_a" column because we didn't skip prefix, we use the full path name
   column "embedded_field_a" {
     rename = "rename_field"
+  }
+}
+
+resource "test" "columns" "change_type_default_resolver" {
+  path = "github.com/cloudquery/cq-gen/codegen/tests.BaseStruct"
+
+  // we want to rename the "embedded_field_a" column because we didn't skip prefix, we use the full path name
+  column "embedded_field_a" {
+    type = "json"
   }
 }
 
