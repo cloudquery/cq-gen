@@ -38,3 +38,23 @@ resource "test" "resolvers" "rename_with_resolver" {
     }
   }
 }
+
+
+resource "test" "resolvers" "with_params" {
+  path = "github.com/cloudquery/cq-gen/codegen/tests.BaseStruct"
+  column "int_value" {
+    resolver "testResolver" {
+      path = "github.com/cloudquery/cq-gen/codegen/tests.PathTestResolver"
+      params = ["test"]
+    }
+  }
+
+  userDefinedColumn "test" {
+    resolver "testResolver" {
+      path = "github.com/cloudquery/cq-gen/codegen/tests.PathTestResolver"
+      params = ["test"]
+    }
+  }
+}
+
+

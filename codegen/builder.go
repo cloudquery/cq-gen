@@ -412,7 +412,8 @@ func (tb TableBuilder) SetColumnResolver(tableDef *TableDefinition, field source
 			tb.addPathResolver(field.Name(), colDef, ro, meta)
 		} else {
 			colDef.Resolver = &ResolverDefinition{
-				Type: ro,
+				Type:   ro,
+				Params: cfg.Resolver.Params,
 			}
 		}
 	}
