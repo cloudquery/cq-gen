@@ -6,7 +6,6 @@ import (
 	"go/format"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -15,6 +14,7 @@ import (
 	"github.com/cloudquery/cq-gen/code"
 	"github.com/cloudquery/cq-gen/rewrite"
 	"github.com/pkg/errors"
+	"golang.org/x/tools/imports"
 )
 
 var CurrentImports *Imports
@@ -95,11 +95,6 @@ func Render(opts Options) error {
 		return err
 	}
 
-	cmd := exec.Command("goimports", "-w", opts.Filename)
-	err = cmd.Run()
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -131,9 +126,17 @@ func write(filename string, b []byte) error {
 		fmt.Println(string(b))
 	}
 
+	formatted, err = imports.Process(filename, formatted, nil)
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "goimports failed on %s: %s\n", filepath.Base(filename), err.Error())
+
+		fmt.Println(string(b))
+	}
+
 	err = ioutil.WriteFile(filename, formatted, 0644)
 	if err != nil {
 		return errors.Wrapf(err, "failed to write %s", filename)
 	}
+
 	return nil
 }

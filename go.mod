@@ -24,7 +24,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.2.0
 	github.com/zclconf/go-cty v1.10.0
 	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
-	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.5
+	golang.org/x/text v0.3.7
+	golang.org/x/tools v0.1.8
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
