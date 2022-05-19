@@ -6,6 +6,7 @@ import (
 	"go/format"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -90,6 +91,12 @@ func Render(opts Options) error {
 	CurrentImports = nil
 
 	err = write(opts.Filename, result.Bytes())
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command("goimports", "-w", opts.Filename)
+	err = cmd.Run()
 	if err != nil {
 		return err
 	}
