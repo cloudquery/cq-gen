@@ -2,6 +2,7 @@ package codegen
 
 import (
 	"fmt"
+	"github.com/thoas/go-funk"
 	"go/types"
 	"os"
 	"path"
@@ -232,6 +233,11 @@ func (tb TableBuilder) buildColumn(table *TableDefinition, field source.Object, 
 	// configuration.
 	if !resourceCfg.DisableReadDescriptions {
 		colDef.Description = tb.getDescription(field, cfg.Description, meta)
+	}
+
+	if funk.ContainsString(resourceCfg.IgnoreColumnsInTest, colDef.Name) {
+		tb.log.Debug("adding ignore in tests to column", "table", table.TableName, "column", colDef.Name, "object", field.Name())
+		colDef.IgnoreInTests = true
 	}
 
 	// Set Resolver

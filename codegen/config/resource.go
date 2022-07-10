@@ -43,6 +43,9 @@ func decodeResourceBody(ctx *hcl.EvalContext, body hcl.Body, labels []string) (*
 	if attr, exists := content.Attributes["ignore_in_tests"]; exists {
 		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &resource.IgnoreInTests)...)
 	}
+	if attr, exists := content.Attributes["ignore_columns_in_tests"]; exists {
+		diags = append(diags, gohcl.DecodeExpression(attr.Expr, ctx, &resource.IgnoreColumnsInTest)...)
+	}
 	for _, b := range content.Blocks {
 		switch b.Type {
 		case "column":
@@ -256,6 +259,10 @@ var (
 			},
 			{
 				Name:     "ignore_in_tests",
+				Required: false,
+			},
+			{
+				Name:     "ignore_columns_in_tests",
 				Required: false,
 			},
 			{

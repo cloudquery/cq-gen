@@ -18,10 +18,11 @@ func Columns() *schema.Table {
 				Resolver:    resolveColumnsRenameIntValue,
 			},
 			{
-				Name:        "embedded_field_a",
-				Description: "change description to whatever you want",
-				Type:        schema.TypeBigInt,
-				Resolver:    schema.PathResolver("Embedded.FieldA"),
+				Name:          "embedded_field_a",
+				Description:   "change description to whatever you want",
+				Type:          schema.TypeBigInt,
+				Resolver:      schema.PathResolver("Embedded.FieldA"),
+				IgnoreInTests: true,
 			},
 		},
 	}

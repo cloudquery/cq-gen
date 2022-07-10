@@ -71,6 +71,9 @@ type ResourceConfig struct {
 
 	// Column configurations we want to modify
 	Columns []ColumnConfig `hcl:"column,block"`
+	// IgnoreColumnsInTest adds IgnoreInTests to one or more columns under this resource, this reduces the requirement
+	// to defined ColumnConfig blocks for each column we want to ignore, the path naming convention is the same.
+	IgnoreColumnsInTest []string `hcl:"ignore_columns_in_tests,optional"`
 	// Relations configurations we want to modify
 	Relations []RelationConfig `hcl:"relation,block"`
 	// User Relations we want to add that aren't part of the original structure

@@ -5,6 +5,7 @@ output_directory = "./tests/output/columns/"
 resource "test" "columns" "columns" {
   path = "github.com/cloudquery/cq-gen/codegen/tests.BaseStruct"
 
+  ignore_columns_in_tests = ["embedded_field_a"]
   // Here we rename the column "IntValue" to "rename_int_value" we override the description, and change type to string
   // We also generate a resolver so we can do the casting and set it ourselves.
   // if we had a generic cast resolver we could have used the resolver block, see commented out

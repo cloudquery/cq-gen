@@ -12,6 +12,9 @@
         {{- if $column.Resolver }}
             Resolver: {{$column.Resolver|call}},
         {{- end }}
+        {{- if $column.IgnoreInTests }}
+        IgnoreInTests: {{ $column.IgnoreInTests }},
+        {{- end }}
         },
     {{- end }}
 {{- end }}
