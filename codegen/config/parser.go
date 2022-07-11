@@ -24,9 +24,6 @@ func decodeConfig(body hcl.Body, diags hcl.Diagnostics) (*Config, hcl.Diagnostic
 	config := &Config{}
 	content, contentDiags := body.Content(configFileSchema)
 	diags = append(diags, contentDiags...)
-	if attr, exists := content.Attributes["service"]; exists {
-		diags = append(diags, gohcl.DecodeExpression(attr.Expr, nil, &config.Service)...)
-	}
 	if outputDirAttr, ok := content.Attributes["output_directory"]; ok {
 		diags = append(diags, gohcl.DecodeExpression(outputDirAttr.Expr, nil, &config.OutputDirectory)...)
 	}
