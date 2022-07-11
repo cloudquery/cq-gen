@@ -2,11 +2,12 @@ package codegen
 
 import (
 	"fmt"
-	"github.com/thoas/go-funk"
 	"go/types"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/thoas/go-funk"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"

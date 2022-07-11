@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+
 	"github.com/cloudquery/cq-gen/codegen/tests"
 	"github.com/cloudquery/cq-provider-sdk/provider/schema"
 )
