@@ -3,7 +3,7 @@ module github.com/cloudquery/cq-gen
 go 1.16
 
 require (
-	github.com/cloudquery/cq-provider-sdk v0.13.5
+	github.com/cloudquery/cq-provider-sdk v0.8.2
 	github.com/creasty/defaults v1.6.0
 	github.com/getkin/kin-openapi v0.83.0
 	github.com/hashicorp/go-hclog v1.2.1
