@@ -222,7 +222,7 @@ you want to contribute resources to already uses cq-gen check existing generatio
 
 ## Tips & Best Practices 
 
-### When to turn a relation to a JSON?
+### When to turn a relation into a JSON column?
  - If the relation is 4th+ level relation from the root, consider making it a json
  - If the data of the relation structure is amorphic, or recursive (for example "Spec" field in K8s)
  - If the relation has many fields that are generally not important, or interesting
